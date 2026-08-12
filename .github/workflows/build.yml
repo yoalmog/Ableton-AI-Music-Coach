@@ -20,11 +20,8 @@ jobs:
         with:
           node-version: 22
 
-      - name: Generate Package Lock
-        run: npm install --package-lock-only --no-optional
-
       - name: Install Dependencies
-        run: npm install --no-optional
+        run: npm install
 
       - name: Build Web Application
         run: npm run build
@@ -47,11 +44,8 @@ jobs:
         with:
           node-version: 22
 
-      - name: Generate Package Lock
-        run: npm install --package-lock-only --no-optional
-
       - name: Install Dependencies
-        run: npm install --no-optional
+        run: npm install
 
       - name: Build Windows Executable (.exe)
         run: npm run dist:win
@@ -76,11 +70,8 @@ jobs:
         with:
           node-version: 22
 
-      - name: Generate Package Lock
-        run: npm install --package-lock-only --no-optional
-
       - name: Install Dependencies
-        run: npm install --no-optional
+        run: npm install
 
       - name: Build Web Bundle
         run: npm run build
