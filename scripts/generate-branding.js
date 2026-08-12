@@ -325,41 +325,45 @@ async function generateAssets() {
   fs.writeFileSync(logoSvgPath, fullLogoSvg, 'utf8');
   fs.writeFileSync(symbolSvgPath, symbolSvg, 'utf8');
 
-  // Convert SVGs to PNGs using resvg
-  const resvgLogo = new Resvg(fullLogoSvg, {
-    fitTo: { mode: 'width', value: 1200 },
-  });
-  const logoPngBuffer = resvgLogo.render().asPng();
-  fs.writeFileSync(path.join(publicBrandingDir, 'logo.png'), logoPngBuffer);
-
-  const resvgSymbol = new Resvg(symbolSvg, {
-    fitTo: { mode: 'width', value: 512 },
-  });
-  const symbolPngBuffer = resvgSymbol.render().asPng();
-  fs.writeFileSync(path.join(publicBrandingDir, 'symbol.png'), symbolPngBuffer);
-  fs.writeFileSync(path.join(buildDir, 'icon.png'), symbolPngBuffer);
-
-  // Generate multi-resolution PNG buffers for ICO creation
-  const sizes = [16, 24, 32, 48, 64, 128, 256];
-  const pngBuffers = [];
-
-  for (const size of sizes) {
-    const resvgSize = new Resvg(symbolSvg, {
-      fitTo: { mode: 'width', value: size },
-    });
-    const pngBuf = resvgSize.render().asPng();
-    const sizePath = path.join(buildDir, `icon-${size}.png`);
-    fs.writeFileSync(sizePath, pngBuf);
-    pngBuffers.push(pngBuf);
-  }
-
-  // Generate build/icon.ico using png-to-ico
   try {
-    const icoBuffer = await pngToIco(pngBuffers);
-    fs.writeFileSync(path.join(buildDir, 'icon.ico'), icoBuffer);
-    console.log('Successfully generated build/icon.ico with multi-resolution targets!');
+    // Convert SVGs to PNGs using resvg
+    const resvgLogo = new Resvg(fullLogoSvg, {
+      fitTo: { mode: 'width', value: 1200 },
+    });
+    const logoPngBuffer = resvgLogo.render().asPng();
+    fs.writeFileSync(path.join(publicBrandingDir, 'logo.png'), logoPngBuffer);
+
+    const resvgSymbol = new Resvg(symbolSvg, {
+      fitTo: { mode: 'width', value: 512 },
+    });
+    const symbolPngBuffer = resvgSymbol.render().asPng();
+    fs.writeFileSync(path.join(publicBrandingDir, 'symbol.png'), symbolPngBuffer);
+    fs.writeFileSync(path.join(buildDir, 'icon.png'), symbolPngBuffer);
+
+    // Generate multi-resolution PNG buffers for ICO creation
+    const sizes = [16, 24, 32, 48, 64, 128, 256];
+    const pngBuffers = [];
+
+    for (const size of sizes) {
+      const resvgSize = new Resvg(symbolSvg, {
+        fitTo: { mode: 'width', value: size },
+      });
+      const pngBuf = resvgSize.render().asPng();
+      const sizePath = path.join(buildDir, `icon-${size}.png`);
+      fs.writeFileSync(sizePath, pngBuf);
+      pngBuffers.push(pngBuf);
+    }
+
+    // Generate build/icon.ico using png-to-ico
+    try {
+      const icoBuffer = await pngToIco(pngBuffers);
+      fs.writeFileSync(path.join(buildDir, 'icon.ico'), icoBuffer);
+      console.log('Successfully generated build/icon.ico with multi-resolution targets!');
+    } catch (err) {
+      console.error('Error creating ICO file:', err);
+    }
   } catch (err) {
-    console.error('Error creating ICO file:', err);
+    console.warn('Resvg rendering skipped or native binding missing, using default static asset fallbacks if available:', err.message);
   }
 
   console.log('All branding assets generated successfully!');

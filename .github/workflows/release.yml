@@ -20,6 +20,9 @@ jobs:
         with:
           node-version: 22
 
+      - name: Generate Package Lock
+        run: npm install --package-lock-only
+
       - name: Install Dependencies
         run: npm install
 
@@ -43,6 +46,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+
+      - name: Generate Package Lock
+        run: npm install --package-lock-only
 
       - name: Install Dependencies
         run: npm install
@@ -69,6 +75,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+
+      - name: Generate Package Lock
+        run: npm install --package-lock-only
 
       - name: Install Dependencies
         run: npm install
