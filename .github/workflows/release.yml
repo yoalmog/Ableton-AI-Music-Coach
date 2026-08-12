@@ -21,7 +21,7 @@ jobs:
           node-version: 22
 
       - name: Install Dependencies
-        run: npm install --include=optional
+        run: npm install
 
       - name: Build Web Application
         run: npm run build
@@ -45,7 +45,7 @@ jobs:
           node-version: 22
 
       - name: Install Dependencies
-        run: npm install --include=optional
+        run: npm install
 
       - name: Build Windows Installer & Portable
         run: npm run dist:win
@@ -71,7 +71,7 @@ jobs:
           node-version: 22
 
       - name: Install Dependencies
-        run: npm install --include=optional
+        run: npm install
 
       - name: Setup Java JDK for Android Gradle
         uses: actions/setup-java@v4
