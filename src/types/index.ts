@@ -2,6 +2,9 @@ export type ViewType =
   | 'dashboard'
   | 'producer'
   | 'lessons'
+  | 'coursemap'
+  | 'buildtrack'
+  | 'glossary'
   | 'theory'
   | 'eartraining'
   | 'practice'
@@ -120,41 +123,8 @@ export interface SoundDesignRecipe {
   proTip: string;
 }
 
-export interface LessonStep {
-  stepNumber: number;
-  title: string;
-  contentMarkdown: string;
-  abletonInstruction: string;
-  parameterHighlights?: { param: string; value: string }[];
-  audioExampleType?: 'kick' | 'psybass' | 'technorumble' | 'acid' | 'drums';
-  recommendedMidiPattern?: MidiPattern;
-}
-
-export interface Lesson {
-  id: string;
-  title: string;
-  description: string;
-  durationMinutes: number;
-  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
-  genre: GenreType;
-  steps: LessonStep[];
-  quiz?: {
-    question: string;
-    options: string[];
-    correctIndex: number;
-    explanation: string;
-  }[];
-}
-
-export interface Course {
-  id: string;
-  title: string;
-  subtitle: string;
-  genre: GenreType;
-  iconName: string;
-  description: string;
-  lessons: Lesson[];
-}
+export * from './lesson';
+export * from './learning';
 
 export interface TrackMetrics {
   lufs: number; // e.g. -8.5

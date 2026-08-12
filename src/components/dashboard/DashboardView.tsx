@@ -10,12 +10,16 @@ import {
   FolderPlus,
   Sliders,
   Award,
-  Sparkles
+  Sparkles,
+  CheckCircle2,
+  BookOpen
 } from 'lucide-react';
 import { AAMCProject, GenreType } from '../../types';
 import { projectService } from '../../services/projectService';
 import { COURSES_DATA } from '../../data/coursesData';
 import { useLanguage } from '../../context/LanguageContext';
+import { DashboardMetricsCard } from './DashboardMetricsCard';
+import { ProjectMetricsWidget } from './ProjectMetricsWidget';
 
 interface DashboardViewProps {
   project: AAMCProject;
@@ -30,8 +34,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onNavigate,
   isDesktop,
 }) => {
-  const [recentProjects, setRecentProjects] = React.useState(projectService.getRecentProjects());
-  const { t } = useLanguage();
+  const { t, isRtl } = useLanguage();
 
   const genres: { name: GenreType; bpm: number; subKey: string }[] = [
     { name: 'Psytrance', bpm: 142, subKey: 'genre.psy.sub' },
@@ -51,12 +54,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto text-[#E0E0E0] font-sans">
+    <div className="p-6 space-y-6 max-w-7xl mx-auto text-[#E0E0E0] font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
       {/* Hero Welcome Banner */}
-      <div className="relative overflow-hidden rounded-lg bg-[#1A1A1A] border border-[#333] p-6 flex flex-col md:flex-row items-center justify-between gap-6">
+      <div className="relative overflow-hidden rounded-lg bg-[#1A1A1A] border border-[#333] p-6 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
         <div className="relative z-10 max-w-3xl space-y-3">
           <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 bg-[#252525] text-[#90FF00] border border-[#333] rounded text-[10px] font-bold font-mono uppercase tracking-wider">
+            <span className="px-2.5 py-0.5 bg-[#252525] text-[#90FF00] border border-[#333] rounded text-[10px] font-bold font-mono uppercase tracking-wider">
               {t('dashboard.console')}
             </span>
             {isDesktop ? (
@@ -81,7 +84,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="pt-2 flex flex-wrap gap-2.5">
             <button
               onClick={() => onNavigate('lessons')}
-              className="bg-[#90FF00] hover:bg-[#80e600] text-black px-4 py-2 rounded text-xs font-bold flex items-center gap-2 transition-colors cursor-pointer uppercase tracking-wider"
+              className="bg-[#90FF00] hover:bg-[#80e600] text-black px-4 py-2 rounded text-xs font-bold flex items-center gap-2 transition-colors cursor-pointer uppercase tracking-wider shadow-md shadow-[#90FF00]/10"
             >
               <Zap className="w-3.5 h-3.5 fill-current" />
               <span>{t('dashboard.resume')}</span>
@@ -110,10 +113,97 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       </div>
 
+      {/* CSS Grid Layout for Core Dashboard Widgets & Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        {/* 1. Continue Learning Card with responsive column spans */}
+        <div className="col-span-1 md:col-span-1 lg:col-span-1 bg-[#1A1A1A] border border-[#333] rounded-xl p-5 space-y-4 flex flex-col justify-between shadow-lg">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-mono text-[#00E5FF] uppercase tracking-widest font-bold">
+                Continue Learning
+              </span>
+              <span className="text-[10px] font-mono bg-[#121212] text-[#90FF00] px-2 py-0.5 rounded border border-[#333]">
+                Module 1 of 16
+              </span>
+            </div>
+
+            <div className="space-y-1">
+              <h3 className="text-sm font-bold text-white">Psytrance Production Masterclass</h3>
+              <p className="text-xs text-[#AAA]">Lesson 1: Psytrance BPM, Keys & Scale Foundations</p>
+            </div>
+
+            <div className="space-y-1.5 pt-2">
+              <div className="flex justify-between text-[10px] font-mono text-[#888]">
+                <span>Course Progress</span>
+                <span className="text-[#90FF00]">35%</span>
+              </div>
+              <div className="w-full bg-[#121212] h-2 rounded-full overflow-hidden border border-[#333]">
+                <div className="bg-[#90FF00] h-full rounded-full" style={{ width: '35%' }} />
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={() => onNavigate('lessons')}
+            className="w-full bg-[#252525] hover:bg-[#333] text-[#90FF00] border border-[#333] py-2.5 rounded text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-colors uppercase tracking-wider"
+          >
+            <BookOpen className="w-3.5 h-3.5" />
+            <span>Resume Masterclass Lesson</span>
+          </button>
+        </div>
+
+        {/* 2. Daily Mission Widget with responsive column spans */}
+        <div className="col-span-1 md:col-span-1 lg:col-span-1 bg-[#1A1A1A] border border-[#333] rounded-xl p-5 space-y-4 flex flex-col justify-between shadow-lg">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-mono text-[#a855f7] uppercase tracking-widest font-bold">
+                Daily Mission
+              </span>
+              <span className="text-[10px] font-mono bg-[#121212] text-[#a855f7] px-2 py-0.5 rounded border border-[#333]">
+                +150 XP Reward
+              </span>
+            </div>
+
+            <div className="space-y-1">
+              <h3 className="text-sm font-bold text-white">Rolling Bassline & Kick Alignment</h3>
+              <p className="text-xs text-[#AAA]">
+                Create a 4-bar rolling Psytrance bassline at 142 BPM with sidechain compression ducking.
+              </p>
+            </div>
+
+            <div className="bg-[#121212] border border-[#2A2A2A] p-3 rounded text-xs text-[#888] space-y-1">
+              <div className="flex items-center gap-2 text-[#E0E0E0]">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#90FF00]" />
+                <span>Check root key: F#1 (46.2 Hz)</span>
+              </div>
+              <div className="flex items-center gap-2 text-[#E0E0E0]">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#90FF00]" />
+                <span>Test 16th-note offbeat trigger</span>
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={() => onNavigate('bass')}
+            className="w-full bg-[#252525] hover:bg-[#333] text-[#00E5FF] border border-[#333] py-2.5 rounded text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-colors uppercase tracking-wider"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Start Daily Mission</span>
+          </button>
+        </div>
+
+        {/* 3. Project Metrics Widget Component */}
+        <div className="col-span-1 md:col-span-2 lg:col-span-1">
+          <ProjectMetricsWidget project={project} onNavigate={onNavigate} />
+        </div>
+
+      </div>
+
       {/* Active Project & Genre Selection Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Active Project Card */}
-        <div className="bg-[#1A1A1A] border border-[#333] rounded-lg p-5 space-y-4 flex flex-col justify-between">
+        <div className="bg-[#1A1A1A] border border-[#333] rounded-lg p-5 space-y-4 flex flex-col justify-between shadow-md">
           <div>
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-bold text-[#666] uppercase tracking-widest">
@@ -160,7 +250,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Genre Switcher */}
-        <div className="lg:col-span-2 bg-[#1A1A1A] border border-[#333] rounded-lg p-5 space-y-4">
+        <div className="lg:col-span-2 bg-[#1A1A1A] border border-[#333] rounded-lg p-5 space-y-4 shadow-md">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-sm font-bold text-white uppercase tracking-wider">{t('dashboard.selectGenre')}</h3>
@@ -206,7 +296,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div
             onClick={() => onNavigate('lessons')}
-            className="bg-[#1A1A1A] hover:bg-[#222] border border-[#333] p-4 rounded-lg transition-colors cursor-pointer group"
+            className="bg-[#1A1A1A] hover:bg-[#222] border border-[#333] p-4 rounded-lg transition-colors cursor-pointer group shadow-sm"
           >
             <div className="w-8 h-8 rounded bg-[#252525] text-[#90FF00] border border-[#333] flex items-center justify-center mb-2.5">
               <Zap className="w-4 h-4" />
@@ -217,7 +307,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           <div
             onClick={() => onNavigate('midi')}
-            className="bg-[#1A1A1A] hover:bg-[#222] border border-[#333] p-4 rounded-lg transition-colors cursor-pointer group"
+            className="bg-[#1A1A1A] hover:bg-[#222] border border-[#333] p-4 rounded-lg transition-colors cursor-pointer group shadow-sm"
           >
             <div className="w-8 h-8 rounded bg-[#252525] text-[#00E5FF] border border-[#333] flex items-center justify-center mb-2.5">
               <Music className="w-4 h-4" />
@@ -228,7 +318,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           <div
             onClick={() => onNavigate('sounddesign')}
-            className="bg-[#1A1A1A] hover:bg-[#222] border border-[#333] p-4 rounded-lg transition-colors cursor-pointer group"
+            className="bg-[#1A1A1A] hover:bg-[#222] border border-[#333] p-4 rounded-lg transition-colors cursor-pointer group shadow-sm"
           >
             <div className="w-8 h-8 rounded bg-[#252525] text-[#a855f7] border border-[#333] flex items-center justify-center mb-2.5">
               <Sliders className="w-4 h-4" />
@@ -239,7 +329,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           <div
             onClick={() => onNavigate('analyzer')}
-            className="bg-[#1A1A1A] hover:bg-[#222] border border-[#333] p-4 rounded-lg transition-colors cursor-pointer group"
+            className="bg-[#1A1A1A] hover:bg-[#222] border border-[#333] p-4 rounded-lg transition-colors cursor-pointer group shadow-sm"
           >
             <div className="w-8 h-8 rounded bg-[#252525] text-[#00E5FF] border border-[#333] flex items-center justify-center mb-2.5">
               <Activity className="w-4 h-4" />

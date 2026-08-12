@@ -38,6 +38,12 @@ export const he: TranslationDictionary = {
   'common.refresh': 'רענן',
 
   // Navigation
+  'nav.area.learn': '1. למד (LEARN)',
+  'nav.area.create': '2. צור (CREATE)',
+  'nav.area.listen': '3. הקשב (LISTEN)',
+  'nav.area.coach': '4. מאמן (COACH)',
+  'nav.area.mytrack': '5. הטראק שלי (MY TRACK)',
+
   'nav.cat.producer': 'מפיק AI',
   'nav.cat.curriculum': 'מסלול לימוד והתקדמות',
   'nav.cat.generators': 'מחוללי AI',
@@ -507,6 +513,23 @@ export const he: TranslationDictionary = {
   'lessons.askAiCoach': 'שאל את מאמן ה-AI לגבי שלב זה',
   'lessons.prevStep': 'השלב הקודם',
   'lessons.nextStep': 'השלב הבא',
+  'lessons.offlineReady': '100% מוכן לאופליין (תוכן מובנה במערכת)',
+  'lessons.interactiveMidi': 'דוגמת MIDI אינטראקטיבית ופסנתר גלילה (Piano Roll)',
+  'lessons.paramsHighlighted': 'פרמטרים מומלצים ב-Ableton Live 12',
+  'lessons.proTip': 'טיפ מקצועי ומקש קיצור ב-Live 12',
+  'lessons.userNotes': 'הערות ההפקה שלי (נשמר באופליין)',
+  'lessons.notesPlaceholder': 'רשום את הערות ההפקה שלך לשיעור זה... (נשמר אוטומטית במכשיר שלך)',
+  'lessons.quizSubmitted': 'הבוחן הוגש',
+  'lessons.quizScore': 'הציון שלך בבוחן: {score}%',
+  'lessons.quizPassed': 'עבודה מצוינת! השלמת את יעדי השיעור בהצלחה.',
+  'lessons.quizTryAgain': 'סקור את שלבי השיעור ונסה שוב.',
+  'lessons.bookmark': 'סימניה',
+  'lessons.bookmarked': 'מסומן בסימניה',
+  'lessons.progressSummary': 'סיכום התקדמות באופליין',
+  'lessons.exportProgress': 'גיבוי נתוני התקדמות',
+  'lessons.importProgress': 'שחזור נתוני התקדמות',
+  'lessons.completedBadge': 'השיעור הושלם',
+  'lessons.prerequisites': 'דרישות קדם',
 
   // Drum Machine
   'drumGen.banner': 'מכונת תופים Drum Rack ב-Ableton Live 12',

@@ -15,6 +15,7 @@ import { midiService } from '../../services/midiService';
 import { audioService } from '../../services/audioService';
 import { useLanguage } from '../../context/LanguageContext';
 import { debugLog } from '../../utils/debug';
+import { ExportConfirmationModal } from '../common/ExportConfirmationModal';
 
 interface MidiGeneratorViewProps {
   project: AAMCProject;
@@ -34,6 +35,7 @@ export const MidiGeneratorView: React.FC<MidiGeneratorViewProps> = ({
   const [energy, setEnergy] = React.useState<number>(8);
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [exportSuccess, setExportSuccess] = React.useState(false);
+  const [isExportModalOpen, setIsExportModalOpen] = React.useState(false);
 
   // Active Pattern State
   const [activePattern, setActivePattern] = React.useState<MidiPattern>(() => {
@@ -76,7 +78,11 @@ export const MidiGeneratorView: React.FC<MidiGeneratorViewProps> = ({
     audioService.playMidiPattern(activePattern.notes, activePattern.bpm);
   };
 
-  const handleExportMidi = async () => {
+  const handleExportClick = () => {
+    setIsExportModalOpen(true);
+  };
+
+  const handleConfirmExport = async () => {
     const ok = await midiService.exportPattern(activePattern);
     if (ok) {
       setExportSuccess(true);
@@ -109,7 +115,7 @@ export const MidiGeneratorView: React.FC<MidiGeneratorViewProps> = ({
           </button>
 
           <button
-            onClick={handleExportMidi}
+            onClick={handleExportClick}
             className="bg-[#90FF00] hover:bg-[#80e600] text-black px-4 py-2 rounded text-xs font-bold flex items-center gap-2 transition-colors cursor-pointer uppercase tracking-wider"
           >
             {exportSuccess ? <Check className="w-3.5 h-3.5" /> : <Download className="w-3.5 h-3.5" />}
@@ -117,6 +123,23 @@ export const MidiGeneratorView: React.FC<MidiGeneratorViewProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Export Confirmation Modal */}
+      <ExportConfirmationModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        onConfirm={handleConfirmExport}
+        exportType="MIDI"
+        fileName={`${activePattern.name.replace(/\s+/g, '_')}.mid`}
+        fileSettings={{
+          bpm: activePattern.bpm,
+          key: activePattern.key,
+          scale: activePattern.scale,
+          genre: activePattern.genre,
+          tracksCount: 1,
+        }}
+        destinationPath="C:\\Users\\Producer\\Documents\\Ableton Live 12\\User Library\\Presets\\MIDI Clips\\"
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Controls Sidebar */}

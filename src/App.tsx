@@ -22,6 +22,10 @@ import { AICoachChat } from './components/chat/AICoachChat';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { GlobalSearchModal } from './components/layout/GlobalSearchModal';
 import { FirstRunAISetup } from './components/ai/FirstRunAISetup';
+import { ProducerOnboardingModal } from './components/common/ProducerOnboardingModal';
+import { VisualCourseMap } from './components/lessons/VisualCourseMap';
+import { GlossaryView } from './components/utilities/GlossaryView';
+import { BuildMyFirstTrackWizard } from './components/producer/BuildMyFirstTrackWizard';
 import { projectService } from './services/projectService';
 import { desktopService } from './services/desktopService';
 import { aiService } from './services/aiService';
@@ -39,6 +43,7 @@ export function AppContent() {
   const [coachInitialMsg, setCoachInitialMsg] = useState<string | undefined>(undefined);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isSetupOpen, setIsSetupOpen] = useState(false);
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const [theme, setTheme] = useState<ThemeMode>(getInitialTheme);
 
@@ -46,6 +51,13 @@ export function AppContent() {
     setIsDesktop(desktopService.isDesktop());
     if (window.desktopAPI?.appReady) {
       window.desktopAPI.appReady();
+    }
+
+    // Check if First Run Producer Onboarding should pop up
+    const hasSeenOnboarding = localStorage.getItem('aamc-seen-producer-onboarding');
+    if (!hasSeenOnboarding) {
+      setIsOnboardingOpen(true);
+      localStorage.setItem('aamc-seen-producer-onboarding', 'true');
     }
 
     // Check if First Run AI modal should pop up
@@ -103,6 +115,12 @@ export function AppContent() {
         );
       case 'lessons':
         return <LessonsView onOpenCoach={() => setIsCoachOpen(true)} />;
+      case 'coursemap':
+        return <VisualCourseMap onSelectModule={() => setCurrentView('lessons')} />;
+      case 'buildtrack':
+        return <BuildMyFirstTrackWizard />;
+      case 'glossary':
+        return <GlossaryView />;
       case 'theory':
         return <MusicTheoryView onOpenCoachWithMessage={handleOpenCoachWithMessage} />;
       case 'eartraining':
@@ -226,6 +244,13 @@ export function AppContent() {
         onSelectCloud={() => {
           setCurrentView('settings');
         }}
+      />
+
+      {/* Producer Experience Setup Modal */}
+      <ProducerOnboardingModal
+        isOpen={isOnboardingOpen}
+        onClose={() => setIsOnboardingOpen(false)}
+        onSaveProfile={() => {}}
       />
 
       {/* Studio Status Footer */}

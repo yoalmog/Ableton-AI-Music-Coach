@@ -91,7 +91,7 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Center: BPM, Key, Search & File Actions */}
       <div className="flex items-center gap-4">
         <Tooltip content={t('header.activeSession')} position="bottom" delayMs={500}>
-          <div className="hidden lg:flex items-center gap-3 text-[11px] font-mono bg-[#121212] px-3 py-1 rounded border border-[#2A2A2A]">
+          <div className="hidden lg:flex items-center gap-3 text-[11px] font-mono bg-[#121212] px-3 py-1 rounded-xl border border-[#2A2A2A]">
             <div className="flex items-center gap-1.5">
               <span className="text-[#666]">PROJ</span>
               <span className="text-white font-semibold truncate max-w-[120px]">{project.name}</span>
@@ -108,6 +108,17 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           </div>
         </Tooltip>
+
+        {/* First Run Onboarding Level Trigger */}
+        {onOpenSetup && (
+          <button
+            onClick={onOpenSetup}
+            className="hidden sm:flex items-center gap-1.5 text-[11px] font-bold bg-[#1e1b2e] hover:bg-[#28243c] text-[#A78BFA] border border-[#8B5CF6]/40 px-2.5 py-1 rounded-xl transition cursor-pointer"
+          >
+            <Sparkles className="w-3 h-3 text-[#A78BFA]" />
+            <span className="font-mono text-[10px]">BEGINNER</span>
+          </button>
+        )}
 
         {/* Global Search trigger */}
         <Tooltip content={t('header.search')} position="bottom" delayMs={500}>

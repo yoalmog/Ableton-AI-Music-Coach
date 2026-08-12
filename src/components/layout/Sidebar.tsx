@@ -41,42 +41,45 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const sections = React.useMemo(() => [
     {
-      categoryKey: 'nav.cat.producer',
+      categoryKey: 'nav.area.learn',
+      items: [
+        { id: 'lessons' as ViewType, labelKey: 'nav.lessons', descKey: 'sidebar.lessons', icon: <GraduationCap className="w-3.5 h-3.5 text-[#00E5FF]" /> },
+        { id: 'coursemap' as ViewType, labelKey: 'Course Map', descKey: 'Visual Course Map', icon: <Layers className="w-3.5 h-3.5 text-[#00E5FF]" /> },
+        { id: 'buildtrack' as ViewType, labelKey: 'Build Track', descKey: '13-Stage Track Builder', icon: <Sparkles className="w-3.5 h-3.5 text-[#90FF00]" /> },
+        { id: 'theory' as ViewType, labelKey: 'nav.theory', descKey: 'sidebar.theory', icon: <BookOpen className="w-3.5 h-3.5" /> },
+        { id: 'practice' as ViewType, labelKey: 'nav.practice', descKey: 'sidebar.practice', icon: <Award className="w-3.5 h-3.5" /> },
+        { id: 'glossary' as ViewType, labelKey: 'Glossary', descKey: 'Producer Terms Glossary', icon: <BookOpen className="w-3.5 h-3.5 text-[#a855f7]" /> },
+      ],
+    },
+    {
+      categoryKey: 'nav.area.create',
+      items: [
+        { id: 'midi' as ViewType, labelKey: 'nav.midi', descKey: 'sidebar.midi', icon: <Music2 className="w-3.5 h-3.5 text-[#90FF00]" /> },
+        { id: 'drums' as ViewType, labelKey: 'nav.drums', descKey: 'sidebar.drums', icon: <Grid className="w-3.5 h-3.5 text-[#00E5FF]" /> },
+        { id: 'bass' as ViewType, labelKey: 'nav.bass', descKey: 'sidebar.bass', icon: <Radio className="w-3.5 h-3.5 text-[#90FF00]" /> },
+        { id: 'sounddesign' as ViewType, labelKey: 'nav.sounddesign', descKey: 'sidebar.sounddesign', icon: <Sliders className="w-3.5 h-3.5 text-[#a855f7]" /> },
+      ],
+    },
+    {
+      categoryKey: 'nav.area.listen',
+      items: [
+        { id: 'eartraining' as ViewType, labelKey: 'nav.eartraining', descKey: 'sidebar.eartraining', icon: <Headphones className="w-3.5 h-3.5 text-[#00E5FF]" /> },
+        { id: 'analyzer' as ViewType, labelKey: 'nav.analyzer', descKey: 'sidebar.analyzer', icon: <Activity className="w-3.5 h-3.5 text-[#00E5FF]" /> },
+        { id: 'mixassistant' as ViewType, labelKey: 'nav.mixassistant', descKey: 'sidebar.mixassistant', icon: <CheckSquare className="w-3.5 h-3.5 text-[#90FF00]" /> },
+      ],
+    },
+    {
+      categoryKey: 'nav.area.coach',
+      items: [
+        { id: 'producer' as ViewType, labelKey: 'nav.producer', descKey: 'sidebar.progression', icon: <Sparkles className="w-3.5 h-3.5 text-[#90FF00]" /> },
+        { id: 'prompts' as ViewType, labelKey: 'nav.prompts', descKey: 'sidebar.prompts', icon: <MessageSquare className="w-3.5 h-3.5" /> },
+      ],
+    },
+    {
+      categoryKey: 'nav.area.mytrack',
       items: [
         { id: 'dashboard' as ViewType, labelKey: 'nav.dashboard', descKey: 'sidebar.overview', icon: <LayoutDashboard className="w-3.5 h-3.5" /> },
-        { id: 'producer' as ViewType, labelKey: 'nav.producer', descKey: 'sidebar.progression', icon: <Sparkles className="w-3.5 h-3.5 text-[#90FF00]" /> },
-      ],
-    },
-    {
-      categoryKey: 'nav.cat.curriculum',
-      items: [
-        { id: 'lessons' as ViewType, labelKey: 'nav.lessons', descKey: 'sidebar.lessons', icon: <GraduationCap className="w-3.5 h-3.5" /> },
-        { id: 'theory' as ViewType, labelKey: 'nav.theory', descKey: 'sidebar.theory', icon: <BookOpen className="w-3.5 h-3.5" /> },
-        { id: 'eartraining' as ViewType, labelKey: 'nav.eartraining', descKey: 'sidebar.eartraining', icon: <Headphones className="w-3.5 h-3.5" /> },
-        { id: 'practice' as ViewType, labelKey: 'nav.practice', descKey: 'sidebar.practice', icon: <Award className="w-3.5 h-3.5" /> },
-      ],
-    },
-    {
-      categoryKey: 'nav.cat.generators',
-      items: [
-        { id: 'midi' as ViewType, labelKey: 'nav.midi', descKey: 'sidebar.midi', icon: <Music2 className="w-3.5 h-3.5" />, color: '#90FF00' },
-        { id: 'drums' as ViewType, labelKey: 'nav.drums', descKey: 'sidebar.drums', icon: <Grid className="w-3.5 h-3.5" />, color: '#00E5FF' },
-        { id: 'bass' as ViewType, labelKey: 'nav.bass', descKey: 'sidebar.bass', icon: <Radio className="w-3.5 h-3.5" />, color: '#90FF00' },
-        { id: 'sounddesign' as ViewType, labelKey: 'nav.sounddesign', descKey: 'sidebar.sounddesign', icon: <Sliders className="w-3.5 h-3.5" />, color: '#a855f7' },
-      ],
-    },
-    {
-      categoryKey: 'nav.cat.mixing',
-      items: [
-        { id: 'analyzer' as ViewType, labelKey: 'nav.analyzer', descKey: 'sidebar.analyzer', icon: <Activity className="w-3.5 h-3.5" />, color: '#00E5FF' },
-        { id: 'mixassistant' as ViewType, labelKey: 'nav.mixassistant', descKey: 'sidebar.mixassistant', icon: <CheckSquare className="w-3.5 h-3.5" />, color: '#90FF00' },
-        { id: 'arrangement' as ViewType, labelKey: 'nav.arrangement', descKey: 'sidebar.arrangement', icon: <Layers className="w-3.5 h-3.5" />, color: '#90FF00' },
-      ],
-    },
-    {
-      categoryKey: 'nav.cat.utilities',
-      items: [
-        { id: 'prompts' as ViewType, labelKey: 'nav.prompts', descKey: 'sidebar.prompts', icon: <MessageSquare className="w-3.5 h-3.5" /> },
+        { id: 'arrangement' as ViewType, labelKey: 'nav.arrangement', descKey: 'sidebar.arrangement', icon: <Layers className="w-3.5 h-3.5 text-[#90FF00]" /> },
         { id: 'versions' as ViewType, labelKey: 'nav.versions', descKey: 'sidebar.versions', icon: <FolderGit2 className="w-3.5 h-3.5" /> },
         { id: 'settings' as ViewType, labelKey: 'nav.settings', descKey: 'sidebar.settings', icon: <Settings className="w-3.5 h-3.5" /> },
       ],
