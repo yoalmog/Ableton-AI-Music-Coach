@@ -21,7 +21,7 @@ jobs:
           node-version: 22
 
       - name: Install Dependencies
-        run: npm install
+        run: npm install --include=optional
 
       - name: Build Web Application
         run: npm run build
@@ -45,7 +45,7 @@ jobs:
           node-version: 22
 
       - name: Install Dependencies
-        run: npm install
+        run: npm install --include=optional
 
       - name: Build Windows Executable (.exe)
         run: npm run dist:win
@@ -71,7 +71,7 @@ jobs:
           node-version: 22
 
       - name: Install Dependencies
-        run: npm install
+        run: npm install --include=optional
 
       - name: Build Web Bundle
         run: npm run build
