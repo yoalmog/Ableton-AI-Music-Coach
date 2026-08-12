@@ -1,7 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { Resvg } from '@resvg/resvg-js';
 import pngToIco from 'png-to-ico';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -326,6 +325,7 @@ async function generateAssets() {
   fs.writeFileSync(symbolSvgPath, symbolSvg, 'utf8');
 
   try {
+    const { Resvg } = await import('@resvg/resvg-js');
     // Convert SVGs to PNGs using resvg
     const resvgLogo = new Resvg(fullLogoSvg, {
       fitTo: { mode: 'width', value: 1200 },
