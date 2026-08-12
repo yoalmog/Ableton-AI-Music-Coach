@@ -15,21 +15,25 @@
     "electron:dev": "tsx electron/main.ts",
     "electron:build": "node scripts/generate-branding.js && npm run build && esbuild electron/main.ts --bundle --platform=node --target=node18 --packages=external --outfile=dist-electron/main.js && esbuild electron/preload.ts --bundle --platform=node --target=node18 --packages=external --outfile=dist-electron/preload.js && node -e \"require('fs').copyFileSync('electron/splash.html', 'dist-electron/splash.html'); require('fs').writeFileSync('dist-electron/package.json', '{\\\"type\\\":\\\"commonjs\\\"}')\"",
     "dist": "npm run electron:build && electron-builder",
-    "dist:win": "npm run electron:build && electron-builder --win"
+    "dist:win": "npm run electron:build && electron-builder --win",
+    "build:apk": "npm run build && npx cap add android || true && npx cap sync android && cd android && chmod +x gradlew && ./gradlew assembleDebug"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/core": "^8.5.0",
     "@google/genai": "^2.4.0",
     "@tailwindcss/vite": "^4.1.14",
     "@vitejs/plugin-react": "^5.0.4",
+    "dotenv": "^17.2.3",
+    "express": "^4.21.2",
     "lucide-react": "^0.546.0",
+    "motion": "^12.23.24",
     "react": "^19.0.1",
     "react-dom": "^19.0.1",
-    "vite": "^6.2.3",
-    "express": "^4.21.2",
-    "dotenv": "^17.2.3",
-    "motion": "^12.23.24"
+    "vite": "^6.2.3"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.5.0",
     "@resvg/resvg-js": "^2.6.2",
     "@resvg/resvg-js-linux-x64-gnu": "^2.6.2",
     "@resvg/resvg-js-win32-x64-msvc": "^2.6.2",

@@ -1,4 +1,4 @@
-name: Build, Test and Release (Web, Windows, Android)
+name: Build, Test and Release (Web, Windows, Android APK)
 
 on:
   push:
@@ -59,7 +59,7 @@ jobs:
           path: release/*.exe
 
   build-android-apk:
-    name: Build Android APK / PWA Bundle
+    name: Build Android APK
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -73,9 +73,6 @@ jobs:
       - name: Install Dependencies
         run: npm install --include=optional
 
-      - name: Build Web Bundle
-        run: npm run build
-
       - name: Setup Java JDK
         uses: actions/setup-java@v4
         with:
@@ -85,14 +82,11 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Package Android APK / PWA Release Assets
-        run: |
-          mkdir -p release-android-apk
-          echo "Ableton AI Music Coach Android Mobile App PWA & APK Asset Package" > release-android-apk/README.txt
-          cp -r dist/* release-android-apk/
+      - name: Build Android APK
+        run: npm run build:apk
 
-      - name: Upload Android APK Bundle Artifact
+      - name: Upload Android APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: android-apk-bundle-release
-          path: release-android-apk/
+          name: android-debug-apk
+          path: android/app/build/outputs/apk/debug/*.apk

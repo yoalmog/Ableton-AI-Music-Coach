@@ -1,4 +1,4 @@
-name: Build Ableton AI Music Coach (Web, Windows, Android)
+name: Build Ableton AI Music Coach (Web, Windows, Android APK)
 
 on:
   push:
@@ -73,9 +73,6 @@ jobs:
       - name: Install Dependencies
         run: npm install --include=optional
 
-      - name: Build Web / Capacitor PWA Bundle
-        run: npm run build
-
       - name: Setup Java JDK for Android Gradle
         uses: actions/setup-java@v4
         with:
@@ -85,15 +82,11 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Check Android Build Readiness
-        run: |
-          echo "Android environment prepared successfully for Ableton AI Music Coach PWA / APK export."
-          mkdir -p release-android
-          echo "Ableton AI Music Coach Android APK Export" > release-android/README.txt
-          cp -r dist/* release-android/
+      - name: Build Android APK
+        run: npm run build:apk
 
-      - name: Upload Android Bundle Artifact
+      - name: Upload Android APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: android-apk-bundle
-          path: release-android/
+          name: android-debug-apk
+          path: android/app/build/outputs/apk/debug/*.apk
