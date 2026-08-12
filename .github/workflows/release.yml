@@ -8,9 +8,23 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-web:
-    name: Build Web App
-    runs-on: ubuntu-latest
+  release-matrix:
+    name: Cross-Platform Release (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Web App
+            os: ubuntu-latest
+            target: web
+          - name: Windows Software (.exe)
+            os: windows-latest
+            target: windows
+          - name: Android APK
+            os: ubuntu-latest
+            target: android
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -20,81 +34,50 @@ jobs:
         with:
           node-version: 22
 
-      - name: Generate Lock File
-        run: npm install --package-lock-only
-
       - name: Install Dependencies
-        run: npm install --include=optional
+        run: npm install
 
       - name: Build Web Application
+        if: matrix.target == 'web' || matrix.target == 'android'
         run: npm run build
 
       - name: Upload Web Dist Artifact
+        if: matrix.target == 'web'
         uses: actions/upload-artifact@v4
         with:
           name: web-dist
           path: dist/
 
-  build-windows:
-    name: Build Windows Software (EXE & Portable)
-    runs-on: windows-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Generate Lock File
-        run: npm install --package-lock-only
-
-      - name: Install Dependencies
-        run: npm install --include=optional
-
       - name: Build Windows Installer & Portable
+        if: matrix.target == 'windows'
         run: npm run dist:win
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Windows Release Artifacts
+        if: matrix.target == 'windows'
         uses: actions/upload-artifact@v4
         with:
           name: windows-release-executables
           path: release/*.exe
 
-  build-android:
-    name: Build Android APK
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Generate Lock File
-        run: npm install --package-lock-only
-
-      - name: Install Dependencies
-        run: npm install --include=optional
-
-      - name: Setup Java JDK (Java 21)
+      - name: Setup Java JDK (Java 17)
+        if: matrix.target == 'android'
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '17'
 
       - name: Setup Android SDK
+        if: matrix.target == 'android'
         uses: android-actions/setup-android@v3
 
       - name: Build Android APK
+        if: matrix.target == 'android'
         run: npm run build:apk
 
       - name: Upload Android APK Artifact
+        if: matrix.target == 'android'
         uses: actions/upload-artifact@v4
         with:
           name: android-debug-apk
