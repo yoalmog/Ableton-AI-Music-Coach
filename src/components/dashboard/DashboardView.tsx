@@ -1,0 +1,254 @@
+import React from 'react';
+import {
+  Zap,
+  Activity,
+  Music,
+  Radio,
+  Play,
+  ArrowRight,
+  Monitor,
+  FolderPlus,
+  Sliders,
+  Award,
+  Sparkles
+} from 'lucide-react';
+import { AAMCProject, GenreType } from '../../types';
+import { projectService } from '../../services/projectService';
+import { COURSES_DATA } from '../../data/coursesData';
+import { useLanguage } from '../../context/LanguageContext';
+
+interface DashboardViewProps {
+  project: AAMCProject;
+  onProjectChange: (p: AAMCProject) => void;
+  onNavigate: (view: any) => void;
+  isDesktop: boolean;
+}
+
+export const DashboardView: React.FC<DashboardViewProps> = ({
+  project,
+  onProjectChange,
+  onNavigate,
+  isDesktop,
+}) => {
+  const [recentProjects, setRecentProjects] = React.useState(projectService.getRecentProjects());
+  const { t } = useLanguage();
+
+  const genres: { name: GenreType; bpm: number; subKey: string }[] = [
+    { name: 'Psytrance', bpm: 142, subKey: 'genre.psy.sub' },
+    { name: 'Goa Psytrance', bpm: 144, subKey: 'genre.goa.sub' },
+    { name: 'Progressive Psytrance', bpm: 138, subKey: 'genre.prog.sub' },
+    { name: 'Techno', bpm: 132, subKey: 'genre.techno.sub' },
+    { name: 'Melodic Techno', bpm: 126, subKey: 'genre.melodic.sub' },
+  ];
+
+  const handleSelectGenre = (gName: GenreType, bpm: number) => {
+    const updated = {
+      ...project,
+      genre: gName,
+      bpm,
+    };
+    onProjectChange(updated);
+  };
+
+  return (
+    <div className="p-6 space-y-6 max-w-7xl mx-auto text-[#E0E0E0] font-sans">
+      {/* Hero Welcome Banner */}
+      <div className="relative overflow-hidden rounded-lg bg-[#1A1A1A] border border-[#333] p-6 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="relative z-10 max-w-3xl space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-0.5 bg-[#252525] text-[#90FF00] border border-[#333] rounded text-[10px] font-bold font-mono uppercase tracking-wider">
+              {t('dashboard.console')}
+            </span>
+            {isDesktop ? (
+              <span className="text-[10px] bg-[#121212] text-[#90FF00] border border-[#333] px-2 py-0.5 rounded font-mono">
+                {t('dashboard.desktop')}
+              </span>
+            ) : (
+              <span className="text-[10px] bg-[#121212] text-[#999] border border-[#333] px-2 py-0.5 rounded font-mono">
+                {t('dashboard.web')}
+              </span>
+            )}
+          </div>
+
+          <h1 className="text-2xl sm:text-3xl font-light tracking-tight text-white">
+            {t('dashboard.welcome')} <span className="font-bold text-[#90FF00]">Ableton AI Music Coach</span>
+          </h1>
+
+          <p className="text-[#BBB] text-xs leading-relaxed max-w-2xl">
+            {t('dashboard.subtitle')}
+          </p>
+
+          <div className="pt-2 flex flex-wrap gap-2.5">
+            <button
+              onClick={() => onNavigate('lessons')}
+              className="bg-[#90FF00] hover:bg-[#80e600] text-black px-4 py-2 rounded text-xs font-bold flex items-center gap-2 transition-colors cursor-pointer uppercase tracking-wider"
+            >
+              <Zap className="w-3.5 h-3.5 fill-current" />
+              <span>{t('dashboard.resume')}</span>
+            </button>
+            <button
+              onClick={() => onNavigate('midi')}
+              className="bg-[#252525] hover:bg-[#333] text-[#E0E0E0] border border-[#444] px-4 py-2 rounded text-xs font-bold flex items-center gap-2 transition-colors cursor-pointer uppercase tracking-wider"
+            >
+              <Music className="w-3.5 h-3.5 text-[#00E5FF]" />
+              <span>{t('dashboard.generate')}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Official Logo Banner Image */}
+        <div className="shrink-0 w-48 md:w-64 flex justify-center z-10">
+          <img
+            src="branding/logo.png"
+            alt="Ableton AI Music Coach Official Logo"
+            className="max-h-28 object-contain filter drop-shadow-lg"
+            referrerPolicy="no-referrer"
+            onError={(e) => {
+              (e.target as HTMLElement).setAttribute('src', 'branding/logo.svg');
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Active Project & Genre Selection Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Active Project Card */}
+        <div className="bg-[#1A1A1A] border border-[#333] rounded-lg p-5 space-y-4 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold text-[#666] uppercase tracking-widest">
+                {t('dashboard.activeSession')}
+              </span>
+              <span className="text-[10px] font-mono text-[#90FF00] bg-[#121212] border border-[#333] px-2 py-0.5 rounded">
+                {t('dashboard.format')}
+              </span>
+            </div>
+
+            <h2 className="text-lg font-bold text-white mt-2">{project.name}</h2>
+            <p className="text-xs text-[#888] mt-0.5">
+              {t('dashboard.genreFocus')}: <span className="text-[#E0E0E0] font-semibold">{project.genre}</span>
+            </p>
+
+            <div className="grid grid-cols-2 gap-2.5 mt-4 pt-3 border-t border-[#2A2A2A]">
+              <div className="bg-[#121212] p-2.5 rounded border border-[#2A2A2A]">
+                <div className="text-[9px] text-[#666] uppercase font-mono">{t('dashboard.bpmTempo')}</div>
+                <div className="text-base font-mono font-bold text-[#90FF00]">{project.bpm}.00</div>
+              </div>
+              <div className="bg-[#121212] p-2.5 rounded border border-[#2A2A2A]">
+                <div className="text-[9px] text-[#666] uppercase font-mono">{t('dashboard.keyScale')}</div>
+                <div className="text-base font-mono font-bold text-[#00E5FF]">{project.key} {project.scale}</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-3 border-t border-[#2A2A2A] space-y-2">
+            <button
+              onClick={() => onNavigate('bass')}
+              className="w-full bg-[#252525] hover:bg-[#333] text-[#E0E0E0] border border-[#333] py-2 rounded text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition-colors"
+            >
+              <Radio className="w-3.5 h-3.5 text-[#90FF00]" />
+              <span>{t('dashboard.configBass')}</span>
+            </button>
+            <button
+              onClick={() => onNavigate('drums')}
+              className="w-full bg-[#252525] hover:bg-[#333] text-[#E0E0E0] border border-[#333] py-2 rounded text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition-colors"
+            >
+              <Sliders className="w-3.5 h-3.5 text-[#00E5FF]" />
+              <span>{t('dashboard.openDrums')}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Genre Switcher */}
+        <div className="lg:col-span-2 bg-[#1A1A1A] border border-[#333] rounded-lg p-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider">{t('dashboard.selectGenre')}</h3>
+              <p className="text-xs text-[#888]">{t('dashboard.selectGenreSub')}</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {genres.map((g) => {
+              const isSelected = project.genre === g.name;
+              return (
+                <button
+                  key={g.name}
+                  onClick={() => handleSelectGenre(g.name, g.bpm)}
+                  className={`p-3.5 rounded-lg text-left border transition-all cursor-pointer relative ${
+                    isSelected
+                      ? 'bg-[#252525] border-[#90FF00]'
+                      : 'bg-[#121212] border-[#2A2A2A] hover:border-[#444] hover:bg-[#181818]'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className={`font-bold text-xs ${isSelected ? 'text-[#90FF00]' : 'text-[#E0E0E0]'}`}>
+                      {g.name}
+                    </span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#101010] border border-[#333] text-[#90FF00]">
+                      {g.bpm} BPM
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[#888] mt-1">{t(g.subKey)}</p>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Launch Features Grid */}
+      <div className="space-y-3">
+        <h3 className="text-xs font-bold text-[#666] uppercase tracking-widest">
+          {t('dashboard.modules')}
+        </h3>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div
+            onClick={() => onNavigate('lessons')}
+            className="bg-[#1A1A1A] hover:bg-[#222] border border-[#333] p-4 rounded-lg transition-colors cursor-pointer group"
+          >
+            <div className="w-8 h-8 rounded bg-[#252525] text-[#90FF00] border border-[#333] flex items-center justify-center mb-2.5">
+              <Zap className="w-4 h-4" />
+            </div>
+            <h4 className="font-bold text-xs text-white group-hover:text-[#90FF00] transition-colors">{t('dashboard.masterclass')}</h4>
+            <p className="text-[11px] text-[#888] mt-1 leading-snug">{t('dashboard.masterclassSub')}</p>
+          </div>
+
+          <div
+            onClick={() => onNavigate('midi')}
+            className="bg-[#1A1A1A] hover:bg-[#222] border border-[#333] p-4 rounded-lg transition-colors cursor-pointer group"
+          >
+            <div className="w-8 h-8 rounded bg-[#252525] text-[#00E5FF] border border-[#333] flex items-center justify-center mb-2.5">
+              <Music className="w-4 h-4" />
+            </div>
+            <h4 className="font-bold text-xs text-white group-hover:text-[#00E5FF] transition-colors">{t('dashboard.midi')}</h4>
+            <p className="text-[11px] text-[#888] mt-1 leading-snug">{t('dashboard.midiSub')}</p>
+          </div>
+
+          <div
+            onClick={() => onNavigate('sounddesign')}
+            className="bg-[#1A1A1A] hover:bg-[#222] border border-[#333] p-4 rounded-lg transition-colors cursor-pointer group"
+          >
+            <div className="w-8 h-8 rounded bg-[#252525] text-[#a855f7] border border-[#333] flex items-center justify-center mb-2.5">
+              <Sliders className="w-4 h-4" />
+            </div>
+            <h4 className="font-bold text-xs text-white group-hover:text-[#a855f7] transition-colors">{t('dashboard.sound')}</h4>
+            <p className="text-[11px] text-[#888] mt-1 leading-snug">{t('dashboard.soundSub')}</p>
+          </div>
+
+          <div
+            onClick={() => onNavigate('analyzer')}
+            className="bg-[#1A1A1A] hover:bg-[#222] border border-[#333] p-4 rounded-lg transition-colors cursor-pointer group"
+          >
+            <div className="w-8 h-8 rounded bg-[#252525] text-[#00E5FF] border border-[#333] flex items-center justify-center mb-2.5">
+              <Activity className="w-4 h-4" />
+            </div>
+            <h4 className="font-bold text-xs text-white group-hover:text-[#00E5FF] transition-colors">{t('dashboard.analyzer')}</h4>
+            <p className="text-[11px] text-[#888] mt-1 leading-snug">{t('dashboard.analyzerSub')}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

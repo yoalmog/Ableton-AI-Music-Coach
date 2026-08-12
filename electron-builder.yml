@@ -1,0 +1,36 @@
+appId: com.aicoach.abletonmusic
+productName: Ableton AI Music Coach
+directories:
+  output: release
+  buildResources: build
+
+files:
+  - dist/**/*
+  - dist-electron/**/*
+  - package.json
+
+fileAssociations:
+  - ext: aamc
+    name: Ableton AI Music Coach Project
+    description: Ableton AI Music Coach Project File
+    role: Editor
+
+win:
+  icon: build/icon.ico
+  target:
+    - target: nsis
+      arch:
+        - x64
+    - target: portable
+      arch:
+        - x64
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Ableton AI Music Coach
+  uninstallDisplayName: Ableton AI Music Coach
+  installerIcon: build/icon.ico
+  uninstallerIcon: build/icon.ico

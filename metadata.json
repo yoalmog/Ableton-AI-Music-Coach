@@ -1,0 +1,6 @@
+{
+  "name": "Ableton AI Music Coach",
+  "description": "An AI-powered music production teacher and desktop workstation for Ableton Live 12, focusing on Psytrance, Goa, Techno, and Electronic music production.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

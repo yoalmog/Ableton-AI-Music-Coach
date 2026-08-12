@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="symbolBg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#142810"/>
+      <stop offset="60%" stop-color="#091820"/>
+      <stop offset="100%" stop-color="#0A0A0A"/>
+    </radialGradient>
+
+    <linearGradient id="limeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#B8FF33"/>
+      <stop offset="100%" stop-color="#60C800"/>
+    </linearGradient>
+
+    <linearGradient id="cyanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00FFFF"/>
+      <stop offset="100%" stop-color="#0099CC"/>
+    </linearGradient>
+
+    <linearGradient id="silverGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="50%" stop-color="#94A3B8"/>
+      <stop offset="100%" stop-color="#475569"/>
+    </linearGradient>
+
+    <filter id="symbolGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Rounded Squircle Dark Container -->
+  <rect x="8" y="8" width="496" height="496" rx="96" fill="url(#symbolBg)" stroke="#333333" stroke-width="4"/>
+
+  <!-- Halo Ring -->
+  <circle cx="256" cy="256" r="180" fill="none" stroke="#90FF00" stroke-width="6" opacity="0.7" filter="url(#symbolGlow)"/>
+
+  <!-- Headphones -->
+  <!-- Headband -->
+  <path d="M 130 260 C 130 130, 382 130, 382 260" fill="none" stroke="url(#silverGrad)" stroke-width="22" stroke-linecap="round"/>
+  <!-- Left Cup -->
+  <rect x="100" y="220" width="36" height="90" rx="18" fill="#151515" stroke="url(#limeGrad)" stroke-width="4"/>
+  <!-- Right Cup -->
+  <rect x="376" y="220" width="36" height="90" rx="18" fill="#151515" stroke="url(#cyanGrad)" stroke-width="4"/>
+
+  <!-- STYLIZED 'A' LOGO -->
+  <!-- Left Leg (Lime) -->
+  <path d="M 256 120 L 150 340 L 200 340 L 256 220 Z" fill="url(#limeGrad)" filter="url(#symbolGlow)"/>
+  <!-- Right Leg (Silver) -->
+  <path d="M 256 120 L 362 340 L 312 340 L 256 220 Z" fill="url(#silverGrad)"/>
+
+  <!-- Ableton 4-Bar Matrix in Center -->
+  <g transform="translate(225, 290)">
+    <rect x="0" y="0" width="5" height="20" fill="#90FF00"/>
+    <rect x="8" y="0" width="5" height="20" fill="#90FF00"/>
+    <rect x="16" y="0" width="5" height="20" fill="#00E5FF"/>
+    <rect x="24" y="0" width="5" height="20" fill="#00E5FF"/>
+
+    <rect x="36" y="0" width="22" height="4" fill="#90FF00"/>
+    <rect x="36" y="5" width="22" height="4" fill="#90FF00"/>
+    <rect x="36" y="10" width="22" height="4" fill="#00E5FF"/>
+    <rect x="36" y="15" width="22" height="4" fill="#00E5FF"/>
+  </g>
+
+  <!-- AI Badge at bottom -->
+  <rect x="166" y="380" width="180" height="48" rx="24" fill="#0A0A0A" stroke="#90FF00" stroke-width="3"/>
+  <text x="256" y="413" font-family="Arial, sans-serif" font-size="24" font-weight="900" fill="#90FF00" text-anchor="middle" letter-spacing="3">
+    AI COACH
+  </text>
+</svg>

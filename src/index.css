@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+/* High Contrast Theme Overrides */
+html[data-theme="high-contrast"] [class*="bg-[#1A1A1A]"],
+html[data-theme="high-contrast"] [class*="bg-[#121212]"],
+html[data-theme="high-contrast"] [class*="bg-[#0A0A0A]"],
+html[data-theme="high-contrast"] [class*="bg-[#181818]"],
+html[data-theme="high-contrast"] [class*="bg-[#252525]"] {
+  background-color: #000000 !important;
+}
+
+html[data-theme="high-contrast"] [class*="border-[#333]"],
+html[data-theme="high-contrast"] [class*="border-[#2A2A2A]"],
+html[data-theme="high-contrast"] [class*="border-[#444]"] {
+  border-color: #FFFFFF !important;
+}
+
+html[data-theme="high-contrast"] [class*="text-[#888]"],
+html[data-theme="high-contrast"] [class*="text-[#666]"],
+html[data-theme="high-contrast"] [class*="text-[#999]"],
+html[data-theme="high-contrast"] [class*="text-[#AAA]"],
+html[data-theme="high-contrast"] [class*="text-[#BBB]"],
+html[data-theme="high-contrast"] [class*="text-[#CCC]"],
+html[data-theme="high-contrast"] [class*="text-[#E0E0E0]"] {
+  color: #FFFFFF !important;
+}
