@@ -114,5 +114,19 @@ Compile it with **Inno Setup 6+** on Windows to produce `release/installer/Ablet
 
 ---
 
+## 🌐 Web Deployment & GitHub Pages
+
+The application is fully configured for deployment to **GitHub Pages** at:
+**[https://abletonaimusiccoach.qd.je](https://abletonaimusiccoach.qd.je)**
+
+- **Automated Workflow**: `.github/workflows/deploy.yml` builds and deploys static assets on every push to `main`.
+- **Custom Domain**: Configured via `public/CNAME`.
+- **PWA Support**: Installable as a Progressive Web App on desktop and mobile.
+- **Local Ollama Integration**: Supports connecting to local or network-hosted Ollama instances (`http://127.0.0.1:11434`) with robust error handling and diagnostics.
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for full DNS and hosting instructions.
+
+---
+
 ## 📄 License
 Apache-2.0

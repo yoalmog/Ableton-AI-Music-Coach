@@ -1,0 +1,26 @@
+{
+  "name": "Ableton AI Music Coach",
+  "short_name": "AI Music Coach",
+  "description": "AI-powered Ableton Live 12 music production coach for Psytrance, Goa, Techno and Electronic Music.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#090d16",
+  "theme_color": "#10b981",
+  "categories": ["education", "music", "audio", "productivity"],
+  "icons": [
+    {
+      "src": "/branding/symbol.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/branding/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

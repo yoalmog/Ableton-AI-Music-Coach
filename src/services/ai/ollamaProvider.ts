@@ -7,22 +7,33 @@ export class OllamaProvider implements AIProvider {
   public id = 'ollama';
   public name = 'Ollama (Local AI)';
   private endpoint: string;
+  private selectedModel: string = 'qwen3.5:9b';
 
-  constructor(endpoint = 'http://localhost:11434') {
+  constructor(endpoint = 'http://localhost:11434', selectedModel = 'qwen3.5:9b') {
     this.endpoint = endpoint.replace(/\/+$/, '');
+    this.selectedModel = selectedModel;
   }
 
   public setEndpoint(newEndpoint: string) {
-    this.endpoint = newEndpoint.replace(/\/+$/, '');
+    this.endpoint = (newEndpoint || 'http://localhost:11434').replace(/\/+$/, '');
   }
 
   public getEndpoint(): string {
     return this.endpoint;
   }
 
-  /**
-   * Check if Ollama endpoint responds
-   */
+  public getBaseUrl(): string {
+    return this.endpoint;
+  }
+
+  public getSelectedModel(): string {
+    return this.selectedModel;
+  }
+
+  public setSelectedModel(model: string) {
+    this.selectedModel = model;
+  }
+
   public async isAvailable(): Promise<boolean> {
     try {
       const controller = new AbortController();
@@ -39,9 +50,6 @@ export class OllamaProvider implements AIProvider {
     }
   }
 
-  /**
-   * Fetch list of models installed in Ollama
-   */
   public async getModels(): Promise<AIModel[]> {
     try {
       const controller = new AbortController();
@@ -76,52 +84,53 @@ export class OllamaProvider implements AIProvider {
     }
   }
 
-  /**
-   * Select best compatible Qwen 3.5 or installed model
-   */
   public selectBestModel(installedModels: AIModel[], configuredModel?: string): string {
+    const target = configuredModel || this.selectedModel;
     if (!installedModels || installedModels.length === 0) {
-      return configuredModel || 'qwen3.5:9b';
+      return target || 'qwen3.5:9b';
     }
 
     const modelIds = installedModels.map((m) => m.id.toLowerCase());
 
-    // 1. Exact match with user configured model if installed
-    if (configuredModel && modelIds.includes(configuredModel.toLowerCase())) {
-      const match = installedModels.find((m) => m.id.toLowerCase() === configuredModel.toLowerCase());
+    if (target && modelIds.includes(target.toLowerCase())) {
+      const match = installedModels.find((m) => m.id.toLowerCase() === target.toLowerCase());
       if (match) return match.id;
     }
 
-    // 2. Preferred Qwen 3.5 sequence
     const preferredSequence = ['qwen3.5:9b', 'qwen3.5:4b', 'qwen3.5:2b', 'qwen3.5:27b', 'qwen3.5'];
     for (const seq of preferredSequence) {
       const found = installedModels.find((m) => m.id.toLowerCase().includes(seq));
       if (found) return found.id;
     }
 
-    // 3. Any Qwen model
     const anyQwen = installedModels.find((m) => m.id.toLowerCase().includes('qwen'));
     if (anyQwen) return anyQwen.id;
 
-    // 4. Any compatible model (Llama, Mistral, Gemma, DeepSeek, Phi)
     return installedModels[0].id;
   }
 
-  /**
-   * Perform comprehensive Health Check
-   */
+  public async checkConnection(params?: { targetModel?: string }): Promise<AIHealth> {
+    return await this.testConnection(params);
+  }
+
   public async testConnection(params?: { targetModel?: string }): Promise<AIHealth> {
     const startTime = Date.now();
-    const isOnline = await this.isAvailable();
+    let isOnline = false;
+
+    try {
+      isOnline = await this.isAvailable();
+    } catch {
+      isOnline = false;
+    }
 
     if (!isOnline) {
       return {
         ok: false,
         provider: 'ollama',
         status: 'NOT RUNNING',
-        statusMessage: `Ollama is not running at ${this.endpoint}. Start Ollama service locally on Windows.`,
+        statusMessage: `Ollama is not running at ${this.endpoint}. Please start Ollama locally.`,
         endpoint: this.endpoint,
-        latencyMs: 0,
+        latencyMs: Date.now() - startTime,
       };
     }
 
@@ -131,7 +140,7 @@ export class OllamaProvider implements AIProvider {
         ok: false,
         provider: 'ollama',
         status: 'NO MODEL INSTALLED',
-        statusMessage: `Ollama is running at ${this.endpoint}, but no AI models are installed. Recommended: qwen3.5:9b.`,
+        statusMessage: `Ollama is running at ${this.endpoint}, but no AI models are installed. Recommended: ollama pull qwen3.5:4b`,
         endpoint: this.endpoint,
         latencyMs: Date.now() - startTime,
         installedModels: [],
@@ -139,6 +148,19 @@ export class OllamaProvider implements AIProvider {
     }
 
     const activeModel = this.selectBestModel(installedModels, params?.targetModel);
+    
+    if (params?.targetModel && !installedModels.some(m => m.id.toLowerCase() === params.targetModel.toLowerCase())) {
+      return {
+        ok: false,
+        provider: 'ollama',
+        status: 'MODEL NOT FOUND',
+        statusMessage: `Selected model "${params.targetModel}" is not installed. Please run "ollama pull ${params.targetModel}" or select another model.`,
+        endpoint: this.endpoint,
+        latencyMs: Date.now() - startTime,
+        installedModels,
+      };
+    }
+
     const latencyMs = Date.now() - startTime;
 
     return {
@@ -153,9 +175,6 @@ export class OllamaProvider implements AIProvider {
     };
   }
 
-  /**
-   * Execute chat prompt on local model
-   */
   public async chat(request: AIRequest, targetModel?: string): Promise<AIResponse> {
     const startTime = Date.now();
 
@@ -163,9 +182,9 @@ export class OllamaProvider implements AIProvider {
       const installedModels = await this.getModels();
       if (installedModels.length === 0) {
         return {
-          reply: 'Local AI is unavailable because no Ollama model is installed. Please run "ollama pull qwen3.5:9b" or select Cloud AI.',
+          reply: 'Local AI is unavailable because no Ollama model is installed. Please run "ollama pull qwen3.5:4b" or select Cloud AI.',
           provider: 'ollama',
-          model: targetModel || 'qwen3.5:9b',
+          model: targetModel || this.selectedModel,
           latencyMs: Date.now() - startTime,
           status: 'error',
           offline: true,
@@ -177,7 +196,6 @@ export class OllamaProvider implements AIProvider {
       const formattedPrompt = formatAIContext(request);
 
       const controller = new AbortController();
-      // Allow up to 60 seconds for local CPU/GPU inference
       const timeoutId = setTimeout(() => controller.abort(), 60000);
 
       const response = await fetch(`${this.endpoint}/api/chat`, {
@@ -222,11 +240,115 @@ export class OllamaProvider implements AIProvider {
       return {
         reply: `Local AI Error: ${err.message || 'Could not connect to Ollama'}. Verify Ollama is running at ${this.endpoint}.`,
         provider: 'ollama',
-        model: targetModel || 'qwen3.5:9b',
+        model: targetModel || this.selectedModel,
         latencyMs,
         status: 'error',
         offline: true,
         error: err.message || 'Connection failed',
+      };
+    }
+  }
+
+  public async streamChat(
+    request: AIRequest,
+    onChunk: (token: string) => void,
+    targetModel?: string
+  ): Promise<AIResponse> {
+    const startTime = Date.now();
+
+    try {
+      const installedModels = await this.getModels();
+      if (installedModels.length === 0) {
+        const errReply = 'Local AI is unavailable because no Ollama model is installed. Please run "ollama pull qwen3.5:4b".';
+        onChunk(errReply);
+        return {
+          reply: errReply,
+          provider: 'ollama',
+          model: targetModel || this.selectedModel,
+          latencyMs: Date.now() - startTime,
+          status: 'error',
+          offline: true,
+          error: 'No local models installed',
+        };
+      }
+
+      const modelToUse = this.selectBestModel(installedModels, targetModel);
+      const formattedPrompt = formatAIContext(request);
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 90000);
+
+      const response = await fetch(`${this.endpoint}/api/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: modelToUse,
+          messages: [
+            { role: 'system', content: SYSTEM_INSTRUCTION },
+            { role: 'user', content: formattedPrompt },
+          ],
+          stream: true,
+          options: {
+            temperature: 0.7,
+            num_ctx: 4096,
+          },
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok || !response.body) {
+        throw new Error(`Ollama Stream HTTP Error ${response.status}`);
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let fullReply = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          try {
+            const parsed = JSON.parse(line);
+            const content = parsed.message?.content || parsed.response || '';
+            if (content) {
+              fullReply += content;
+              onChunk(content);
+            }
+          } catch {}
+        }
+      }
+
+      const latencyMs = Date.now() - startTime;
+      return {
+        reply: fullReply || 'No response content returned.',
+        provider: 'ollama',
+        model: modelToUse,
+        latencyMs,
+        status: 'success',
+        offline: true,
+      };
+    } catch (err: any) {
+      const latencyMs = Date.now() - startTime;
+      const errReply = `Local AI Stream Error: ${err.message || 'Connection failed'}.`;
+      onChunk(errReply);
+      return {
+        reply: errReply,
+        provider: 'ollama',
+        model: targetModel || this.selectedModel,
+        latencyMs,
+        status: 'error',
+        offline: true,
+        error: err.message,
       };
     }
   }

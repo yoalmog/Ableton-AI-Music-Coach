@@ -24,7 +24,19 @@ export interface AISettings {
 export interface AIHealth {
   ok: boolean;
   provider: 'ollama' | 'gemini' | 'none';
-  status: 'CONNECTED' | 'NOT RUNNING' | 'NO MODEL INSTALLED' | 'MISSING KEY' | 'ERROR' | 'OFFLINE';
+  status:
+    | 'CONNECTED'
+    | 'NOT RUNNING'
+    | 'UNREACHABLE'
+    | 'NO MODEL INSTALLED'
+    | 'NO MODELS'
+    | 'MODEL NOT FOUND'
+    | 'CORS ERROR'
+    | 'TIMEOUT'
+    | 'MISSING KEY'
+    | 'ERROR'
+    | 'OFFLINE'
+    | 'UNKNOWN ERROR';
   statusMessage: string;
   modelUsed?: string;
   latencyMs?: number;

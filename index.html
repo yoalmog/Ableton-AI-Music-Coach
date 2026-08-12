@@ -3,10 +3,39 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
+    <title>Ableton AI Music Coach — Learn Electronic Music Production</title>
+    <meta name="description" content="Learn Ableton Live 12 with an AI music production coach for Psytrance, Goa, Techno and Electronic Music." />
+    
+    <!-- Open Graph / SEO -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://abletonaimusiccoach.qd.je" />
+    <meta property="og:title" content="Ableton AI Music Coach — Learn Electronic Music Production" />
+    <meta property="og:description" content="Learn Ableton Live 12 with an AI music production coach for Psytrance, Goa, Techno and Electronic Music." />
+    <meta property="og:image" content="/branding/logo.png" />
+
+    <!-- PWA Manifest & Icons -->
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/png" href="/branding/symbol.png" />
+    <meta name="theme-color" content="#10b981" />
   </head>
-  <body>
-    <div id="root"></div>
+  <body class="bg-[#090d16] text-white">
+    <div id="root">
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: system-ui, sans-serif; background: #090d16; color: #fff;">
+        <div style="font-size: 24px; font-weight: bold; margin-bottom: 12px; color: #10b981;">ABLETON AI MUSIC COACH</div>
+        <div style="font-size: 14px; color: #94a3b8; margin-bottom: 24px;">AI Music Production Coach</div>
+        <div style="width: 32px; height: 32px; border: 3px solid rgba(16, 185, 129, 0.2); border-top-color: #10b981; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+      </div>
+    </div>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
+    </script>
+    <style>
+      @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -35,7 +35,7 @@ jobs:
           node-version: 22
 
       - name: Install Dependencies
-        run: npm install
+        run: npm install --include=optional
 
       - name: Build Web Application
         if: matrix.target == 'web' || matrix.target == 'android'
