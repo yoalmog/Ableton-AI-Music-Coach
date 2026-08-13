@@ -1,4 +1,5 @@
 export type AIMode = 'local-first' | 'local-only' | 'cloud-only' | 'auto';
+export type AIProviderType = 'android_local' | 'ollama' | 'gemini' | 'offline_coach' | 'none';
 
 export interface AIModel {
   id: string;
@@ -13,6 +14,7 @@ export interface AISettings {
   mode: AIMode;
   localEndpoint: string;
   localModel: string;
+  androidLocalModel: string;
   cloudProvider: 'gemini';
   cloudModel: string;
   privacyMode: boolean;
@@ -23,7 +25,7 @@ export interface AISettings {
 
 export interface AIHealth {
   ok: boolean;
-  provider: 'ollama' | 'gemini' | 'none';
+  provider: AIProviderType;
   status:
     | 'CONNECTED'
     | 'NOT RUNNING'
@@ -73,12 +75,13 @@ export interface StructuredAction {
 
 export interface AIResponse {
   reply: string;
-  provider: 'ollama' | 'gemini' | 'none';
+  provider: AIProviderType;
   model: string;
   latencyMs: number;
   status: 'success' | 'error' | 'fallback' | 'privacy_blocked';
   offline: boolean;
   error?: string;
+  notificationMessage?: string;
   structuredAction?: StructuredAction;
 }
 

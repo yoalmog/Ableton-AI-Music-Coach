@@ -1,12 +1,15 @@
 import { OllamaProvider } from './ollamaProvider';
 import { GeminiProvider } from './geminiProvider';
-import { AISettings, AIHealth, AIRequest, AIResponse } from './aiTypes';
+import { androidLocalAIProvider, AndroidLocalAIProvider } from './androidLocalAIProvider';
+import { offlineCoachProvider, OfflineCoachProvider } from './offlineCoachProvider';
+import { AISettings, AIHealth, AIRequest, AIResponse, AIProviderType } from './aiTypes';
 import { debugLog } from '../../utils/debug';
 
 const DEFAULT_SETTINGS: AISettings = {
   mode: 'local-first',
   localEndpoint: 'http://localhost:11434',
   localModel: 'qwen3.5:9b',
+  androidLocalModel: 'qwen2.5-3b-instruct',
   cloudProvider: 'gemini',
   cloudModel: 'gemini-3.6-flash',
   privacyMode: false,
@@ -18,12 +21,23 @@ const DEFAULT_SETTINGS: AISettings = {
 export class AIRouter {
   private ollama: OllamaProvider;
   private gemini: GeminiProvider;
+  private androidLocal: AndroidLocalAIProvider;
+  private offlineCoach: OfflineCoachProvider;
   private settings: AISettings;
 
   constructor() {
     this.settings = this.loadSettings();
     this.ollama = new OllamaProvider(this.settings.localEndpoint);
     this.gemini = new GeminiProvider(this.settings.cloudModel);
+    this.androidLocal = androidLocalAIProvider;
+    this.offlineCoach = offlineCoachProvider;
+  }
+
+  public isAndroidPlatform(): boolean {
+    if (typeof navigator === 'undefined') return false;
+    const ua = navigator.userAgent || '';
+    const cap = (window as any).Capacitor;
+    return /Android/i.test(ua) || cap?.getPlatform() === 'android';
   }
 
   public getSettings(): AISettings {
@@ -39,7 +53,7 @@ export class AIRouter {
     this.ollama.setEndpoint(this.settings.localEndpoint);
     this.gemini.setModel(this.settings.cloudModel);
 
-    // Notify electron main process if available
+    // Notify desktop/IPC if available
     const api = (window as any).desktopAPI?.ai || (window as any).electronAPI?.ai;
     if (api?.saveSettings) {
       api.saveSettings(this.settings).catch((e: any) => debugLog.warn('Could not save desktop AI settings:', e));
@@ -72,39 +86,55 @@ export class AIRouter {
   }
 
   /**
-   * Return comprehensive Health Diagnostic for both Local and Cloud
+   * Return comprehensive Health Diagnostics
    */
   public async getDiagnostics(): Promise<{
-    activeProvider: 'ollama' | 'gemini' | 'none';
+    activeProvider: AIProviderType;
     activeModel: string;
     settings: AISettings;
     localHealth: AIHealth;
     cloudHealth: AIHealth;
+    offlineCoachHealth: AIHealth;
+    isAndroid: boolean;
   }> {
-    const localHealth = await this.ollama.testConnection({ targetModel: this.settings.localModel });
-    const cloudHealth = await this.gemini.testConnection();
+    const isAndroid = this.isAndroidPlatform();
+    const localHealth = isAndroid
+      ? await this.androidLocal.testConnection()
+      : await this.ollama.testConnection({ targetModel: this.settings.localModel });
 
-    let activeProvider: 'ollama' | 'gemini' | 'none' = 'none';
+    const cloudHealth = await this.gemini.testConnection();
+    const offlineCoachHealth = await this.offlineCoach.testConnection();
+
+    let activeProvider: AIProviderType = 'none';
     let activeModel = 'None';
 
     if (this.settings.mode === 'cloud-only') {
       if (cloudHealth.ok) {
         activeProvider = 'gemini';
         activeModel = cloudHealth.modelUsed || this.settings.cloudModel;
+      } else {
+        activeProvider = 'offline_coach';
+        activeModel = 'Offline Coach';
       }
     } else if (this.settings.privacyMode || this.settings.mode === 'local-only') {
       if (localHealth.ok) {
-        activeProvider = 'ollama';
-        activeModel = localHealth.modelUsed || this.settings.localModel;
+        activeProvider = isAndroid ? 'android_local' : 'ollama';
+        activeModel = localHealth.modelUsed || (isAndroid ? this.settings.androidLocalModel : this.settings.localModel);
+      } else {
+        activeProvider = 'offline_coach';
+        activeModel = 'Offline Coach';
       }
     } else {
       // local-first or auto
       if (localHealth.ok) {
-        activeProvider = 'ollama';
-        activeModel = localHealth.modelUsed || this.settings.localModel;
+        activeProvider = isAndroid ? 'android_local' : 'ollama';
+        activeModel = localHealth.modelUsed || (isAndroid ? this.settings.androidLocalModel : this.settings.localModel);
       } else if (this.settings.fallbackEnabled && cloudHealth.ok) {
         activeProvider = 'gemini';
         activeModel = cloudHealth.modelUsed || this.settings.cloudModel;
+      } else {
+        activeProvider = 'offline_coach';
+        activeModel = 'Offline Coach';
       }
     }
 
@@ -114,109 +144,131 @@ export class AIRouter {
       settings: { ...this.settings },
       localHealth,
       cloudHealth,
+      offlineCoachHealth,
+      isAndroid,
     };
   }
 
   /**
-   * Main Chat Dispatcher using Local-First Architecture
+   * Main Chat Dispatcher with Android Local AI -> Gemini -> Offline Coach Fallback
    */
   public async chat(request: AIRequest): Promise<AIResponse> {
+    const isAndroid = this.isAndroidPlatform();
     const mode = this.settings.mode;
     const privacyMode = this.settings.privacyMode;
     const fallbackEnabled = this.settings.fallbackEnabled;
 
     // 1. PRIVACY MODE ENFORCEMENT
     if (privacyMode) {
-      const localAvailable = await this.ollama.isAvailable();
-      if (!localAvailable) {
-        return {
-          reply: 'Local AI is unavailable. Privacy Mode prevents cloud requests.',
-          provider: 'none',
-          model: 'None',
-          latencyMs: 0,
-          status: 'privacy_blocked',
-          offline: true,
-          error: 'Privacy mode active and local AI unavailable',
-        };
+      if (isAndroid) {
+        const localAvailable = await this.androidLocal.isAvailable();
+        if (localAvailable) {
+          return await this.androidLocal.chat(request);
+        }
+      } else {
+        const localAvailable = await this.ollama.isAvailable();
+        if (localAvailable) {
+          return await this.ollama.chat(request, this.settings.localModel);
+        }
       }
-      return await this.ollama.chat(request, this.settings.localModel);
+
+      // In privacy mode, fall back to local Offline Coach (no internet needed)
+      const offlineRes = await this.offlineCoach.chat(request);
+      return {
+        ...offlineRes,
+        notificationMessage: 'Local AI unavailable — using Offline Coach.',
+      };
     }
 
     // 2. MODE: LOCAL ONLY
     if (mode === 'local-only') {
-      const localAvailable = await this.ollama.isAvailable();
-      if (!localAvailable) {
-        return {
-          reply: 'Local AI is currently unavailable and Cloud AI is disabled.',
-          provider: 'none',
-          model: 'None',
-          latencyMs: 0,
-          status: 'error',
-          offline: true,
-          error: 'Local AI unavailable in Local-Only mode',
-        };
+      if (isAndroid) {
+        const localAvailable = await this.androidLocal.isAvailable();
+        if (localAvailable) {
+          return await this.androidLocal.chat(request);
+        }
+      } else {
+        const localAvailable = await this.ollama.isAvailable();
+        if (localAvailable) {
+          return await this.ollama.chat(request, this.settings.localModel);
+        }
       }
-      return await this.ollama.chat(request, this.settings.localModel);
+
+      // Fallback to Offline Coach
+      const offlineRes = await this.offlineCoach.chat(request);
+      return {
+        ...offlineRes,
+        notificationMessage: 'Local AI unavailable — using Offline Coach.',
+      };
     }
 
     // 3. MODE: CLOUD ONLY
     if (mode === 'cloud-only') {
-      return await this.gemini.chat(request);
+      const cloudRes = await this.gemini.chat(request);
+      if (cloudRes.status === 'success') {
+        return cloudRes;
+      }
+      const offlineRes = await this.offlineCoach.chat(request);
+      return {
+        ...offlineRes,
+        notificationMessage: 'Cloud AI unavailable — using Offline Coach.',
+      };
     }
 
-    // 4. DEFAULT: LOCAL-FIRST (Local Ollama primary -> Cloud fallback)
-    const localAvailable = await this.ollama.isAvailable();
-    if (localAvailable) {
-      const localRes = await this.ollama.chat(request, this.settings.localModel);
-      if (localRes.status === 'success') {
-        return localRes;
+    // 4. DEFAULT: LOCAL-FIRST (Android Local AI / Ollama primary -> Cloud fallback -> Offline Coach)
+    if (isAndroid) {
+      const localAvailable = await this.androidLocal.isAvailable();
+      if (localAvailable) {
+        const localRes = await this.androidLocal.chat(request);
+        if (localRes.status === 'success') {
+          return localRes;
+        }
       }
-      // Local attempt failed with fatal error -> try cloud fallback if enabled
-      if (!fallbackEnabled) {
-        return localRes;
+    } else {
+      const localAvailable = await this.ollama.isAvailable();
+      if (localAvailable) {
+        const localRes = await this.ollama.chat(request, this.settings.localModel);
+        if (localRes.status === 'success') {
+          return localRes;
+        }
       }
     }
 
-    // Fallback to Cloud AI
+    // Fallback step 1: Cloud AI (Gemini) if enabled
     if (fallbackEnabled) {
       const cloudRes = await this.gemini.chat(request);
       if (cloudRes.status === 'success') {
         return {
           ...cloudRes,
           status: 'fallback',
+          notificationMessage: 'Local AI unavailable — switched to Cloud AI.',
         };
       }
     }
 
-    // Both local and cloud failed or disabled
+    // Fallback step 2: Offline Coach
+    const offlineRes = await this.offlineCoach.chat(request);
     return {
-      reply: 'AI is currently unavailable.\n\nDetails:\n- Local AI: Unavailable or not running\n- Cloud AI: Disabled or unreachable',
-      provider: 'none',
-      model: 'None',
-      latencyMs: 0,
-      status: 'error',
-      offline: true,
-      error: 'Both local and cloud providers unavailable',
+      ...offlineRes,
+      status: 'fallback',
+      notificationMessage: 'Local AI unavailable — using Offline Coach.',
     };
   }
 
-  /**
-   * Helper to fetch installed local models from Ollama
-   */
   public async getLocalModels() {
+    if (this.isAndroidPlatform()) {
+      return await this.androidLocal.getModels();
+    }
     return await this.ollama.getModels();
   }
 
-  /**
-   * Test Local Ollama connection specifically
-   */
   public async testLocalConnection() {
+    if (this.isAndroidPlatform()) {
+      return await this.androidLocal.testConnection();
+    }
     return await this.ollama.testConnection({ targetModel: this.settings.localModel });
   }
 
-  /**
-   * Test Cloud Gemini connection specifically
-   */
   public async testCloudConnection(params?: { customKey?: string; customModel?: string }) {
     return await this.gemini.testConnection(params);
   }

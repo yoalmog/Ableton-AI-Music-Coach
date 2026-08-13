@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Cpu, Cloud, Lock, AlertCircle, RefreshCw } from 'lucide-react';
+import { Cpu, Cloud, Lock, AlertCircle, RefreshCw, BookOpen, Smartphone } from 'lucide-react';
 import { aiService } from '../../services/aiService';
 import { Tooltip } from '../common/Tooltip';
+import { AIProviderType } from '../../services/ai/aiTypes';
 
 interface AIStatusBadgeProps {
   onOpenSettings: () => void;
@@ -10,11 +11,12 @@ interface AIStatusBadgeProps {
 
 export const AIStatusBadge: React.FC<AIStatusBadgeProps> = ({ onOpenSettings, onOpenSetup }) => {
   const [status, setStatus] = useState<{
-    activeProvider: 'ollama' | 'gemini' | 'none';
+    activeProvider: AIProviderType;
     activeModel: string;
     privacyMode: boolean;
     localOk: boolean;
     cloudOk: boolean;
+    isAndroid: boolean;
     loading: boolean;
   }>({
     activeProvider: 'none',
@@ -22,6 +24,7 @@ export const AIStatusBadge: React.FC<AIStatusBadgeProps> = ({ onOpenSettings, on
     privacyMode: false,
     localOk: false,
     cloudOk: false,
+    isAndroid: false,
     loading: true,
   });
 
@@ -35,6 +38,7 @@ export const AIStatusBadge: React.FC<AIStatusBadgeProps> = ({ onOpenSettings, on
         privacyMode: diag.settings.privacyMode,
         localOk: diag.localHealth.ok,
         cloudOk: diag.cloudHealth.ok,
+        isAndroid: Boolean(diag.isAndroid),
         loading: false,
       });
     } catch {
@@ -44,6 +48,7 @@ export const AIStatusBadge: React.FC<AIStatusBadgeProps> = ({ onOpenSettings, on
         privacyMode: false,
         localOk: false,
         cloudOk: false,
+        isAndroid: false,
         loading: false,
       });
     }
@@ -51,7 +56,7 @@ export const AIStatusBadge: React.FC<AIStatusBadgeProps> = ({ onOpenSettings, on
 
   useEffect(() => {
     checkStatus();
-    const interval = setInterval(checkStatus, 30000); // refresh status every 30s
+    const interval = setInterval(checkStatus, 25000); // refresh status
     return () => clearInterval(interval);
   }, []);
 
@@ -75,11 +80,15 @@ export const AIStatusBadge: React.FC<AIStatusBadgeProps> = ({ onOpenSettings, on
       );
     }
 
-    if (status.activeProvider === 'ollama') {
+    if (status.activeProvider === 'android_local' || status.activeProvider === 'ollama') {
       return (
         <div className="flex items-center gap-1.5 bg-[#122212] border border-[#1E441E] px-2.5 py-0.5 rounded text-[10px] font-mono text-[#90FF00] hover:bg-[#183018] transition-colors cursor-pointer">
-          <Cpu className="w-3 h-3 text-[#90FF00] animate-pulse" />
-          <span className="font-bold">🟢 LOCAL AI</span>
+          {status.isAndroid ? (
+            <Smartphone className="w-3 h-3 text-[#90FF00] animate-pulse" />
+          ) : (
+            <Cpu className="w-3 h-3 text-[#90FF00] animate-pulse" />
+          )}
+          <span className="font-bold">AI ● LOCAL</span>
           <span className="text-[#CCC] text-[9px]">({status.activeModel})</span>
         </div>
       );
@@ -89,8 +98,18 @@ export const AIStatusBadge: React.FC<AIStatusBadgeProps> = ({ onOpenSettings, on
       return (
         <div className="flex items-center gap-1.5 bg-[#0D2229] border border-[#184857] px-2.5 py-0.5 rounded text-[10px] font-mono text-[#00E5FF] hover:bg-[#12313B] transition-colors cursor-pointer">
           <Cloud className="w-3 h-3 text-[#00E5FF]" />
-          <span className="font-bold">🟢 GEMINI</span>
-          <span className="text-[#CCC] text-[9px]">(Cloud)</span>
+          <span className="font-bold">AI ● CLOUD</span>
+          <span className="text-[#CCC] text-[9px]">(Gemini)</span>
+        </div>
+      );
+    }
+
+    if (status.activeProvider === 'offline_coach') {
+      return (
+        <div className="flex items-center gap-1.5 bg-[#252010] border border-[#4E3F1A] px-2.5 py-0.5 rounded text-[10px] font-mono text-[#FFCC00] hover:bg-[#332A15] transition-colors cursor-pointer">
+          <BookOpen className="w-3 h-3 text-[#FFCC00]" />
+          <span className="font-bold">AI ● OFFLINE</span>
+          <span className="text-[#CCC] text-[9px]">(Coach)</span>
         </div>
       );
     }
@@ -107,7 +126,7 @@ export const AIStatusBadge: React.FC<AIStatusBadgeProps> = ({ onOpenSettings, on
   };
 
   return (
-    <Tooltip content="Click to setup or view Local AI Engine" position="bottom">
+    <Tooltip content="Click to view AI Engine Status & Local AI Models" position="bottom">
       <div onClick={onOpenSetup || onOpenSettings} className="select-none">
         {getBadgeContent()}
       </div>

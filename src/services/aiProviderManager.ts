@@ -1,6 +1,6 @@
 import { aiRouter } from './ai/aiRouter';
 import { ollamaService } from './ollamaService';
-import { AIRequest, AIResponse, AIHealth, AISettings } from './ai/aiTypes';
+import { AIRequest, AIResponse, AIHealth, AISettings, AIProviderType } from './ai/aiTypes';
 import { debugLog } from '../utils/debug';
 
 export class AIProviderManager {
@@ -16,10 +16,9 @@ export class AIProviderManager {
     return updated;
   }
 
-  public getActiveProvider(): string {
-    const settings = aiRouter.getSettings();
-    if (settings.privacyMode) return 'ollama';
-    return settings.mode;
+  public async getActiveProvider(): Promise<AIProviderType> {
+    const diag = await aiRouter.getDiagnostics();
+    return diag.activeProvider;
   }
 
   public setProvider(mode: AISettings['mode']) {
@@ -28,10 +27,12 @@ export class AIProviderManager {
 
   public async testProvider(): Promise<AIHealth> {
     const diag = await aiRouter.getDiagnostics();
-    if (diag.activeProvider === 'ollama') {
+    if (diag.activeProvider === 'android_local' || diag.activeProvider === 'ollama') {
       return diag.localHealth;
     } else if (diag.activeProvider === 'gemini') {
       return diag.cloudHealth;
+    } else if (diag.activeProvider === 'offline_coach') {
+      return diag.offlineCoachHealth;
     }
     return diag.localHealth;
   }
@@ -41,18 +42,24 @@ export class AIProviderManager {
   }
 
   public async streamMessage(request: AIRequest, onChunk: (text: string) => void): Promise<AIResponse> {
+    const isAndroid = aiRouter.isAndroidPlatform();
     const settings = aiRouter.getSettings();
-    const activeProvider = aiRouter.getDiagnostics().then(d => d.activeProvider);
-    
-    // If local ollama is active or privacy mode, stream from ollamaService directly
-    const currentProvider = await activeProvider;
-    if (currentProvider === 'ollama' || settings.privacyMode || settings.mode === 'local-only') {
-      const models = await ollamaService.getModels();
-      const bestModel = ollamaService.selectBestModel ? (ollamaService as any).selectBestModel(models, settings.localModel) : (settings.localModel || 'qwen3.5:9b');
-      return await ollamaService.streamChat(request, onChunk, bestModel);
+    const activeProvider = await this.getActiveProvider();
+
+    // On Desktop Windows, if Ollama is active, stream via ollamaService directly
+    if (!isAndroid && activeProvider === 'ollama') {
+      try {
+        const models = await ollamaService.getModels();
+        const bestModel = (ollamaService as any).selectBestModel
+          ? (ollamaService as any).selectBestModel(models, settings.localModel)
+          : settings.localModel || 'qwen3.5:9b';
+        return await ollamaService.streamChat(request, onChunk, bestModel);
+      } catch (e) {
+        debugLog.warn('Streaming Ollama failed, falling back to router:', e);
+      }
     }
 
-    // Otherwise fallback to general router chat
+    // Default chat router dispatch (handles Android Local AI, Gemini, and Offline Coach)
     const res = await aiRouter.chat(request);
     if (res.reply) {
       onChunk(res.reply);
@@ -65,7 +72,7 @@ export class AIProviderManager {
   }
 
   public async getModels() {
-    return await ollamaService.getModels();
+    return await aiRouter.getLocalModels();
   }
 
   public getOllamaService() {

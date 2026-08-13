@@ -29,6 +29,8 @@ import { AppSettings, AAMCProject } from '../../types';
 import { useLanguage } from '../../context/LanguageContext';
 import { Language } from '../../i18n';
 import { ModelManager } from '../ai/ModelManager';
+import { AndroidLocalAISetupView } from '../ai/AndroidLocalAISetupView';
+import { aiRouter } from '../../services/ai/aiRouter';
 import { AISettings, AIMode } from '../../services/ai/aiTypes';
 import { debugLog } from '../../utils/debug';
 
@@ -368,8 +370,18 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           </div>
         </div>
 
-        {/* Embedded Local Model Manager */}
-        <ModelManager />
+        {/* Embedded Local Model Managers */}
+        {aiRouter.isAndroidPlatform() ? (
+          <AndroidLocalAISetupView />
+        ) : (
+          <div className="space-y-6">
+            <ModelManager />
+            <div className="border-t border-[#2A2A2A] pt-4">
+              <h3 className="text-xs font-mono font-bold text-[#888] uppercase mb-3">Android Mobile AI Engine Preview</h3>
+              <AndroidLocalAISetupView />
+            </div>
+          </div>
+        )}
 
         {/* Cloud Gemini Configuration */}
         <div className="bg-[#121212] p-4 rounded border border-[#2A2A2A] space-y-3">
