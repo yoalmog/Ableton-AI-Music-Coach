@@ -48,5 +48,11 @@
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
     "vite": "^6.2.3"
+  },
+  "optionalDependencies": {
+    "@resvg/resvg-js-linux-x64-gnu": "^2.6.2",
+    "@resvg/resvg-js-win32-x64-msvc": "^2.6.2",
+    "@rollup/rollup-linux-x64-gnu": "^4.30.0",
+    "@rollup/rollup-win32-x64-msvc": "^4.30.0"
   }
 }
