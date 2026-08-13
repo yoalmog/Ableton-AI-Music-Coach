@@ -111,7 +111,7 @@ export const SubSimulatorPianoRoll: React.FC<SubSimulatorPianoRollProps> = ({
       {/* Grid Canvas Area */}
       <div className="flex border border-[#2B2B2B] rounded bg-[#151515] overflow-x-auto">
         {/* Piano Keys Column */}
-        <div className="w-12 shrink-0 border-r border-[#2B2B2B] bg-[#1A1A1A] select-none">
+        <div className="w-12 shrink-0 border-r rtl:border-r-0 rtl:border-l border-[#2B2B2B] bg-[#1A1A1A] select-none">
           {PITCHES.map(pitch => {
             const isAccidental = pitch.includes('#');
             return (
@@ -132,7 +132,7 @@ export const SubSimulatorPianoRoll: React.FC<SubSimulatorPianoRollProps> = ({
           {Array.from({ length: 16 }).map((_, step) => (
             <div
               key={step}
-              className={`border-r ${
+              className={`border-r rtl:border-r-0 rtl:border-l ${
                 step % 4 === 3 ? 'border-[#3D3D3D]' : 'border-[#222]'
               } ${isPlaying && activeBeat === step ? 'bg-amber-500/10' : ''}`}
             >

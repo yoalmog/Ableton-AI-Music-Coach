@@ -189,7 +189,7 @@ export const LessonGuidePanel: React.FC<LessonGuidePanelProps> = ({
         className="w-full py-3 bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs md:text-sm rounded-xl flex items-center justify-center gap-2 shadow-lg transition"
       >
         <span>{language === 'he' ? 'ביצעתי! המשך לשלב הבא' : 'Step Completed! Next Step'}</span>
-        <ArrowRight className="w-4 h-4" />
+        <ArrowRight className="w-4 h-4 rtl:rotate-180" />
       </button>
     </div>
   );

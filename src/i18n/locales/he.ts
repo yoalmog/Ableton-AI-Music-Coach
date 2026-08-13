@@ -710,5 +710,15 @@ export const he: TranslationDictionary = {
   'simulator.filterCutoffTip': 'מומלץ לשלב LFO לשינוי התדר לקבלת צליל וואבל או מעטפת לאסיד.',
   'simulator.drumRackTitle': 'Drum Rack (16 פאדים)',
   'simulator.drumRackTip': 'לחץ על פאד להשמעת דגימה',
+  'simulator.whatIsThis': 'מה זה?',
+  'simulator.searchBrowser': 'חפש בדפדפן...',
+  'simulator.trackName': 'שם הערוץ',
+  'simulator.masterTrack': 'ערוץ מאסטר',
+  'simulator.whatItDoes': 'מה זה עושה? (WHAT IT DOES)',
+  'simulator.whyItMatters': 'למה זה חשוב? (WHY IT MATTERS)',
+  'simulator.beginnerTip': 'טיפ למתחילים (BEGINNER TIP)',
+  'simulator.gotItReturn': 'הבנתי! חזור לסימולטור',
+  'simulator.stepCompleted': 'ביצוע השלב אושר!',
+  'simulator.loadingClassroom': 'טוען סביבת לימוד אינטראקטיבית ב-Ableton Live 12...',
 };
 

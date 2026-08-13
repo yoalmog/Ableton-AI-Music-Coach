@@ -3,37 +3,37 @@ import { ClassroomCourse, AbletonSearchTopic } from '../types/classroom';
 export const ABLETON_CLASSROOM_COURSES: ClassroomCourse[] = [
   {
     id: 'beginner_core',
-    title: 'Ableton Live 12 Beginner Masterclass',
-    titleHe: 'קורס היכרות ויסודות Ableton Live 12',
-    subtitle: 'From zero knowledge to completing your first electronic track',
-    subtitleHe: 'ממאפס ניסיון לביצוע והפקה מלאה של הקטע הראשון שלך',
+    title: 'Getting Started with Ableton Live 12',
+    titleHe: 'צעדים ראשונים ב-Ableton Live 12',
+    subtitle: '12-Module Masterclass: Interface, Session & Arrangement Views, MIDI, Audio, Devices, Mixer & Workflow',
+    subtitleHe: 'קורס מקיף בן 12 מודולים: הממשק, תצוגות Session ו-Arrangement, ערוצי MIDI ו-Audio, אפקטים, מיקסר ותהליך עבודה',
     icon: 'Layout',
     description: 'Learn where things are, what they do, why they are used, and how to operate Ableton Live 12.',
     descriptionHe: 'למד איפה כל דבר נמצא, מה הוא עושה, למה משתמשים בו ואיך להשתמש בזה באבלטון.',
     lessons: [
-      // MODULE 1: Getting Started
+      // MODULE 01: Getting Around Live
       {
-        id: 'mod1_1_overview',
-        title: 'Module 1: What is Ableton Live 12 & Interface Overview',
-        titleHe: 'מודול 1: מה זה Ableton Live 12 ומבנה הממשק',
+        id: 'mod1_getting_around',
+        title: 'Module 01: Getting Around Live',
+        titleHe: 'מודול 01: היכרות ומבנה המסך',
         level: 'Beginner',
-        category: 'Getting Started',
-        categoryHe: 'צעדים ראשונים',
+        category: '01 — Getting Around Live',
+        categoryHe: '01 — היכרות ומבנה המסך',
         moduleIndex: 1,
-        objective: 'Master the top transport bar, browser panel, arrangement view, and master bus.',
-        objectiveHe: 'הכרת סרגל התחבורה העליון, דפדפן הקבצים, ציר הזמן וערוץ המאסטר.',
-        durationMinutes: 10,
+        objective: 'Understand the main layout of Ableton Live 12: Browser on the left, Main View in the center, Device/Clip view at the bottom, and Transport at the top.',
+        objectiveHe: 'הבנת המבנה הכללי של Ableton Live 12: הדפדפן משמאל, המסך המרכזי במרכז, תצוגת הקליפ/מכשירים למטה וסרגל ההפעלה למעלה.',
+        durationMinutes: 8,
         completionRewardXp: 100,
         steps: [
           {
             id: 'step_m1_1',
-            title: 'Locate the Browser Panel',
+            title: 'Identify the Browser Panel',
             titleHe: 'איתור דפדפן הקבצים (Browser)',
-            instruction: 'Click on the Browser panel on the far left side of the screen.',
-            instructionHe: 'לחץ על פאנל ה-Browser בצד שמאל של המסך.',
+            instruction: 'Click anywhere inside the Browser panel on the far left side of the screen.',
+            instructionHe: 'לחץ בתוך פאנל ה-Browser בצד שמאל של המסך.',
             targetElement: 'browser',
-            explanation: 'The Browser is where all instruments, audio effects, MIDI effects, samples, and presets live.',
-            explanationHe: 'ה-Browser הוא המקום שבו נמצאים כל הכלים (Instruments), האפקטים והדגימות שלך.',
+            explanation: 'The Browser holds all your instruments, audio effects, MIDI effects, samples, packs, and plugins.',
+            explanationHe: 'ה-Browser מאכסן את כל הכלים, אפקטי השמע, אפקטי ה-MIDI, הדגימות והפלאגינים שלך.',
             why: 'Without the browser, you cannot load synths or audio samples into your project.',
             whyHe: 'ללא הדפדפן לא ניתן לטעון סינתיסייזרים או דגימות קול לפרויקט.',
             hint1: 'Look at the left sidebar containing categories like Instruments and Audio Effects.',
@@ -43,600 +43,944 @@ export const ABLETON_CLASSROOM_COURSES: ClassroomCourse[] = [
             answer: 'Click the left Browser panel area.',
             answerHe: 'לחץ על פאנל ה-Browser השמאלי.',
             actionType: 'click',
-            successMessage: 'Great job! The Browser panel is open and ready.',
-            successMessageHe: 'כל הכבוד! פאנל ה-Browser פתוח ומוכן.',
+            successMessage: 'Browser panel located and focused!',
+            successMessageHe: 'פאנל ה-Browser אותור וממוקד!',
             realAbletonChecklist: [
               'Open Ableton Live 12.',
-              'Press Ctrl+Alt+B (or Cmd+Option+B) to toggle the Browser.',
-              'Observe categories: Instruments, Audio Effects, MIDI Effects, Samples.'
+              'Press Ctrl+Alt+B (Cmd+Option+B on Mac) to toggle the Browser.',
+              'Observe categories: Sounds, Drums, Instruments, Audio Effects, MIDI Effects, Samples.'
             ],
             realAbletonChecklistHe: [
               'פתח את Ableton Live 12.',
               'לחץ Ctrl+Alt+B (או Cmd+Option+B במק) להצגת ה-Browser.',
-              'שים לב לקטגוריות: Instruments, Audio Effects, MIDI Effects, Samples.'
-            ]
-          },
-          {
-            id: 'step_m1_2',
-            title: 'Understand the Transport Control Bar',
-            titleHe: 'הכרת סרגל ההפעלה (Transport)',
-            instruction: 'Click the Play button in the top Transport bar.',
-            instructionHe: 'לחץ על כפתור ה-Play בסרגל ההפעלה העליון.',
-            targetElement: 'transport_play',
-            explanation: 'The Transport bar controls playback, recording, tempo (BPM), and time signatures.',
-            explanationHe: 'סרגל ה-Transport שולט על הניגון, ההקלטה, המהירות (BPM) ומשקל השיר.',
-            why: 'Play and Stop control the movement of the arrangement timeline.',
-            whyHe: 'כפתורי Play ו-Stop מניעים ועוצרים את ציר הזמן בפרויקט.',
-            hint1: 'Look at the top center-left bar for the triangular play icon.',
-            hint1He: 'חפש בסרגל העליון מצד שמאל את כפתור המשולש הירוק.',
-            hint2: 'Click the Play button (or press Space in real Ableton).',
-            hint2He: 'לחץ על כפתור ה-Play (או מקש רווח באבלטון האמיתי).',
-            answer: 'Click the green Play triangle in the transport bar.',
-            answerHe: 'לחץ על המשולש הירוק בסרגל ההפעלה.',
-            actionType: 'click',
-            successMessage: 'Playback active! The song timeline is now rolling.',
-            successMessageHe: 'הניגון פעיל! ציר הזמן בפרויקט נע עכשיו.',
-            realAbletonChecklist: [
-              'Press Spacebar to Start and Stop playback in Ableton Live 12.',
-              'Watch the arrangement playhead cursor move across tracks.'
-            ],
-            realAbletonChecklistHe: [
-              'לחץ על מקש הרווח להתחלה ועצירה של הניגון באבלטון 12.',
-              'עקוב אחר סמן הזמן הזז לרוחב הערוצים.'
-            ]
-          },
-          {
-            id: 'step_m1_3',
-            title: 'Set the Project BPM (Tempo)',
-            titleHe: 'קביעת מהירות הפרויקט (BPM)',
-            instruction: 'Click on the BPM value box in the top left and set it to 140.',
-            instructionHe: 'לחץ על תיבת ה-BPM בפינה השמאלית העליונה ושנה ל-140.',
-            targetElement: 'bpm_input',
-            explanation: 'BPM stands for Beats Per Minute. Electronic genres use specific BPM ranges (e.g. Psytrance 138-148, Techno 125-132).',
-            explanationHe: 'BPM מציג את פעימות הדקה. ז\'אנרים שונים דורשים קצב מדויק (למשל פסיטראנס 138-148, טכנו 125-132).',
-            why: 'Setting correct BPM ensures drums and samples sync to the grid.',
-            whyHe: 'הגדרת קצב נכון מבטיחה סנכרון של התופים והדגימות לגריד המוזיקלי.',
-            hint1: 'Find the number reading "120.00" near the Play/Stop controls.',
-            hint1He: 'חפש את המספר "120.00" ליד כפתורי ה-Play/Stop.',
-            hint2: 'Click on the BPM display box.',
-            hint2He: 'לחץ על תיבת הצגת ה-BPM.',
-            answer: 'Click the BPM box.',
-            answerHe: 'לחץ על תיבת ה-BPM.',
-            actionType: 'value_change',
-            targetValue: 140,
-            successMessage: 'BPM set to 140! Perfect for fast electronic genres.',
-            successMessageHe: 'הקצב עודכן ל-140 BPM! מושלם לז\'אנרים אלקטרוניים קצביים.',
-            realAbletonChecklist: [
-              'Double-click the Tempo display in top-left of Ableton.',
-              'Type 140 and press Enter.'
-            ],
-            realAbletonChecklistHe: [
-              'לחץ פעמיים על תיבת הטמפו בצד שמאל למעלה באבלטון.',
-              'הקלד 140 ולחץ Enter.'
-            ]
-          },
-          {
-            id: 'step_m1_4',
-            title: 'Toggle the Metronome',
-            titleHe: 'הפעלת המטרונום (Metronome)',
-            instruction: 'Click the Metronome toggle button (two small overlapping circles).',
-            instructionHe: 'לחץ על כפתור המטרונום (אייקון של שני עיגולים חופפים).',
-            targetElement: 'metronome',
-            explanation: 'The Metronome plays click ticks on every beat (1, 2, 3, 4) to help you record in time.',
-            explanationHe: 'המטרונום משמיע נקישות קצב לפי הפעימות (1, 2, 3, 4) כדי לנגן ולהקליט בזמן.',
-            why: 'Recording without a metronome causes MIDI notes and audio to drift off beat.',
-            whyHe: 'הקלטה ללא מטרונום גורמת לתווים ולשירה לצאת מקצב השיר.',
-            hint1: 'Look just to the right of the BPM display.',
-            hint1He: 'חפש מיד מימין לתצוגת ה-BPM.',
-            hint2: 'Click the Metronome icon button.',
-            hint2He: 'לחץ על אייקון המטרונום.',
-            answer: 'Click the Metronome button.',
-            answerHe: 'לחץ על כפתור המטרונום.',
-            actionType: 'toggle_mode',
-            successMessage: 'Metronome active! Click ticks will guide rhythm.',
-            successMessageHe: 'המטרונום פעיל! נקישות הקצב ינחו אותך בזמן ההקלטה.',
-            realAbletonChecklist: [
-              'Click the Metronome button (or press Key "C" if Keyboard Shortcuts enabled).',
-              'Play the track to hear click timing.'
-            ],
-            realAbletonChecklistHe: [
-              'לחץ על כפתור המטרונום באבלטון.',
-              'הפעל את השיר לשמיעת נקישות הקצב.'
+              'שים לב לקטגוריות: Sounds, Drums, Instruments, Audio Effects, MIDI Effects, Samples.'
             ]
           }
         ],
         quiz: [
           {
-            question: 'What is the primary function of the Browser in Ableton Live 12?',
-            questionHe: 'מהו התפקיד המרכזי של ה-Browser ב-Ableton Live 12?',
+            question: 'Where do you find instruments, audio effects, and sample files in Ableton Live 12?',
+            questionHe: 'איפה מוצאים כלים, אפקטים ודגימות סאונד ב-Ableton Live 12?',
             options: [
-              'Export finished WAV files',
-              'Access instruments, effects, audio samples, and presets',
-              'Adjust master volume output',
-              'Change song key signature'
+              'In the Master Track',
+              'In the Browser panel on the left side',
+              'In the Metronome settings',
+              'In the Export menu'
             ],
             optionsHe: [
-              'ייצוא קבצי WAV סופיים',
-              'גישה לכלים, אפקטים, דגימות סאונד ופריסטים',
-              'כיוון ווליום ערוץ המאסטר',
-              'שינוי סולם השיר'
+              'בערוץ המאסטר',
+              'בפאנל ה-Browser בצד שמאל',
+              'בהגדרות המטרונום',
+              'בתפריט היצוא'
             ],
             correctIndex: 1,
-            explanation: 'The Browser stores all devices, samples, instruments, and third-party VSTs.',
-            explanationHe: 'ה-Browser מרכז את כל הכלים, הדגימות, האפקטים והפלאגינים בפרויקט.'
+            explanation: 'The Browser panel on the left stores all native devices, third-party VSTs, samples, and presets.',
+            explanationHe: 'פאנל ה-Browser השמאלי מרכז את כל המכשירים המובנים, הפלאגינים, הדגימות והפריסטים.'
           }
         ]
       },
 
-      // MODULE 2: Tracks & Mixer Controls
+      // MODULE 02: Control Bar
       {
-        id: 'mod2_tracks',
-        title: 'Module 2: Managing Audio & MIDI Tracks',
-        titleHe: 'מודול 2: ניהול ערוצי MIDI ו-Audio',
+        id: 'mod2_control_bar',
+        title: 'Module 02: Control Bar',
+        titleHe: 'מודול 02: סרגל השליטה העליון (Control Bar)',
         level: 'Beginner',
-        category: 'Tracks',
-        categoryHe: 'ערוצים ומיקסר',
+        category: '02 — Control Bar',
+        categoryHe: '02 — סרגל השליטה העליון',
         moduleIndex: 2,
-        objective: 'Learn how to create MIDI and Audio tracks, Mute, Solo, Arm, and adjust Volume/Pan.',
-        objectiveHe: 'למד ליצור ערוצי MIDI ו-Audio, להשתמש ב-Mute/Solo/Arm ולכוונן ווליום וצידוד.',
-        durationMinutes: 12,
+        objective: 'Master Play, Stop, Record, Tempo (BPM), and Metronome timing controls.',
+        objectiveHe: 'הכרת כפתורי ההפעלה (Play, Stop, Record), קביעת הקצב (BPM) והפעלת המטרונום.',
+        durationMinutes: 10,
         completionRewardXp: 120,
         steps: [
           {
             id: 'step_m2_1',
-            title: 'Create a MIDI Track',
-            titleHe: 'יצירת ערוץ MIDI חדש',
-            instruction: 'Click the "+ Add MIDI Track" button at the top of the track section.',
-            instructionHe: 'לחץ על כפתור "+ Add MIDI Track" בראש אזור הערוצים.',
-            targetElement: 'add_midi_track_btn',
-            explanation: 'MIDI tracks hold virtual software instruments (synths, samplers) and MIDI notes.',
-            explanationHe: 'ערוצי MIDI מכילים כלי נגינה וירטואליים ותווים דיגיטליים.',
-            why: 'MIDI tracks contain no sound on their own—they trigger synths like Operator or Wavetable.',
-            whyHe: 'ערוץ MIDI לא מייצר סאונד בעצמו אלא מפעיל סינתיסייזר שמפיק את הצליל.',
-            hint1: 'Look at the control bar above the track headers.',
-            hint1He: 'חפש בסרגל השליטה שמעל ראשי הערוצים.',
-            hint2: 'Click "+ Add MIDI".',
-            hint2He: 'לחץ על כפתור הוספת ערוץ MIDI.',
-            answer: 'Click "+ Add MIDI Track".',
-            answerHe: 'לחץ על "+ Add MIDI Track".',
+            title: 'Start Playback',
+            titleHe: 'הפעלת ניגון (Play)',
+            instruction: 'Click the green Play button in the top Control Bar.',
+            instructionHe: 'לחץ על כפתור ה-Play בסרגל השליטה העליון.',
+            targetElement: 'transport_play',
+            explanation: 'The Play button starts playback of the timeline or session clips.',
+            explanationHe: 'כפתור ה-Play מניע את ניגון ציר הזמן או קטעי המוזיקה.',
+            why: 'Playback lets you audition your arrangement and live mix.',
+            whyHe: 'הניגון מאפשר להאזין לערוצים ולבצע מיקס בזמן אמת.',
+            hint1: 'Look at the top left area for the play icon triangle.',
+            hint1He: 'חפש בסרגל העליון מצד שמאל את כפתור ה-Play.',
+            hint2: 'Click the Play button (or press Space in real Ableton).',
+            hint2He: 'לחץ על כפתור ה-Play (או מקש רווח באבלטון האמיתי).',
+            answer: 'Click the Play button.',
+            answerHe: 'לחץ על כפתור ה-Play.',
             actionType: 'click',
-            successMessage: 'MIDI Track created!',
-            successMessageHe: 'ערוץ MIDI חדש נוצר בהצלחה!',
+            successMessage: 'Playback rolling!',
+            successMessageHe: 'הניגון פועל!',
             realAbletonChecklist: [
-              'Press Ctrl+Shift+T (Cmd+Shift+T on Mac) in Ableton Live 12.',
-              'Observe a new empty MIDI track created.'
+              'Press Spacebar to toggle Play/Stop in Ableton Live 12.'
             ],
             realAbletonChecklistHe: [
-              'לחץ Ctrl+Shift+T (או Cmd+Shift+T במק) באבלטון 12.',
-              'שים לב לערוץ MIDI החדש שנוצר.'
+              'לחץ על מקש הרווח באבלטון 12 להתחלה ועצירה.'
             ]
           },
           {
             id: 'step_m2_2',
-            title: 'Mute and Solo Tracks',
-            titleHe: 'שימוש בכפתורי Mute ו-Solo',
-            instruction: 'Click the Mute button (number box "1") on Track 1.',
-            instructionHe: 'לחץ על כפתור ה-Mute (מספר הערוץ "1") בערוץ ראשון.',
-            targetElement: 'track_mute',
-            explanation: 'Mute silences a track. Solo (S button) silences every track EXCEPT the selected one.',
-            explanationHe: 'Mute משתיק ערוץ. Solo (כפתור S) משתיק את כל הערוצים חוץ מהערוץ הנבחר.',
-            why: 'Soloing lets you focus on sound design for a single instrument without distraction.',
-            whyHe: 'Solo מאפשר לך להתרכז בעיצוב הסאונד של כלי יחיד ללא התנגשויות.',
-            hint1: 'Find the track header for Track 1.',
-            hint1He: 'חפש את ראש ערוץ 1.',
-            hint2: 'Click the track number box to Mute.',
-            hint2He: 'לחץ על תיבת מספר הערוץ להשתקה.',
-            answer: 'Click the Mute button on Track 1.',
-            answerHe: 'לחץ על כפתור ההשתקה בערוץ 1.',
-            actionType: 'click',
-            successMessage: 'Track muted! Yellow highlight turns off.',
-            successMessageHe: 'הערוץ הושתק! ההארה הצהובה כבתה.',
+            title: 'Adjust Project BPM',
+            titleHe: 'שינוי קצב הפרויקט (BPM)',
+            instruction: 'Click the BPM box and set it to 140 BPM.',
+            instructionHe: 'לחץ על תיבת ה-BPM ושנה את הקצב ל-140.',
+            targetElement: 'bpm_input',
+            explanation: 'BPM (Beats Per Minute) determines how fast or slow the music plays.',
+            explanationHe: 'BPM (פעימות בדקה) קובע את מהירות הניגון של היצירה.',
+            why: 'Matching target BPM ensures loop samples and MIDI notes sync cleanly to the grid.',
+            whyHe: 'קביעת קצב מדויקת מבטיחה שכל הדגימות והתווים יסתנכרנו לגריד.',
+            hint1: 'Find the BPM box near the transport controls reading "120.00".',
+            hint1He: 'חפש את תיבת ה-BPM המציגה "120.00".',
+            hint2: 'Click and change value to 140.',
+            hint2He: 'לחץ ושנה את הערך ל-140.',
+            answer: 'Set BPM to 140.',
+            answerHe: 'הגדר קצב ל-140 BPM.',
+            actionType: 'value_change',
+            targetValue: 140,
+            successMessage: 'BPM set to 140!',
+            successMessageHe: 'הקצב עודכן ל-140 BPM!',
             realAbletonChecklist: [
-              'Click yellow Track Activator box (number 1, 2, 3) in Ableton to Mute.',
-              'Click blue S button to Solo.'
+              'Double click Tempo display in Ableton top-left, type 140, press Enter.'
             ],
             realAbletonChecklistHe: [
-              'לחץ על המספר הצהוב בערוץ באבלטון להשתקה (Mute).',
-              'לחץ על הכפתור הכחול S להשמעה בודדת (Solo).'
+              'לחץ פעמיים על תצוגת ה-Tempo בצד שמאל למעלה באבלטון, הקלד 140 ולחץ Enter.'
             ]
           },
           {
             id: 'step_m2_3',
-            title: 'Arm Track for Recording',
-            titleHe: 'דריכת ערוץ להקלטה (Arm Track)',
-            instruction: 'Click the red Arm button (record circle) on the MIDI track.',
-            instructionHe: 'לחץ על כפתור ה-Arm האדום (עיגול הקלטה) בערוץ ה-MIDI.',
-            targetElement: 'track_arm',
-            explanation: 'Arming a track route incoming MIDI keyboard notes or microphone audio into that specific track.',
-            explanationHe: 'דריכת ערוץ (Arm) מנתבת צלילים מקלדת ה-MIDI או המיקרופון ישירות לערוץ הזה.',
-            why: 'If a track is not armed, pressing your MIDI keyboard will make no sound.',
-            whyHe: 'אם ערוץ לא דרוך (Armed), לחיצה על מקלדת השליטה לא תפיק שום צליל.',
-            hint1: 'Look at the bottom of the track controls for a small record circle icon.',
-            hint1He: 'חפש בתחתית פקדי הערוץ אייקון עיגול אדום.',
-            hint2: 'Click the Arm Record button.',
-            hint2He: 'לחץ על כפתור ה-Arm האדום.',
-            answer: 'Click the Arm button on the track.',
-            answerHe: 'לחץ על כפתור ה-Arm בערוץ.',
-            actionType: 'arm_track',
-            successMessage: 'Track Armed! Ready to receive MIDI input.',
-            successMessageHe: 'הערוץ דרוך להקלטה! מוכן לקבל התווים מהמקלדת.',
+            title: 'Activate Metronome Click',
+            titleHe: 'הפעלת המטרונום',
+            instruction: 'Click the Metronome button to enable rhythmic click ticks.',
+            instructionHe: 'לחץ על כפתור המטרונום להפעלת נקישות הקצב.',
+            targetElement: 'metronome',
+            explanation: 'The Metronome provides precise audible clicks on every beat (1, 2, 3, 4).',
+            explanationHe: 'המטרונום משמיע נקישות קצב מדויקות בכל פעימה.',
+            why: 'Crucial for keeping perfect time when recording MIDI or audio.',
+            whyHe: 'חיוני לשמירה על קצב מדויק בזמן הקלטה.',
+            hint1: 'Look right next to the time signature (4/4).',
+            hint1He: 'חפש מיד ליד משקל השיר (4/4).',
+            hint2: 'Click Metronome button.',
+            hint2He: 'לחץ על כפתור המטרונום.',
+            answer: 'Click the Metronome toggle.',
+            answerHe: 'לחץ על כפתור המטרונום.',
+            actionType: 'toggle_mode',
+            successMessage: 'Metronome active!',
+            successMessageHe: 'המטרונום פעיל!',
             realAbletonChecklist: [
-              'Click the Arm button (red circle) at bottom of track header in Ableton.',
-              'Play keys on computer keyboard or MIDI controller.'
+              'Click Metronome icon or press Key "C" in Ableton Live 12.'
             ],
             realAbletonChecklistHe: [
-              'לחץ על כפתור ה-Arm האדום בתחתית הערוץ באבלטון.',
-              'נגן במקלדת המחשב או במקלדת השליטה.'
+              'לחץ על אייקון המטרונום או מקש "C" באבלטון 12.'
             ]
+          }
+        ],
+        quiz: [
+          {
+            question: 'What happens when you increase the BPM value in Ableton Live 12?',
+            questionHe: 'מה קורה כשמעלים את ערך ה-BPM ב-Ableton Live 12?',
+            options: [
+              'The volume increases',
+              'The tempo speeds up',
+              'The song shifts key',
+              'New tracks are created'
+            ],
+            optionsHe: [
+              'הווליום עולה',
+              'קצב המוזיקה מואץ',
+              'סולם השיר משתנה',
+              'נוצרים ערוצים חדשים'
+            ],
+            correctIndex: 1,
+            explanation: 'Higher BPM accelerates the playback tempo of the entire project.',
+            explanationHe: 'ערך BPM גבוה יותר מאיץ את קצב הניגון של הפרויקט כולו.'
           }
         ]
       },
 
-      // MODULE 3: MIDI Clips & Piano Roll
+      // MODULE 03: Browser
       {
-        id: 'mod3_midi',
-        title: 'Module 3: MIDI Clips, Drawing Notes & Quantization',
-        titleHe: 'מודול 3: קטעי MIDI, ציור תווים וקואנטיזציה',
+        id: 'mod3_browser',
+        title: 'Module 03: Browser',
+        titleHe: 'מודול 03: הדפדפן והחיפוש (Browser)',
         level: 'Beginner',
-        category: 'MIDI',
-        categoryHe: 'מלודיה ו-MIDI',
+        category: '03 — Browser',
+        categoryHe: '03 — הדפדפן והחיפוש',
         moduleIndex: 3,
-        objective: 'Learn how to create MIDI clips, open the Piano Roll, draw notes, and quantize to the grid.',
-        objectiveHe: 'למד ליצור קטעי MIDI, לפתוח את ה-Piano Roll, לצייר תווים ולבצע קואנטיזציה לגריד.',
-        durationMinutes: 15,
-        completionRewardXp: 150,
+        objective: 'Navigate Browser categories, search for instruments/effects/samples, and load sounds.',
+        objectiveHe: 'ניווט בקטגוריות הדפדפן, חיפוש כלי נגינה, אפקטים ודגימות, וטעינת סאונד לערוצים.',
+        durationMinutes: 12,
+        completionRewardXp: 130,
         steps: [
           {
             id: 'step_m3_1',
-            title: 'Open the Interactive Piano Roll',
-            titleHe: 'פתיחת עורך ה-Piano Roll',
-            instruction: 'Click on the Piano Roll editor area in the lower section of the screen.',
-            instructionHe: 'לחץ על אזור עורך ה-Piano Roll בחלק התחתון של המסך.',
-            targetElement: 'piano_roll',
-            explanation: 'The Piano Roll displays pitch keys on the vertical Y-axis and time grid beats on the horizontal X-axis.',
-            explanationHe: 'ה-Piano Roll מציג את גובה התווים (פיץ\') בציר ה-Y ואת הזמן בציר ה-X.',
-            why: 'Piano Roll is the primary tool for composing melodies, chord progressions, and drum patterns.',
-            whyHe: 'ה-Piano Roll הוא הכלי המרכזי לכתיבת מלודיות, אקורדים ומקצבי תופים באבלטון.',
-            hint1: 'Look at the bottom editor window showing piano keys.',
-            hint1He: 'חפש בחלק התחתון של המסך תצוגה של קלידי פסנתר.',
-            hint2: 'Click inside the grid area of the Piano Roll.',
-            hint2He: 'לחץ בתוך רשת התווים ב-Piano Roll.',
-            answer: 'Click the Piano Roll panel.',
-            answerHe: 'לחץ על פאנל ה-Piano Roll.',
+            title: 'Explore Instruments Category',
+            titleHe: 'סקירת קטגוריית Instruments',
+            instruction: 'Click on the "Instruments" category in the Browser sidebar.',
+            instructionHe: 'לחץ על קטגוריית "Instruments" בסרגל ה-Browser.',
+            targetElement: 'browser_instruments',
+            explanation: 'Instruments contains synthesizers (Operator, Wavetable, Drift) and samplers.',
+            explanationHe: 'קטגוריית Instruments מכילה סינתיסייזרים ודגמים וירטואליים.',
+            why: 'Loading an instrument onto a MIDI track turns raw MIDI notes into rich synth audio.',
+            whyHe: 'טעינת כלי לערוץ MIDI הופכת תווים דיגיטליים לסאונד עשיר.',
+            hint1: 'Look at Browser panel under Drums/Sounds.',
+            hint1He: 'חפש בדפדפן מתחת ל-Drums.',
+            hint2: 'Click Instruments.',
+            hint2He: 'לחץ על Instruments.',
+            answer: 'Click Instruments category.',
+            answerHe: 'לחץ על קטגוריית Instruments.',
             actionType: 'click',
-            successMessage: 'Piano Roll focused!',
-            successMessageHe: 'עורך ה-Piano Roll ממוקד ופעיל!',
+            successMessage: 'Instruments opened!',
+            successMessageHe: 'קטגוריית Instruments נפתחה!',
             realAbletonChecklist: [
-              'Double-click an empty clip slot in Session view or drag a selection in Arrangement.',
-              'Press Shift+Tab to toggle between Device View and Clip/Piano Roll View.'
+              'In Ableton Browser, click "Instruments" or press Ctrl+F to search.'
             ],
             realAbletonChecklistHe: [
-              'לחץ פעמיים על קליפ ריק באבלטון.',
-              'לחץ Shift+Tab למעבר בין תצוגת האפקטים לתצוגת ה-Piano Roll.'
+              'בדפדפן באבלטון, לחץ על Instruments או Ctrl+F לחיפוש.'
             ]
           },
           {
             id: 'step_m3_2',
-            title: 'Draw MIDI Notes',
-            titleHe: 'ציור תווים על הגריד',
-            instruction: 'Click inside the grid to place a note at pitch C3.',
-            instructionHe: 'לחץ בתוך הגריד כדי להוסיף תו בפיץ\' C3.',
-            targetElement: 'piano_roll_grid',
-            explanation: 'In Ableton, double-clicking grid cells adds or deletes notes. B toggles Draw Pencil mode.',
-            explanationHe: 'באבלטון, לחיצה כפולה מוסיפה או מוחקת תו. מקש B מפעיל את מצב העיפרון.',
-            why: 'Precision note placement builds structured melodic lines and basslines.',
-            whyHe: 'מיקום מדויק של תווים בונה ליין מלודי ובס יציב ומהודק.',
-            hint1: 'Click anywhere on the blue grid lines opposite note key C3.',
-            hint1He: 'לחץ בתוך המשבצות מול הקליד C3.',
-            hint2: 'Place a note on Beat 1.',
-            hint2He: 'מקם תו על פעימה 1.',
-            answer: 'Click the piano roll grid.',
-            answerHe: 'לחץ בתוך גריד ה-Piano Roll.',
-            actionType: 'draw_note',
-            successMessage: 'Note C3 drawn onto the time grid!',
-            successMessageHe: 'התו C3 צוין בהצלחה על גבי ציר הזמן!',
-            realAbletonChecklist: [
-              'In Ableton Piano Roll, press "B" to enable Pencil tool.',
-              'Click grid cell to draw note.',
-              'Press "B" again to switch back to Arrow selection tool.'
-            ],
-            realAbletonChecklistHe: [
-              'ב-Piano Roll באבלטון, לחץ "B" להפעלת העיפרון.',
-              'לחץ על הגריד לציור תו.',
-              'לחץ שוב "B" לחזרה לחץ הבחירה הרגיל.'
-            ]
-          },
-          {
-            id: 'step_m3_3',
-            title: 'Quantize Notes to Grid',
-            titleHe: 'ביצוע קואנטיזציה (Quantize)',
-            instruction: 'Click the "Quantize 1/16" button to snap notes tightly to 16th note timing.',
-            instructionHe: 'לחץ על כפתור "Quantize 1/16" ליישור התווים במדויק לחלוקת 1/16.',
-            targetElement: 'piano_roll_quantize',
-            explanation: 'Quantization snaps played/recorded notes to the nearest musical grid division (e.g. 1/16 notes).',
-            explanationHe: 'קואנטיזציה מיישרת תווים שהוקלטו בצורה לא מדויקת בול על קווי הקצב והגריד.',
-            why: 'Electronic music requires tight, mathematical timing alignment for kicks, drums, and bass.',
-            whyHe: 'מוזיקה אלקטרונית דורשת דיוק מתמטי של התופים והבס לקצב השיר.',
-            hint1: 'Find the Quantize control in the Piano Roll header bar.',
-            hint1He: 'חפש את כפתור Quantize בסרגל של ה-Piano Roll.',
-            hint2: 'Click "Quantize".',
-            hint2He: 'לחץ על Quantize.',
-            answer: 'Click Quantize button.',
-            answerHe: 'לחץ על כפתור ה-Quantize.',
-            actionType: 'click',
-            successMessage: 'Notes quantized to 16th grid!',
-            successMessageHe: 'התווים יושרו במדויק לגריד של 1/16!',
-            realAbletonChecklist: [
-              'Select all notes with Ctrl+A (Cmd+A on Mac).',
-              'Press Ctrl+U (Cmd+U) to execute instant Quantize in Ableton Live 12.'
-            ],
-            realAbletonChecklistHe: [
-              'בחר את כל התווים עם Ctrl+A.',
-              'לחץ Ctrl+U באבלטון 12 לביצוע קואנטיזציה מיידית.'
-            ]
-          }
-        ]
-      },
-
-      // MODULE 4: Instruments (Operator, Wavetable, Drift)
-      {
-        id: 'mod4_instruments',
-        title: 'Module 4: Ableton Instruments (Operator, Wavetable, Drift)',
-        titleHe: 'מודול 4: כלי נגינה באבלטון (Operator, Wavetable, Drift)',
-        level: 'Intermediate',
-        category: 'Instruments',
-        categoryHe: 'סינתיסייזרים וכלים',
-        moduleIndex: 4,
-        objective: 'Explore Ableton native synths including Operator (FM), Wavetable, and Drift.',
-        objectiveHe: 'הכרת הסינתיסייזרים המובנים של אבלטון: Operator (FM), Wavetable ו-Drift.',
-        durationMinutes: 15,
-        completionRewardXp: 180,
-        steps: [
-          {
-            id: 'step_m4_1',
-            title: 'Load Operator FM Synthesizer',
-            titleHe: 'טעינת סינתיסייזר Operator',
-            instruction: 'Click "Instruments" in Browser and select Operator.',
-            instructionHe: 'לחץ על קטגוריית "Instruments" ב-Browser ובחר ב-Operator.',
-            targetElement: 'browser_instruments',
-            explanation: 'Operator is Ableton legendary 4-oscillator Frequency Modulation (FM) synthesizer, famous for crisp psy basslines and FM stabs.',
-            explanationHe: 'Operator הוא סינתיסייזר FM מפורסם בעל 4 אוסילטורים, מושלם ליצירת בסים חדים ודקירות סאונד.',
-            why: 'FM synthesis shapes harmonics by modulating one sine wave with another.',
-            whyHe: 'סינתזת FM מעצבת את ההרמוניות על ידי מודולציה של גל סינוס אחד עם גל סינוס שני.',
-            hint1: 'Look at the Browser categories column under "Instruments".',
-            hint1He: 'חפש בתוך קטגוריית Instruments בדפדפן.',
-            hint2: 'Click Instruments category.',
-            hint2He: 'לחץ על קטגוריית Instruments.',
-            answer: 'Click Instruments in Browser.',
-            answerHe: 'לחץ על Instruments ב-Browser.',
-            actionType: 'load_device',
-            successMessage: 'Operator loaded into Track Device Chain!',
-            successMessageHe: 'Operator נטען בהצלחה לשרשרת האפקטים של הערוץ!',
-            realAbletonChecklist: [
-              'In Ableton Browser -> Instruments -> Operator.',
-              'Drag Operator onto a MIDI track.'
-            ],
-            realAbletonChecklistHe: [
-              'בדפדפן באבלטון -> Instruments -> Operator.',
-              'גורר את Operator אל ערוץ ה-MIDI.'
-            ]
-          },
-          {
-            id: 'step_m4_2',
-            title: 'Adjust Operator Oscillator A Envelope',
-            titleHe: 'כיוון מעטפת האוסילטור (Oscillator A Envelope)',
-            instruction: 'Click on the Operator Oscillator section in the Device Chain below.',
-            instructionHe: 'לחץ על אזור האוסילטור ב-Operator במעבד התחתון.',
-            targetElement: 'operator_osc',
-            explanation: 'Oscillator A produces the main waveform. Shortening Decay time creates tight, punchy bass plucks.',
-            explanationHe: 'Oscillator A מייצר את גל הסאונד המרכזי. קיצור זמן ה-Decay מייצר מכות בס קצרות והדוקות.',
-            why: 'Basslines require short decay so low frequencies do not muddy into the next beat.',
-            whyHe: 'בס מוזיקלי דורש Decay קצר כדי שתדרים נמוכים לא יתנגשו במכה הבאה של התופים.',
-            hint1: 'Look at the device chain area at the bottom.',
-            hint1He: 'סתכל בשרשרת המכשירים בתחתית המסך.',
-            hint2: 'Click Oscillator A box in Operator UI.',
-            hint2He: 'לחץ על משבצת Oscillator A בסינתיסייזר.',
-            answer: 'Click Operator Oscillator section.',
-            answerHe: 'לחץ על אזור האוסילטור ב-Operator.',
-            actionType: 'click',
-            successMessage: 'Oscillator parameters focused! Decay set to short pluck duration.',
-            successMessageHe: 'פרמטרי האוסילטור מוצגים! זמן ה-Decay קוצר לתו הדיוק המבוקש.',
-            realAbletonChecklist: [
-              'In Operator UI, click Osc A tab.',
-              'Drag Decay parameter down to ~150 ms.',
-              'Set Sustained level to -inf dB for tight bass pluck.'
-            ],
-            realAbletonChecklistHe: [
-              'בממשק Operator באבלטון, לחץ על לונית Osc A.',
-              'הורד את ערך ה-Decay לאזור ה-150 מילישניות.',
-              'אפס את ה-Sustain ל-inf- dB לקבלת מכת בס קצרה.'
-            ]
-          }
-        ]
-      },
-
-      // MODULE 5: Audio Effects
-      {
-        id: 'mod5_effects',
-        title: 'Module 5: Mixing Audio Effects (EQ Eight, Compressor, Saturator, Roar)',
-        titleHe: 'מודול 5: אפקטי אודיו ומיקס (EQ Eight, Compressor, Saturator, Roar)',
-        level: 'Intermediate',
-        category: 'Audio Effects',
-        categoryHe: 'אפקטי אודיו',
-        moduleIndex: 5,
-        objective: 'Master EQ Eight frequency carving, compression dynamics, saturation warmth, and Live 12 Roar saturation.',
-        objectiveHe: 'שליטה ב-EQ Eight לחיתוך תדרים, קומפרסור לדינמיקה, וסאטורציה עם אפקט Roar ב-Live 12.',
-        durationMinutes: 18,
-        completionRewardXp: 200,
-        steps: [
-          {
-            id: 'step_m5_1',
-            title: 'Open Audio Effects in Browser',
-            titleHe: 'פתיחת אפקטי האודיו ב-Browser',
+            title: 'Explore Audio Effects Category',
+            titleHe: 'סקירת קטגוריית Audio Effects',
             instruction: 'Click "Audio Effects" in the Browser sidebar.',
             instructionHe: 'לחץ על "Audio Effects" בסרגל ה-Browser.',
             targetElement: 'browser_effects',
-            explanation: 'Audio Effects process and transform sound coming out of audio and synth tracks.',
-            explanationHe: 'אפקטי אודיו מעבדים ומשנים את הסאונד היוצא מערוצי השמע והסינתזה.',
-            why: 'Effects shape frequency balance, dynamic volume range, space reverb, and distortion harmonics.',
-            whyHe: 'אפקטים מעצבים את תדר הצליל, הדינמיקה, המרחב בחלל והרמוניות הדיסטורשן.',
-            hint1: 'Look at Browser panel under Instruments.',
-            hint1He: 'חפש ב-Browser מתחת ל-Instruments.',
+            explanation: 'Audio Effects transform and polish audio (EQ Eight, Reverb, Compressor, Delay, Saturator, Roar).',
+            explanationHe: 'אפקטי שמע מעבדים ומעצבים את הצליל (איקיו, ריוורב, קומפרסור, דיליי, Roar).',
+            why: 'Effects shape tone, control volume dynamics, and add spatial depth.',
+            whyHe: 'אפקטים מעצבים את תדר הסאונד, הדינמיקה והעומק במרחב.',
+            hint1: 'Look right below Instruments in the Browser list.',
+            hint1He: 'חפש מתחת ל-Instruments ברשימת ה-Browser.',
             hint2: 'Click Audio Effects.',
             hint2He: 'לחץ על Audio Effects.',
             answer: 'Click Audio Effects.',
             answerHe: 'לחץ על Audio Effects.',
             actionType: 'click',
-            successMessage: 'Audio Effects category opened!',
+            successMessage: 'Audio Effects opened!',
             successMessageHe: 'קטגוריית Audio Effects נפתחה!',
             realAbletonChecklist: [
-              'Click Audio Effects in Ableton Browser.',
-              'Browse folders: EQ & Filters, Dynamics, Drive & Color.'
+              'In Ableton Live 12, browse Audio Effects folders like EQ & Filters, Dynamics, Drive & Color.'
             ],
             realAbletonChecklistHe: [
-              'לחץ על Audio Effects בדפדפן של אבלטון.',
-              'סקור את התיקיות: EQ & Filters, Dynamics, Drive & Color.'
+              'באבלטון 12, סקור את התיקיות ב-Audio Effects כגון EQ & Filters ו-Dynamics.'
             ]
+          }
+        ],
+        quiz: [
+          {
+            question: 'Which category in the Browser contains synthesizers like Operator and Wavetable?',
+            questionHe: 'איזו קטגוריה בדפדפן מכילה סינתיסייזרים כמו Operator ו-Wavetable?',
+            options: [
+              'Audio Effects',
+              'Instruments',
+              'Samples',
+              'Plug-ins'
+            ],
+            optionsHe: [
+              'Audio Effects',
+              'Instruments',
+              'Samples',
+              'Plug-ins'
+            ],
+            correctIndex: 1,
+            explanation: 'Built-in Ableton synths are located under the Instruments category.',
+            explanationHe: 'הסינתיסייזרים המובנים של אבלטון נמצאים תחת קטגוריית Instruments.'
           }
         ]
       },
 
-      // MODULE 6: Automation
+      // MODULE 04: Session View
       {
-        id: 'mod6_automation',
-        title: 'Module 6: Automation & Parameter Movement',
-        titleHe: 'מודול 6: אוטומציה ותנועת פרמטרים בזמן',
-        level: 'Intermediate',
-        category: 'Automation',
-        categoryHe: 'אוטומציה',
+        id: 'mod4_session_view',
+        title: 'Module 04: Session View',
+        titleHe: 'מודול 04: תצוגת Session View',
+        level: 'Beginner',
+        category: '04 — Session View',
+        categoryHe: '04 — תצוגת Session View',
+        moduleIndex: 4,
+        objective: 'Understand Session View for clip launching, jamming, looping, and scenes.',
+        objectiveHe: 'הבנת תצוגת ה-Session View לניגון קליפים, ניסויים בלופים והפעלת סצנות (Scenes).',
+        durationMinutes: 15,
+        completionRewardXp: 150,
+        steps: [
+          {
+            id: 'step_m4_1',
+            title: 'Switch to Session View',
+            titleHe: 'מעבר לתצוגת Session View',
+            instruction: 'Click the Session View toggle button (grid icon) in the top right.',
+            instructionHe: 'לחץ על כפתור מעבר לתצוגת Session View (אייקון הגריד) בצד ימין למעלה.',
+            targetElement: 'view_toggle_session',
+            explanation: 'Session View lays out tracks vertically as columns and clip slots as rows.',
+            explanationHe: 'Session View מציג ערוצים כעמודות אנכיות ומשבצות קליפים כשורות.',
+            why: 'Ideal for trying out musical ideas without committing to a linear arrangement timeline.',
+            whyHe: 'מושלם להתנסות ברעיונות מוזיקליים מבלי להיות מוגבל לציר זמן ליניארי.',
+            hint1: 'Look at top right near automation toggle.',
+            hint1He: 'חפש בצד ימין למעלה ליד כפתור האוטומציה.',
+            hint2: 'Click the Grid icon or press Tab key.',
+            hint2He: 'לחץ על אייקון הגריד או מקש Tab.',
+            answer: 'Click Session View toggle.',
+            answerHe: 'לחץ על תצוגת Session View.',
+            actionType: 'toggle_mode',
+            successMessage: 'Switched to Session View grid!',
+            successMessageHe: 'עברת לתצוגת Session View!',
+            realAbletonChecklist: [
+              'Press Tab key in Ableton to toggle between Session View and Arrangement View.'
+            ],
+            realAbletonChecklistHe: [
+              'לחץ על מקש Tab באבלטון למעבר מהיר בין תצוגת Session ל-Arrangement.'
+            ]
+          },
+          {
+            id: 'step_m4_2',
+            title: 'Launch a Clip Slot',
+            titleHe: 'הפעלת קליפ (Clip Slot)',
+            instruction: 'Click a clip slot inside Track 1 to trigger musical playback.',
+            instructionHe: 'לחץ על משבצת קליפ בערוץ 1 להפעלת ניגון הקליפ.',
+            targetElement: 'clip_slot',
+            explanation: 'Clips in Session View stay quantized to the song tempo and play indefinitely in a loop.',
+            explanationHe: 'קליפים ב-Session View נשארים מסונכרנים לקצב השיר ומנגנים בלופ בלתי פוסק.',
+            why: 'Allows live DJing, beat improvisation, and jam sessions.',
+            whyHe: 'מאפשר נגינה בלייב, אלתור מקצבים ואימפרוביזציה.',
+            hint1: 'Click inside the rectangular clip area on Track 1.',
+            hint1He: 'לחץ בתוך משבצת הקליפ בערוץ 1.',
+            hint2: 'Click clip slot.',
+            hint2He: 'לחץ על הקליפ.',
+            answer: 'Click clip slot.',
+            answerHe: 'לחץ על משבצת הקליפ.',
+            actionType: 'click',
+            successMessage: 'Clip launched and playing in loop!',
+            successMessageHe: 'הקליפ הופעל ומנגן בלופ!',
+            realAbletonChecklist: [
+              'Click the green play triangle on any clip slot in Ableton Live 12.'
+            ],
+            realAbletonChecklistHe: [
+              'לחץ על משולש הניגון הירוק במשבצת קליפ באבלטון 12.'
+            ]
+          }
+        ],
+        quiz: [
+          {
+            question: 'What is Session View primarily used for in Ableton Live 12?',
+            questionHe: 'למה משמשת בעיקר תצוגת Session View ב-Ableton Live 12?',
+            options: [
+              'Final song mastering',
+              'Non-linear clip launching, jamming, and experimenting with loops',
+              'Setting up audio hardware drivers',
+              'Editing video tracks'
+            ],
+            optionsHe: [
+              'מאסטרינג סופי לשיר',
+              'ניגון קליפים לא-ליניארי, אלתור וניסוי בלופים',
+              'הגדרת דרייברים של כרטיס הקול',
+              'עריכת וידאו'
+            ],
+            correctIndex: 1,
+            explanation: 'Session View provides a clip matrix for non-linear live performance and composition.',
+            explanationHe: 'Session View מספקת מטריצת קליפים להפעלת לופים ואלתור חופשי.'
+          }
+        ]
+      },
+
+      // MODULE 05: Arrangement View
+      {
+        id: 'mod5_arrangement_view',
+        title: 'Module 05: Arrangement View',
+        titleHe: 'מודול 05: תצוגת ציר הזמן (Arrangement View)',
+        level: 'Beginner',
+        category: '05 — Arrangement View',
+        categoryHe: '05 — תצוגת ציר הזמן',
+        moduleIndex: 5,
+        objective: 'Master linear timeline arrangement: tracks, playhead cursor, locators, and song structure.',
+        objectiveHe: 'הבנת ציר הזמן הליניארי: ערוצים, סמן זמן (Playhead), סמני מיקום ומבנה השיר.',
+        durationMinutes: 15,
+        completionRewardXp: 160,
+        steps: [
+          {
+            id: 'step_m5_1',
+            title: 'Switch to Arrangement View',
+            titleHe: 'מעבר לתצוגת Arrangement View',
+            instruction: 'Click the Arrangement View toggle button (three horizontal bars) in top right.',
+            instructionHe: 'לחץ על כפתור מעבר לתצוגת Arrangement View (שלושה קווים אופקיים) בפינה הימנית העליונה.',
+            targetElement: 'view_toggle_arrangement',
+            explanation: 'Arrangement View is a traditional left-to-right timeline showing bars and beats from 0:00 to the end.',
+            explanationHe: 'Arrangement View הינה תצוגת ציר זמן מסורתית משמאל לימין המציגה תיבות ופעימות.',
+            why: 'Where you organize intro, build, drop, breakdown, and outro into a finished track.',
+            whyHe: 'כאן מארגנים את הפתיחה, העלייה, הדרופ והסיום לשיר שלם ומוכן.',
+            hint1: 'Look near top right control bar.',
+            hint1He: 'חפש בצד ימין למעלה.',
+            hint2: 'Click horizontal bars icon.',
+            hint2He: 'לחץ על אייקון השורות האופקיות.',
+            answer: 'Click Arrangement View toggle.',
+            answerHe: 'לחץ על תצוגת Arrangement View.',
+            actionType: 'toggle_mode',
+            successMessage: 'Arrangement View timeline active!',
+            successMessageHe: 'תצוגת ציר הזמן פעילה!',
+            realAbletonChecklist: [
+              'Press Tab key to jump to Arrangement view in Ableton.'
+            ],
+            realAbletonChecklistHe: [
+              'לחץ על מקש Tab באבלטון למעבר ל-Arrangement view.'
+            ]
+          }
+        ],
+        quiz: [
+          {
+            question: 'Which view is used to build a complete song structure from start to finish along a timeline?',
+            questionHe: 'איזו תצוגה מיועדת לבניית מבנה שיר מלא מתחילה ועד סוף לאורך ציר זמן?',
+            options: [
+              'Session View',
+              'Arrangement View',
+              'Browser Panel',
+              'Preferences Window'
+            ],
+            optionsHe: [
+              'Session View',
+              'Arrangement View',
+              'Browser Panel',
+              'Preferences Window'
+            ],
+            correctIndex: 1,
+            explanation: 'Arrangement View structures audio and MIDI clips linearly from left to right.',
+            explanationHe: 'Arrangement View מציגה ומסדרת קטעי אודיו ו-MIDI בצורה ליניארית משמאל לימין.'
+          }
+        ]
+      },
+
+      // MODULE 06: Tracks
+      {
+        id: 'mod6_tracks',
+        title: 'Module 06: Tracks (MIDI, Audio, Return & Master)',
+        titleHe: 'מודול 06: סוגי ערוצים (MIDI, Audio, Return & Master)',
+        level: 'Beginner',
+        category: '06 — Tracks',
+        categoryHe: '06 — סוגי ערוצים',
         moduleIndex: 6,
-        objective: 'Learn to draw parameter automation lines for filter sweeps, volume fades, and send builds.',
-        objectiveHe: 'למד לצייר קווי אוטומציה לפילטרים (Filter Sweeps), עליות ווליום ואפקטים.',
+        objective: 'Learn the four types of tracks in Ableton Live 12 and how to manage Mute, Solo, and Arm.',
+        objectiveHe: 'הכרת ארבעת סוגי הערוצים באבלטון ושימוש בפקדי Mute, Solo ו-Arm.',
+        durationMinutes: 14,
+        completionRewardXp: 140,
+        steps: [
+          {
+            id: 'step_m6_1',
+            title: 'Add a new MIDI Track',
+            titleHe: 'הוספת ערוץ MIDI',
+            instruction: 'Click "+ Add MIDI Track" button.',
+            instructionHe: 'לחץ על כפתור "+ Add MIDI Track".',
+            targetElement: 'add_midi_track_btn',
+            explanation: 'MIDI tracks contain note data and drive software synthesizers or samplers.',
+            explanationHe: 'ערוצי MIDI מכילים תווים דיגיטליים ומפעילים סינתיסייזרים וסמפלרים.',
+            why: 'New instruments require dedicated MIDI tracks to receive and play notes.',
+            whyHe: 'כל כלי נגינה וירטואלי חדש דורש ערוץ MIDI ייעודי.',
+            hint1: 'Look at top toolbar above track list.',
+            hint1He: 'חפש בסרגל מעל רשימת הערוצים.',
+            hint2: 'Click "+ Add MIDI Track".',
+            hint2He: 'לחץ על הוספת ערוץ MIDI.',
+            answer: 'Click "+ Add MIDI Track".',
+            answerHe: 'לחץ על "+ Add MIDI Track".',
+            actionType: 'click',
+            successMessage: 'New MIDI Track added!',
+            successMessageHe: 'ערוץ MIDI חדש נוסף!',
+            realAbletonChecklist: [
+              'Press Ctrl+Shift+T (Cmd+Shift+T) to add a MIDI Track in Ableton.'
+            ],
+            realAbletonChecklistHe: [
+              'לחץ Ctrl+Shift+T (Cmd+Shift+T) להוספת ערוץ MIDI באבלטון.'
+            ]
+          },
+          {
+            id: 'step_m6_2',
+            title: 'Mute Track',
+            titleHe: 'השתקת ערוץ (Mute)',
+            instruction: 'Click the Mute button ("M") on Track 1.',
+            instructionHe: 'לחץ על כפתור ה-Mute ("M") בערוץ 1.',
+            targetElement: 'track_mute',
+            explanation: 'Mute turns off audio output for that specific track.',
+            explanationHe: 'Mute מכבה את יציאת השמע של הערוץ הנבחר.',
+            why: 'Useful for comparing arrangements or silencing unwanted parts temporarily.',
+            whyHe: 'שימושי להשוואת גרסאות או להשתקת חלקים זמנית.',
+            hint1: 'Find Track 1 header.',
+            hint1He: 'חפש את ראש ערוץ 1.',
+            hint2: 'Click Mute button.',
+            hint2He: 'לחץ על כפתור Mute.',
+            answer: 'Click Mute button on Track 1.',
+            answerHe: 'לחץ על Mute בערוץ 1.',
+            actionType: 'click',
+            successMessage: 'Track muted!',
+            successMessageHe: 'הערוץ הושתק!',
+            realAbletonChecklist: [
+              'Click track number activator box in Ableton to Mute/Unmute.'
+            ],
+            realAbletonChecklistHe: [
+              'לחץ על מספר הערוץ באבלטון להשתקה/הפעלה.'
+            ]
+          },
+          {
+            id: 'step_m6_3',
+            title: 'Arm Track for Recording',
+            titleHe: 'דריכת ערוץ להקלטה (Arm Record)',
+            instruction: 'Click the red Arm button (record circle) on Track 1.',
+            instructionHe: 'לחץ על כפתור ה-Arm האדום (עיגול הקלטה) בערוץ 1.',
+            targetElement: 'track_arm',
+            explanation: 'Arming routes incoming MIDI keys or audio input into that track.',
+            explanationHe: 'דריכת ערוץ מנתבת צלילים ממקלדת ה-MIDI או המיקרופון ישירות לערוץ הזה.',
+            why: 'If not armed, pressing MIDI keys produces no sound.',
+            whyHe: 'ללא דריכת ערוץ, לחיצה על המקלדת לא תפיק צליל.',
+            hint1: 'Look at track controls for red circle icon.',
+            hint1He: 'חפש בפקדי הערוץ אייקון עיגול אדום.',
+            hint2: 'Click Arm Record button.',
+            hint2He: 'לחץ על כפתור ה-Arm.',
+            answer: 'Click Arm button.',
+            answerHe: 'לחץ על כפתור ה-Arm.',
+            actionType: 'arm_track',
+            successMessage: 'Track armed and ready to record!',
+            successMessageHe: 'הערוץ דרוך ומוכן להקלטה!',
+            realAbletonChecklist: [
+              'Click the red Arm button at bottom of track header in Ableton.'
+            ],
+            realAbletonChecklistHe: [
+              'לחץ על כפתור ה-Arm האדום בתחתית הערוץ באבלטון.'
+            ]
+          }
+        ],
+        quiz: [
+          {
+            question: 'What is the purpose of Arming a track in Ableton Live 12?',
+            questionHe: 'מה המטרה של דריכת ערוץ (Arm) ב-Ableton Live 12?',
+            options: [
+              'To delete the track',
+              'To route MIDI or microphone input into that track for auditioning and recording',
+              'To export the track to MP3',
+              'To double the track volume'
+            ],
+            optionsHe: [
+              'למחוק את הערוץ',
+              'לנתב את המקלדת או המיקרופון לערוץ זה להשמעה והקלטה',
+              'לייצא את הערוץ ל-MP3',
+              'להכפיל את עוצמת הערוץ'
+            ],
+            correctIndex: 1,
+            explanation: 'Arming tells Ableton which track should listen to your controller inputs.',
+            explanationHe: 'דריכת ערוץ מגדירה לאבלטון לאיזה ערוץ לנתב את מקלדת השליטה.'
+          }
+        ]
+      },
+
+      // MODULE 07: Audio vs MIDI
+      {
+        id: 'mod7_audio_vs_midi',
+        title: 'Module 07: Audio vs MIDI',
+        titleHe: 'מודול 07: הבדלים בין Audio ל-MIDI',
+        level: 'Beginner',
+        category: '07 — Audio vs MIDI',
+        categoryHe: '07 — הבדלים בין Audio ל-MIDI',
+        moduleIndex: 7,
+        objective: 'Understand the fundamental difference between recorded audio waveforms and flexible MIDI note data.',
+        objectiveHe: 'הבנת ההבדלים היסודיים בין דגימות קול (Audio) לבין תווים דיגיטליים (MIDI).',
+        durationMinutes: 10,
+        completionRewardXp: 130,
+        steps: [
+          {
+            id: 'step_m7_1',
+            title: 'Understand MIDI Data',
+            titleHe: 'הבנת נתוני MIDI',
+            instruction: 'Click on a MIDI Track header to inspect its MIDI input.',
+            instructionHe: 'לחץ על ערוץ MIDI לצפייה בהגדרות ה-MIDI.',
+            targetElement: 'midi_track_header',
+            explanation: 'MIDI contains NO actual audio sound—only instructions: Note Pitch, Velocity (volume), and Duration.',
+            explanationHe: 'MIDI אינו מכיל סאונד מוקלט אלא רק הוראות נגינה: פיץ\', עוצמת לחיצה (Velocity) ומשך התו.',
+            why: 'Allows changing synths, notes, tempo, and pitch at any time without sound degradation.',
+            whyHe: 'מאפשר לשנות סינתיסייזר, תווים וסולם בכל רגע מבלי לפגוע באיכות הסאונד.',
+            hint1: 'Click on the track labeled "1 Psy Bass" or "MIDI".',
+            hint1He: 'לחץ על הערוץ המתוייג כ-MIDI.',
+            hint2: 'Click MIDI track header.',
+            hint2He: 'לחץ על ראש ערוץ ה-MIDI.',
+            answer: 'Click MIDI track header.',
+            answerHe: 'לחץ על ערוץ ה-MIDI.',
+            actionType: 'click',
+            successMessage: 'MIDI track selected! MIDI triggers synths.',
+            successMessageHe: 'ערוץ ה-MIDI נבחר! MIDI מפעיל סינתיסייזרים.',
+            realAbletonChecklist: [
+              'Inspect a MIDI clip in Ableton Piano Roll vs an Audio clip waveform.'
+            ],
+            realAbletonChecklistHe: [
+              'השווה בין קליפ MIDI ב-Piano Roll לקליפ Audio של דגימת סאונד באבלטון.'
+            ]
+          }
+        ],
+        quiz: [
+          {
+            question: 'Does a MIDI file contain actual recorded audio sound?',
+            questionHe: 'האם קובץ MIDI מכיל סאונד מוקלט בפועל?',
+            options: [
+              'Yes, always',
+              'No, it only contains note pitch, velocity, and duration data that triggers a synth',
+              'Only when using audio effects',
+              'Only in Arrangement View'
+            ],
+            optionsHe: [
+              'כן, תמיד',
+              'לא, הוא מכיל רק הוראות לגובה התו, עוצמתו ומשכו המפעילות סינתיסייזר',
+              'רק כאשר משתמשים באפקטים',
+              'רק בתצוגת Arrangement'
+            ],
+            correctIndex: 1,
+            explanation: 'MIDI is digital note performance data; it requires an instrument device to produce audio.',
+            explanationHe: 'MIDI הוא נתוני הנגנה בלבד ודורש כלי נגינה (Instrument) המפיק את הסאונד.'
+          }
+        ]
+      },
+
+      // MODULE 08: Clips
+      {
+        id: 'mod8_clips',
+        title: 'Module 08: Clips',
+        titleHe: 'מודול 08: עבודה עם קליפים (Clips)',
+        level: 'Beginner',
+        category: '08 — Clips',
+        categoryHe: '08 — עבודה עם קליפים',
+        moduleIndex: 8,
+        objective: 'Learn clip looping, length adjustments, clip view editing, and Piano Roll drawing.',
+        objectiveHe: 'עריכת קליפים, הגדרת לופ, שינוי אורך הקליפ וציור תווים ב-Piano Roll.',
+        durationMinutes: 15,
+        completionRewardXp: 150,
+        steps: [
+          {
+            id: 'step_m8_1',
+            title: 'Open Piano Roll Editor',
+            titleHe: 'פתיחת עורך ה-Piano Roll',
+            instruction: 'Click inside the Piano Roll editor area at the bottom.',
+            instructionHe: 'לחץ בתוך אזור ה-Piano Roll בחלק התחתון.',
+            targetElement: 'piano_roll',
+            explanation: 'The Piano Roll displays notes mapped on a piano keyboard vertical axis.',
+            explanationHe: 'ה-Piano Roll מציג תווים הממופים על גבי מקלדת פסנתר אנכית.',
+            why: 'Primary tool for writing melodies, chords, basslines, and drum patterns.',
+            whyHe: 'הכלי המרכזי לכתיבת מלודיות, אקורדים, ליינים של בס ומקצבי תופים.',
+            hint1: 'Look at the bottom area displaying piano keys.',
+            hint1He: 'חפש בחלק התחתון תצוגת קלידי פסנתר.',
+            hint2: 'Click inside the Piano Roll grid.',
+            hint2He: 'לחץ בתוך גריד ה-Piano Roll.',
+            answer: 'Click Piano Roll.',
+            answerHe: 'לחץ על פאנל ה-Piano Roll.',
+            actionType: 'click',
+            successMessage: 'Piano Roll focused!',
+            successMessageHe: 'עורך ה-Piano Roll פעיל!',
+            realAbletonChecklist: [
+              'Double click a MIDI clip in Ableton to open Clip View / Piano Roll.'
+            ],
+            realAbletonChecklistHe: [
+              'לחץ פעמיים על קליפ MIDI באבלטון לפתיחת ה-Piano Roll.'
+            ]
+          },
+          {
+            id: 'step_m8_2',
+            title: 'Draw a MIDI Note',
+            titleHe: 'ציור תו ב-Piano Roll',
+            instruction: 'Click inside the Piano Roll grid to place a note at pitch C3.',
+            instructionHe: 'לחץ בתוך גריד ה-Piano Roll להוספת תו בפיץ\' C3.',
+            targetElement: 'piano_roll_grid',
+            explanation: 'In Ableton, double-clicking grid cells adds or deletes notes. B toggles Draw tool.',
+            explanationHe: 'לחיצה כפולה מוסיפה או מוחקת תו. מקש B מפעיל את כלי העיפרון.',
+            why: 'Note placement constructs structured bass and lead melodies.',
+            whyHe: 'מיקום תווים בונה ליינים של בס ומלודיות.',
+            hint1: 'Click on grid lines opposite key C3.',
+            hint1He: 'לחץ על קווי הגריד מול המקש C3.',
+            hint2: 'Click grid cell.',
+            hint2He: 'לחץ על משבצת בגריד.',
+            answer: 'Click piano roll grid.',
+            answerHe: 'לחץ בגריד ה-Piano Roll.',
+            actionType: 'draw_note',
+            successMessage: 'Note drawn!',
+            successMessageHe: 'התו נוסף בהצלחה!',
+            realAbletonChecklist: [
+              'Press "B" in Ableton Piano Roll to switch to Draw Pencil mode.'
+            ],
+            realAbletonChecklistHe: [
+              'לחץ "B" ב-Piano Roll באבלטון להפעלת העיפרון.'
+            ]
+          }
+        ],
+        quiz: [
+          {
+            question: 'What shortcut toggles the Draw Pencil tool inside Ableton Piano Roll?',
+            questionHe: 'איזה מקש קיצור מפעיל את כלי העיפרון ב-Piano Roll ב-Ableton Live 12?',
+            options: [
+              'Spacebar',
+              'Key "B"',
+              'Key "Tab"',
+              'Ctrl+Z'
+            ],
+            optionsHe: [
+              'מקש רווח',
+              'המקש "B"',
+              'מקש Tab',
+              'Ctrl+Z'
+            ],
+            correctIndex: 1,
+            explanation: 'Pressing B toggles Draw Mode on and off in Ableton Live 12.',
+            explanationHe: 'לחיצה על המקש B מפעילה ומכבה את מצב העיפרון באבלטון 12.'
+          }
+        ]
+      },
+
+      // MODULE 09: Devices
+      {
+        id: 'mod9_devices',
+        title: 'Module 09: Devices',
+        titleHe: 'מודול 09: מכשירים ושרשרת אפקטים (Devices & Chain)',
+        level: 'Intermediate',
+        category: '09 — Devices',
+        categoryHe: '09 — מכשירים ושרשרת אפקטים',
+        moduleIndex: 9,
+        objective: 'Understand Instruments, Audio Effects, MIDI Effects, and how audio flows left-to-right through the Device Chain.',
+        objectiveHe: 'הבנת כלי נגינה, אפקטים, והזרימה של השמע משמאל לימין בשרשרת המכשירים.',
+        durationMinutes: 15,
+        completionRewardXp: 180,
+        steps: [
+          {
+            id: 'step_m9_1',
+            title: 'Inspect Operator FM Synth',
+            titleHe: 'בדיקת הסינתיסייזר Operator',
+            instruction: 'Click on the Operator instrument tab in the lower device chain area.',
+            instructionHe: 'לחץ על לשונית Operator בשרשרת המכשירים התחתונה.',
+            targetElement: 'operator_osc',
+            explanation: 'Operator is a classic 4-oscillator FM synth used for punchy basslines and crisp leads.',
+            explanationHe: 'Operator הינו סינתיסייזר FM בעל 4 אוסילטורים ליצירת בסים חדים ומלודיות.',
+            why: 'Understanding synth controls lets you craft original electronic sounds.',
+            whyHe: 'הבנת הפרמטרים מאפשרת לעצב צלילים ייחודיים.',
+            hint1: 'Look at the bottom panel device tabs.',
+            hint1He: 'סתכל בתחתית המסך בלשוניות ה-Device.',
+            hint2: 'Click Operator.',
+            hint2He: 'לחץ על Operator.',
+            answer: 'Click Operator tab.',
+            answerHe: 'לחץ על לשונית Operator.',
+            actionType: 'click',
+            successMessage: 'Operator parameters displayed!',
+            successMessageHe: 'פרמטרי Operator מוצגים!',
+            realAbletonChecklist: [
+              'Drag Operator from Browser -> Instruments onto a MIDI track in Ableton.'
+            ],
+            realAbletonChecklistHe: [
+              'גורר את Operator מהדפדפן לערוץ MIDI באבלטון.'
+            ]
+          }
+        ],
+        quiz: [
+          {
+            question: 'In which direction does audio flow through Ableton Live 12 Device Chain?',
+            questionHe: 'באיזה כיוון זורם השמע בשרשרת המכשירים (Device Chain) ב-Ableton Live 12?',
+            options: [
+              'Right to left',
+              'Left to right (Instrument first, then audio effects in series)',
+              'Top to bottom only',
+              'Randomly'
+            ],
+            optionsHe: [
+              'מימין לשמאל',
+              'משמאל לימין (קודם כלי הנגינה ולאחריו אפקטי השמע בטור)',
+              'מלמעלה למטה בלבד',
+              'באופן אקראי'
+            ],
+            correctIndex: 1,
+            explanation: 'Signal flows left-to-right from the source instrument through processing effects.',
+            explanationHe: 'האות זורם משמאל לימין מכל הנגינה דרך האפקטים המעבדים.'
+          }
+        ]
+      },
+
+      // MODULE 10: Mixer
+      {
+        id: 'mod10_mixer',
+        title: 'Module 10: Mixer',
+        titleHe: 'מודול 10: המיקסר (Volume, Pan, Sends & Master)',
+        level: 'Intermediate',
+        category: '10 — Mixer',
+        categoryHe: '10 — המיקסר',
+        moduleIndex: 10,
+        objective: 'Master Volume faders, Panning, Sends to Reverb/Delay return tracks, and the Master bus.',
+        objectiveHe: 'שליטה בפיידרים של ווליום, צידוד (Pan), שליחות אפקטים (Sends) וערוץ המאסטר.',
+        durationMinutes: 14,
+        completionRewardXp: 170,
+        steps: [
+          {
+            id: 'step_m10_1',
+            title: 'Inspect Master Track Header',
+            titleHe: 'בדיקת ערוץ ה-Master',
+            instruction: 'Click on the Master Track header on the far right.',
+            instructionHe: 'לחץ על ערוץ ה-Master בצד ימין.',
+            targetElement: 'master_track',
+            explanation: 'The Master track sums all audio tracks together before sending signal to speakers or WAV file.',
+            explanationHe: 'ערוץ המאסטר מאגד את כל הערוצים יחד לפני היציאה לרמקולים או לקובץ השמע.',
+            why: 'Ensure Master level stays below 0 dBFS to avoid digital clipping distortion.',
+            whyHe: 'שמור על עוצמת ערוץ המאסטר מתחת ל-0 dBFS למניעת עיוותים.',
+            hint1: 'Look at the last track on the far right.',
+            hint1He: 'חפש את הערוץ האחרון בצד ימין.',
+            hint2: 'Click Master track.',
+            hint2He: 'לחץ על ערוץ ה-Master.',
+            answer: 'Click Master track.',
+            answerHe: 'לחץ על ערוץ ה-Master.',
+            actionType: 'click',
+            successMessage: 'Master track selected!',
+            successMessageHe: 'ערוץ ה-Master נבחר!',
+            realAbletonChecklist: [
+              'Click Master track in Ableton Live 12 and verify peak level output meters.'
+            ],
+            realAbletonChecklistHe: [
+              'לחץ על ערוץ המאסטר באבלטון 12 ובדוק את מד העוצמה.'
+            ]
+          }
+        ],
+        quiz: [
+          {
+            question: 'What is the maximum output peak level you should allow on the Master track to avoid clipping?',
+            questionHe: 'מהי עוצמת השיא המרבית המותרת בערוץ ה-Master למניעת עיוותים (Clipping)?',
+            options: [
+              '+12 dBFS',
+              '0 dBFS (keep around -3 dBFS before mastering)',
+              '+6 dBFS',
+              '-48 dBFS'
+            ],
+            optionsHe: [
+              '+12 dBFS',
+              '0 dBFS (רצוי להישאר באזור 3dB- לפני מאסטרינג)',
+              '+6 dBFS',
+              '-48 dBFS'
+            ],
+            correctIndex: 1,
+            explanation: 'Exceeding 0 dBFS on digital master output causes harsh clipping distortion.',
+            explanationHe: 'חריגה מעל 0 dBFS ביציאת המאסטר גורמת לעיוות דיגיטלי חריף.'
+          }
+        ]
+      },
+
+      // MODULE 11: Automation
+      {
+        id: 'mod11_automation',
+        title: 'Module 11: Automation',
+        titleHe: 'מודול 11: אוטומציה ותנועת פרמטרים',
+        level: 'Intermediate',
+        category: '11 — Automation',
+        categoryHe: '11 — אוטומציה ותנועת פרמטרים',
+        moduleIndex: 11,
+        objective: 'Draw volume fades and filter frequency sweep automation lines over time.',
+        objectiveHe: 'ציור קווי אוטומציה לשינויי ווליום ופילטרים (Filter Sweeps) לאורך ציר הזמן.',
         durationMinutes: 12,
         completionRewardXp: 160,
         steps: [
           {
-            id: 'step_m6_1',
+            id: 'step_m11_1',
             title: 'Enable Automation Mode',
-            titleHe: 'הפעלת מצב אוטומציה (Automation Mode)',
-            instruction: 'Click the Automation Mode toggle button (or press A).',
-            instructionHe: 'לחץ על כפתור הפעלת מצב האוטומציה (או מקש A במקלדת).',
+            titleHe: 'הפעלת מצב אוטומציה',
+            instruction: 'Click the Automation Mode toggle button (or press Key "A").',
+            instructionHe: 'לחץ על כפתור האוטומציה (או מקש "A" במקלדת).',
             targetElement: 'automation_btn',
-            explanation: 'Automation mode overlays pink line envelopes over tracks on the arrangement timeline.',
-            explanationHe: 'מצב אוטומציה מציג קווים צבעוניים על גבי הערוצים לבקרת פרמטרים לאורך הזמן.',
-            why: 'Automation creates movement, tension, builds, and expressive changes throughout the song.',
-            whyHe: 'אוטומציה מייצרת התפתחות, מתח, עליות ושינויים מעניינים לאורך היצירה.',
-            hint1: 'Look near top right view toggles for the small pink automation line icon.',
-            hint1He: 'חפש ליד כפתורי התצוגה למעלה אייקון של קו אלכסוני.',
-            hint2: 'Click Automation toggle.',
+            explanation: 'Automation mode overlays colored parameter envelopes over tracks on the timeline.',
+            explanationHe: 'מצב אוטומציה מציג קווים צבעוניים לבקרת פרמטרים לאורך הזמן.',
+            why: 'Creates energetic builds, filter sweeps, and volume transitions.',
+            whyHe: 'מייצר עליות מותחות, עליות פילטר ושינויי עוצמה.',
+            hint1: 'Look near view toggles in top right.',
+            hint1He: 'חפש ליד כפתורי התצוגה בצד ימין למעלה.',
+            hint2: 'Click Automation icon.',
             hint2He: 'לחץ על כפתור האוטומציה.',
             answer: 'Click Automation button.',
             answerHe: 'לחץ על כפתור האוטומציה.',
             actionType: 'toggle_mode',
-            successMessage: 'Automation lines visible on tracks!',
-            successMessageHe: 'קווי האוטומציה מוצגים כעת על הערוצים!',
+            successMessage: 'Automation mode active!',
+            successMessageHe: 'מצב אוטומציה פעיל!',
             realAbletonChecklist: [
-              'Press key "A" in Ableton Live 12 to toggle Automation mode on/off.',
-              'Click any knob (e.g. Filter Cutoff) to select its automation lane.'
+              'Press Key "A" in Ableton Live 12 to toggle Automation view on/off.'
             ],
             realAbletonChecklistHe: [
-              'לחץ על המקש "A" באבלטון 12 להפעלת/כיבוי מצב אוטומציה.',
-              'לחץ על כפתור סיבוב (כמו פילטר Cutoff) לבחירת קו האוטומציה שלו.'
+              'לחץ על המקש "A" באבלטון 12 להפעלה/כיבוי של מצב האוטומציה.'
             ]
           }
-        ]
-      },
-
-      // MODULE 7: Arrangement
-      {
-        id: 'mod7_arrangement',
-        title: 'Module 7: Song Structure & Arrangement View',
-        titleHe: 'מודול 7: מבנה השיר וסדר הערוצים (Arrangement)',
-        level: 'Advanced',
-        category: 'Arrangement',
-        categoryHe: 'מבנה וסדר',
-        moduleIndex: 7,
-        objective: 'Structure Intro, Build-up, Breakdown, Drop, and Outro sections on the timeline.',
-        objectiveHe: 'בניית פתיחה (Intro), עלייה (Build), פירוק (Breakdown), דרופ (Drop) וסיום (Outro).',
-        durationMinutes: 15,
-        completionRewardXp: 220,
-        steps: [
+        ],
+        quiz: [
           {
-            id: 'step_m7_1',
-            title: 'Switch to Arrangement View',
-            titleHe: 'מעבר לתצוגת ציר הזמן (Arrangement View)',
-            instruction: 'Click the Arrangement View toggle icon (three horizontal bars) in top right.',
-            instructionHe: 'לחץ על אייקון תצוגת ציר הזמן (שלושה קווים אופקיים) בפינה הימנית העליונה.',
-            targetElement: 'view_toggle_arrangement',
-            explanation: 'Arrangement View lays out your track timeline horizontally from 0:00 to the end of the song.',
-            explanationHe: 'תצוגת ה-Arrangement מציגה את ציר הזמן האופקי של השיר מתחילתו ועד סופו.',
-            why: 'Session View is great for jamming clips; Arrangement View is where full songs are finished.',
-            whyHe: 'Session View מצוין לרעיונות ראשוניים; Arrangement View מיועד לסיום והפקת שיר מלא.',
-            hint1: 'Look at the top right corner near the BPM and key indicators.',
-            hint1He: 'סתכל בפינה הימנית העליונה ליד כפתור ה-BPM.',
-            hint2: 'Click horizontal bars icon (or press Tab).',
-            hint2He: 'לחץ על אייקון השורות האופקיות (או מקש Tab).',
-            answer: 'Click Arrangement View toggle.',
-            answerHe: 'לחץ על תצוגת Arrangement View.',
-            actionType: 'toggle_mode',
-            successMessage: 'Switched to Arrangement View timeline!',
-            successMessageHe: 'עברת בהצלחה לתצוגת ציר הזמן Arrangement View!',
-            realAbletonChecklist: [
-              'Press Tab key in Ableton to switch between Session and Arrangement views.',
-              'Set arrangement locators for Intro, Drop, Breakdown.'
+            question: 'Which key shortcut toggles Automation mode on and off in Ableton Live 12?',
+            questionHe: 'איזה מקש קיצור מפעיל ומכבה את מצב האוטומציה ב-Ableton Live 12?',
+            options: [
+              'Key "A"',
+              'Key "B"',
+              'Spacebar',
+              'Shift+Tab'
             ],
-            realAbletonChecklistHe: [
-              'לחץ על מקש ה-Tab באבלטון למעבר מהיר בין התצוגות.',
-              'הוסף סמני מיקום (Locators) עבור Intro, Drop, Breakdown.'
-            ]
+            optionsHe: [
+              'המקש "A"',
+              'המקש "B"',
+              'מקש רווח',
+              'Shift+Tab'
+            ],
+            correctIndex: 0,
+            explanation: 'Pressing Key A toggles Automation envelope lane display across all tracks.',
+            explanationHe: 'לחיצה על המקש A מציגה ומסתירה את קווי האוטומציה בערוצים.'
           }
         ]
       },
 
-      // MODULE 8: Electronic Music Production
+      // MODULE 12: Basic Workflow
       {
-        id: 'mod8_electronic',
-        title: 'Module 8: Electronic Music Production & Finishing Tracks',
-        titleHe: 'מודול 8: הפקת מוזיקה אלקטרונית וסיום קטע',
+        id: 'mod12_workflow',
+        title: 'Module 12: Basic Workflow (Creating a Song)',
+        titleHe: 'מודול 12: תהליך עבודה מלא ליצירת שיר',
         level: 'Advanced',
-        category: 'Electronic Production',
-        categoryHe: 'הפקה אלקטרונית',
-        moduleIndex: 8,
-        objective: 'Integrate Kick, Bass, Percussion, Leads, Sidechaining, and Master Bus processing.',
-        objectiveHe: 'חיבור תוף רגל (Kick), בס, פרקשן, סינת ליד, סיידצ\'יין ועיבוד ערוץ המאסטר.',
+        category: '12 — Basic Workflow',
+        categoryHe: '12 — תהליך עבודה מלא ליצירת שיר',
+        moduleIndex: 12,
+        objective: 'Combine Kick, Bass, Lead, Intro, Build, Drop, and Outro into a complete electronic song.',
+        objectiveHe: 'שילוב תוף רגל (Kick), בס, מלודיה, פתיחה, עלייה, דרופ וסיום ליצירת קטע אלקטרוני שלם.',
         durationMinutes: 20,
         completionRewardXp: 250,
         steps: [
           {
-            id: 'step_m8_1',
-            title: 'Master Track Final Checks',
-            titleHe: 'בדיקת ערוץ ה-Master הסופי',
-            instruction: 'Click on the Master Track header on the far right.',
-            instructionHe: 'לחץ על ראש ערוץ ה-Master בצד ימין קיצוני.',
-            targetElement: 'master_track',
-            explanation: 'The Master track is where all audio tracks combine before outputting to your speakers or WAV export.',
-            explanationHe: 'ערוץ ה-Master מאגד את כל הערוצים יחד לפני היציאה לרמקולים או לקובץ הסופי.',
-            why: 'Always ensure Master headroom does not exceed 0 dBFS to prevent harsh digital clipping distortion.',
-            whyHe: 'שמור על עוצמת Master מתחת ל-0 dBFS למניעת עיוותים דיגיטליים בדיסקורד או ברמקולים.',
-            hint1: 'Look at the last track on the far right of the mixer.',
-            hint1He: 'חפש את הערוץ האחרון בצד ימין של המיקסר.',
-            hint2: 'Click Master track header.',
-            hint2He: 'לחץ על ערוץ המאסטר.',
-            answer: 'Click Master track.',
-            answerHe: 'לחץ על ערוץ ה-Master.',
+            id: 'step_m12_1',
+            title: 'Verify Master Output & Final Playback',
+            titleHe: 'בדיקת יציאת המאסטר וניגון סופי',
+            instruction: 'Click Play button for final full-track playback audition.',
+            instructionHe: 'לחץ על כפתור ה-Play להשמעת הקטע השלם.',
+            targetElement: 'transport_play',
+            explanation: 'Auditioning the arrangement checks balance between Intro, Drop, and Outro transitions.',
+            explanationHe: 'השמעת היצירה בודקת את האיזון בין המעברים השונים בשיר.',
+            why: 'Final verification ensures your track is ready for WAV export.',
+            whyHe: 'בדיקה סופית מבטיחה שהקטע מוכן ליצוא לקובץ WAV.',
+            hint1: 'Click Play button in top bar.',
+            hint1He: 'לחץ על כפתור ה-Play בסרגל העליון.',
+            hint2: 'Click Play.',
+            hint2He: 'לחץ על Play.',
+            answer: 'Click Play button.',
+            answerHe: 'לחץ על כפתור ה-Play.',
             actionType: 'click',
-            successMessage: 'Master Track selected! Limiter & Utility verified.',
-            successMessageHe: 'ערוץ המאסטר נבחר! הלימיטר וה-Utility מאומתים.',
+            successMessage: 'Full track playback active! Course completed!',
+            successMessageHe: 'ניגון הקטע המלא פעיל! סיימת בהצלחה את הקורס!',
             realAbletonChecklist: [
-              'Click Master track in Ableton Live 12.',
-              'Insert Utility and Limiter onto Master bus.',
-              'Ensure peak level stays around -3 dB before mastering.'
+              'In Ableton Live 12: File -> Export Audio/Video (Ctrl+Shift+R) to bounce WAV file.'
             ],
             realAbletonChecklistHe: [
-              'לחץ על ערוץ ה-Master באבלטון 12.',
-              'הוסף פלאגין Utility ו-Limiter בערוץ ה-Master.',
-              'וודא שהעוצמה המירבית נשארת באזור 3dB- לפני מאסטרינג.'
+              'באבלטון 12: File -> Export Audio/Video (או Ctrl+Shift+R) לייצוא קובץ WAV.'
             ]
+          }
+        ],
+        quiz: [
+          {
+            question: 'What shortcut exports the final master audio in Ableton Live 12?',
+            questionHe: 'איזה מקש קיצור מייצא את קובץ האודיו הסופי ב-Ableton Live 12?',
+            options: [
+              'Ctrl+Shift+R (Cmd+Shift+R on Mac)',
+              'Ctrl+S',
+              'Spacebar',
+              'Key "A"'
+            ],
+            optionsHe: [
+              'Ctrl+Shift+R (Cmd+Shift+R במק)',
+              'Ctrl+S',
+              'מקש רווח',
+              'המקש "A"'
+            ],
+            correctIndex: 0,
+            explanation: 'Ctrl+Shift+R opens the Export Audio/Video window in Ableton Live 12.',
+            explanationHe: 'לחץ Ctrl+Shift+R לפתיחת חלון יצוא השמע באבלטון 12.'
           }
         ]
       }
@@ -747,15 +1091,13 @@ export const ABLETON_CLASSROOM_COURSES: ClassroomCourse[] = [
             answerHe: 'הגדר BPM ל-128.',
             actionType: 'value_change',
             targetValue: 128,
-            successMessage: 'Techno BPM 128 active!',
-            successMessageHe: 'קצב הטכנו 128 BPM הופעל!',
+            successMessage: 'BPM set to 128!',
+            successMessageHe: 'הקצב עודכן ל-128 BPM!',
             realAbletonChecklist: [
-              'Set Tempo to 128 BPM in Ableton.',
-              'Add Reverb to Kick return track and compress with Sidechain.'
+              'Set Ableton Tempo to 128 BPM.'
             ],
             realAbletonChecklistHe: [
-              'הגדר קצב 128 באבלטון.',
-              'הוסף Reverb בערוץ Return וחבר קומפרסור בסיידצ\'יין מתוף הרגל.'
+              'קבע קצב 128 באבלטון.'
             ]
           }
         ]
@@ -764,7 +1106,6 @@ export const ABLETON_CLASSROOM_COURSES: ClassroomCourse[] = [
   }
 ];
 
-// Searchable Topics for "WHERE IS IT?" & "WHAT DOES THIS DO?"
 export const ABLETON_SEARCH_TOPICS: AbletonSearchTopic[] = [
   {
     id: 'topic_browser',
@@ -774,68 +1115,140 @@ export const ABLETON_SEARCH_TOPICS: AbletonSearchTopic[] = [
     category: 'Interface',
     categoryHe: 'ממשק',
     whatItDoes: 'Stores all instruments, audio effects, MIDI effects, samples, packs, and plugins.',
-    whatItDoesHe: 'מאחסן את כל הכלים, האפקטים, הדגימות והפלאגינים בפרויקט.',
-    whyItMatters: 'It is the central library where all musical building blocks are retrieved.',
-    whyItMattersHe: 'זו הספרייה המרכזית ממנה שולפים את כל רכיבי היצירה.',
-    whenToUse: 'When starting a project or adding a new instrument or effect.',
-    whenToUseHe: 'כשמתחילים פרויקט חדש או רוצים להוסיף כלי או אפקט חדש.',
-    howToUse: 'Click items or press Ctrl+Alt+B (Cmd+Option+B on Mac) to toggle.',
-    howToUseHe: 'לחץ על הפריטים או לחץ Ctrl+Alt+B להצגה והסתרה.',
-    beginnerMistake: 'Searching for audio clips inside the Instruments tab instead of Samples.',
-    beginnerMistakeHe: 'חיפוש דגימות אודיו בלשונית Instruments במקום בלשונית Samples.'
+    whatItDoesHe: 'מרכז את כל הכלים, אפקטי השמע, אפקטי ה-MIDI, הדגימות והפלאגינים.',
+    whyItMatters: 'Essential for loading synths, samples, and processing effects into tracks.',
+    whyItMattersHe: 'חיוני לטעינת סינתיסייזרים, דגימות סאונד ואפקטים מעבדים.',
+    whenToUse: 'Whenever you need to add new sounds or effects to your project.',
+    whenToUseHe: 'בכל פעם שברצונך להוסיף סאונד או אפקט חדש לפרויקט.',
+    howToUse: 'Click category, select device/sample, and drag onto track or double click.',
+    howToUseHe: 'לחץ על קטגוריה, בחר מכשיר/דגימה וגורר אל הערוץ או לחץ פעמיים.',
+    beginnerMistake: 'Forgetting where samples are stored; use the Search bar at top of Browser.',
+    beginnerMistakeHe: 'שכחת המיקום של דגימות; השתמש בשורת החיפוש בראש ה-Browser.'
   },
   {
-    id: 'topic_piano_roll',
-    name: 'Piano Roll & MIDI Editor',
-    nameHe: 'עורך התווים (Piano Roll)',
-    targetElement: 'piano_roll',
-    category: 'MIDI',
-    categoryHe: 'מלודיה ו-MIDI',
-    whatItDoes: 'Allows drawing, moving, editing, and quantizing MIDI notes.',
-    whatItDoesHe: 'מאפשר ציור, הזזה, עריכה ויישור תווים על ציר הזמן.',
-    whyItMatters: 'Essential for writing melodies, chords, basslines, and drum beats.',
-    whyItMattersHe: 'חיוני לכתיבת מלודיות, אקורדים, ליין בס ומקצבי תופים.',
-    whenToUse: 'When composing musical ideas or editing recorded MIDI performances.',
-    whenToUseHe: 'ככותבים רעיונות מוזיקליים או עורכים הקלטת מקלדת שליטה.',
-    howToUse: 'Double click clips or press Shift+Tab to view.',
-    howToUseHe: 'לחץ פעמיים על קליפ או Shift+Tab לצפייה בעורך.',
-    beginnerMistake: 'Drawing notes off-grid without quantizing, causing rhythmic clutter.',
-    beginnerMistakeHe: 'ציור תווים מחוץ לגריד ללא קואנטיזציה, המייצר חוסר דיוק בקצב.'
+    id: 'topic_transport',
+    name: 'Transport (Play / Stop / Record)',
+    nameHe: 'סרגל ההפעלה (Transport)',
+    targetElement: 'transport_play',
+    category: 'Control Bar',
+    categoryHe: 'סרגל השליטה',
+    whatItDoes: 'Controls song play, stop, arrangement recording, and playhead position.',
+    whatItDoesHe: 'שולט על הניגון, העצירה, ההקלטה ומיקום סמן הזמן.',
+    whyItMatters: 'Drives timeline movement for auditioning and tracking.',
+    whyItMattersHe: 'מניע את ציר הזמן להאזנה והקלטה.',
+    whenToUse: 'Whenever starting or stopping playback.',
+    whenToUseHe: 'בכל התחלה או עצירה של הניגון.',
+    howToUse: 'Click Play (or press Spacebar). Click Stop to halt.',
+    howToUseHe: 'לחץ Play (או מקש רווח). לחץ Stop לעצירה.',
+    beginnerMistake: 'Leaving record active while editing clips accidentally overwriting notes.',
+    beginnerMistakeHe: 'השארת מצב הקלטה פעיל בזמן עריכה הגורמת לדריסת תווים.'
   },
   {
-    id: 'topic_operator',
-    name: 'Operator FM Synthesizer',
-    nameHe: 'סינתיסייזר Operator',
-    targetElement: 'operator_osc',
-    category: 'Instruments',
-    categoryHe: 'כלי נגינה',
-    whatItDoes: 'Hybrid FM synthesizer featuring 4 customizable oscillators, envelopes, and filters.',
-    whatItDoesHe: 'סינתיסייזר FM היברידי בעל 4 אוסילטורים, מעטפות ופילטרים.',
-    whyItMatters: 'Famous for creating signature Psytrance punchy basslines and crisp metallic sounds.',
-    whyItMattersHe: 'מפורסם ביצירת בסים חדים ומהירים לפסיטראנס וצלילים מתכתיים.',
-    whenToUse: 'When designing basslines, FM stabs, subs, or leads.',
-    whenToUseHe: 'כשמעצבים בס, דקירות FM, תדרי סאב או סינתי ליד מוביל.',
-    howToUse: 'Drag Operator from Instruments into a MIDI track.',
-    howToUseHe: 'גרור את Operator מקטגוריית Instruments אל ערוץ MIDI.',
-    beginnerMistake: 'Leaving Decay time too long on bass sounds, causing muddy overlap.',
-    beginnerMistakeHe: 'השארת Decay ארוך מדי בצלילי בס, הגורמת לעומס ובוץ בתדרים הנמוכים.'
+    id: 'topic_tempo',
+    name: 'Tempo / BPM',
+    nameHe: 'מהירות / טמפו (BPM)',
+    targetElement: 'bpm_input',
+    category: 'Control Bar',
+    categoryHe: 'סרגל השליטה',
+    whatItDoes: 'Sets project speed in Beats Per Minute.',
+    whatItDoesHe: 'קובע את מהירות הפרויקט בפעימות בדקה.',
+    whyItMatters: 'Determines genre momentum (e.g. Techno 128 BPM, Psytrance 145 BPM).',
+    whyItMattersHe: 'קובע את קצב הז\'אנר (למשל טכנו 128 BPM, פסיטראנס 145 BPM).',
+    whenToUse: 'At the start of every new song or when adjusting groove feel.',
+    whenToUseHe: 'בתחילת כל שיר חדש או בעת כיוונון הגרוב.',
+    howToUse: 'Double-click tempo display, type desired number, press Enter.',
+    howToUseHe: 'לחץ פעמיים על תצוגת הטמפו, הקלד את המספר ולחץ Enter.',
+    beginnerMistake: 'Changing BPM late in production without warp checking audio samples.',
+    beginnerMistakeHe: 'שינוי BPM בשלב מאוחר מבלי לבדוק את ה-Warp של דגימות השמע.'
   },
   {
     id: 'topic_metronome',
-    name: 'Metronome & Tempo',
-    nameHe: 'מטרונום וטמפו (Metronome)',
+    name: 'Metronome',
+    nameHe: 'מטרונום',
     targetElement: 'metronome',
-    category: 'Transport',
-    categoryHe: 'הפעלה וקצב',
-    whatItDoes: 'Plays click sounds at the specified BPM grid frequency.',
-    whatItDoesHe: 'משמיע נקישות קצב לפי ה-BPM המוגדר בפרויקט.',
-    whyItMatters: 'Helps keep live keyboard playing and vocal recording in tempo.',
-    whyItMattersHe: 'עוזר לשמור על הקלטת שירה ונגינה במקלדת בדיוק לפי הקצב.',
-    whenToUse: 'Before recording any live instrument or MIDI clip.',
-    whenToUseHe: 'לפני הקלטת כלי נגינה חי או קטע MIDI.',
-    howToUse: 'Click the Metronome icon in top bar or press C.',
-    howToUseHe: 'לחץ על אייקון המטרונום בסרגל העליון או על המקש C.',
-    beginnerMistake: 'Recording without a metronome and trying to fix erratic timing manually later.',
-    beginnerMistakeHe: 'הקלטה ללא מטרונום וניסיון לתקן נגינה לא יציבה ידנית לאחר מכן.'
+    category: 'Control Bar',
+    categoryHe: 'סרגל השליטה',
+    whatItDoes: 'Generates audible click ticks on beat divisions.',
+    whatItDoesHe: 'משמיע נקישות קצב לפי חלוקת הפעימות.',
+    whyItMatters: 'Guides human timing when playing MIDI keys or recording vocals/instruments.',
+    whyItMattersHe: 'מנחה את הנגינה והשירה בדיוק בזמן הקצב.',
+    whenToUse: 'During live recording or note drawing auditioning.',
+    whenToUseHe: 'בזמן הקלטה בלייב או בדיקת תווים.',
+    howToUse: 'Click Metronome button or press Key "C".',
+    howToUseHe: 'לחץ על כפתור המטרונום או מקש "C".',
+    beginnerMistake: 'Leaving metronome on during final audio export.',
+    beginnerMistakeHe: 'השארת המטרונום פעיל בזמן יצוא סופי.'
+  },
+  {
+    id: 'topic_session',
+    name: 'Session View',
+    nameHe: 'תצוגת Session View',
+    targetElement: 'view_toggle_session',
+    category: 'Views',
+    categoryHe: 'תצוגות',
+    whatItDoes: 'Clip grid matrix for non-linear jamming, looping, and performance.',
+    whatItDoesHe: 'מטריצת קליפים לאלתור, ניתוח לופים והופעה בלייב.',
+    whyItMatters: 'Allows exploring musical ideas without timeline restrictions.',
+    whyItMattersHe: 'מאפשר בדיקת רעיונות מוזיקליים ללא מגבלת ציר זמן.',
+    whenToUse: 'In early sketch stages or live DJ sets.',
+    whenToUseHe: 'בשלבי הרעיון הראשוניים או בהופעה בלייב.',
+    howToUse: 'Press Tab or click Grid icon in top right.',
+    howToUseHe: 'לחץ Tab או לחץ על אייקון הגריד בצד ימין למעלה.',
+    beginnerMistake: 'Confusing Session View clip slots with Arrangement View timeline.',
+    beginnerMistakeHe: 'בלבול בין משבצות Session View לבין ציר הזמן ב-Arrangement View.'
+  },
+  {
+    id: 'topic_arrangement',
+    name: 'Arrangement View',
+    nameHe: 'תצוגת Arrangement View',
+    targetElement: 'view_toggle_arrangement',
+    category: 'Views',
+    categoryHe: 'תצוגות',
+    whatItDoes: 'Horizontal left-to-right timeline for full song structuring.',
+    whatItDoesHe: 'ציר זמן אופקי משמאל לימין לבניית שיר מלא.',
+    whyItMatters: 'Where full electronic compositions are assembled from intro to outro.',
+    whyItMattersHe: 'התרשים שבו מורכבות יצירות אלקטרוניות מפתיחה ועד סיום.',
+    whenToUse: 'When building song structure and final mixdown.',
+    whenToUseHe: 'בעת בניית מבנה השיר והמיקס הסופי.',
+    howToUse: 'Press Tab to switch between Session and Arrangement views.',
+    howToUseHe: 'לחץ Tab למעבר מהיר בין התצוגות.',
+    beginnerMistake: 'Not using locators to mark Intro, Build, Drop, and Outro sections.',
+    beginnerMistakeHe: 'אי-שימוש בסמני מיקום (Locators) לסימון הפתיחה והדרופ.'
+  },
+  {
+    id: 'topic_piano_roll',
+    name: 'Piano Roll / MIDI Editor',
+    nameHe: 'עורך ה-MIDI / Piano Roll',
+    targetElement: 'piano_roll',
+    category: 'Editors',
+    categoryHe: 'עורכים',
+    whatItDoes: 'Displays pitch keys and time grid for drawing and editing MIDI notes.',
+    whatItDoesHe: 'מציג קלידי פסנתר וגריד זמן לציור ועריכת תווים.',
+    whyItMatters: 'Primary canvas for composing melodies, chord progressions, and basslines.',
+    whyItMattersHe: 'הקנבס המרכזי לכתיבת מלודיות, אקורדים וליינים של בס.',
+    whenToUse: 'Whenever editing MIDI clip contents.',
+    whenToUseHe: 'בכל פעם שעורכים קליפ MIDI.',
+    howToUse: 'Double-click a MIDI clip or press Shift+Tab.',
+    howToUseHe: 'לחץ פעמיים על קליפ MIDI או Shift+Tab.',
+    beginnerMistake: 'Forgetting to quantize off-beat notes with Ctrl+U.',
+    beginnerMistakeHe: 'אי-ביצוע קואנטיזציה לתווים שיצאו מהקצב עם Ctrl+U.'
+  },
+  {
+    id: 'topic_automation',
+    name: 'Automation Mode',
+    nameHe: 'מצב אוטומציה (Automation Mode)',
+    targetElement: 'automation_btn',
+    category: 'Editing',
+    categoryHe: 'עריכה',
+    whatItDoes: 'Overlays parameter envelope lines over timeline tracks.',
+    whatItDoesHe: 'מציג קווי מעטפת פרמטרים על גבי הערוצים בציר הזמן.',
+    whyItMatters: 'Creates motion, filter sweeps, volume fades, and tension builds.',
+    whyItMattersHe: 'יוצר תנועה, עליות פילטר, מעברי ווליום ומתח מוזיקלי.',
+    whenToUse: 'When adding expression and movement to instruments and effects.',
+    whenToUseHe: 'כשרוצים להוסיף הבעה ותנועה לכלים ולחקוטים.',
+    howToUse: 'Press Key "A" to toggle automation lanes on and off.',
+    howToUseHe: 'לחץ על המקש "A" להצגה והסתרה של קווי האוטומציה.',
+    beginnerMistake: 'Drawing too many erratic points causing harsh audio pops; keep curves smooth.',
+    beginnerMistakeHe: 'ציור נקודות חדות מדי הגורמות לקליקים; שמור על קווים חלקים.'
   }
 ];

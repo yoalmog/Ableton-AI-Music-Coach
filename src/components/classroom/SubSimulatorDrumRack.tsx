@@ -50,7 +50,7 @@ export const SubSimulatorDrumRack: React.FC<SubSimulatorDrumRackProps> = ({
             <button
               key={pad.id}
               onClick={() => handlePadClick(pad)}
-              className={`h-14 p-2 rounded border text-left flex flex-col justify-between transition ${
+              className={`h-14 p-2 rounded border text-start flex flex-col justify-between transition ${
                 isActive
                   ? 'bg-amber-400 text-black border-amber-300 shadow-[0_0_10px_rgba(251,191,36,0.8)] scale-95'
                   : 'bg-[#151515] border-[#2A2A2A] hover:bg-[#252525] text-gray-200'

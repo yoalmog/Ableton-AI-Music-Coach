@@ -264,6 +264,17 @@ export function AppContent() {
     return <SplashLoadingScreen />;
   }
 
+  if (authState === 'UNAUTHENTICATED') {
+    return (
+      <AuthModalContainer
+        onSuccess={() => {
+          const nextState = authService.getAuthState();
+          setAuthState(nextState);
+        }}
+      />
+    );
+  }
+
   return (
     <div
       dir={dir}
