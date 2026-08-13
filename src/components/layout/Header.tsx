@@ -1,5 +1,5 @@
 import React from 'react';
-import { Save, FolderOpen, Globe, Volume2, Sparkles, Search, Menu, Settings } from 'lucide-react';
+import { Save, FolderOpen, Globe, Volume2, Sparkles, Search, Menu, Settings, Music2 } from 'lucide-react';
 import { projectService } from '../../services/projectService';
 import { audioService } from '../../services/audioService';
 import { useLanguage } from '../../context/LanguageContext';
@@ -7,6 +7,39 @@ import { AAMCProject } from '../../types';
 import { VoiceControlWidget } from '../chat/VoiceControlWidget';
 import { Tooltip } from '../common/Tooltip';
 import { AIStatusBadge } from '../ai/AIStatusBadge';
+import { getAssetPath } from '../../utils/assetPath';
+
+// Resilient Logo Mark component with image fallback and vector icon backup
+const BrandSymbolMark: React.FC<{ sizeClass?: string }> = ({ sizeClass = "w-6 h-6" }) => {
+  const [imgState, setImgState] = React.useState<'png' | 'svg' | 'icon'>('png');
+
+  if (imgState === 'icon') {
+    return (
+      <div className={`${sizeClass} flex items-center justify-center bg-[#252525] rounded border border-[#333] text-[#90FF00] shrink-0`}>
+        <Music2 className="w-4 h-4" />
+      </div>
+    );
+  }
+
+  const currentSrc = imgState === 'png' 
+    ? getAssetPath('branding/symbol.png') 
+    : getAssetPath('branding/symbol.svg');
+
+  return (
+    <img
+      src={currentSrc}
+      alt="AAMC"
+      className={`${sizeClass} object-contain shrink-0`}
+      onError={() => {
+        if (imgState === 'png') {
+          setImgState('svg');
+        } else {
+          setImgState('icon');
+        }
+      }}
+    />
+  );
+};
 
 interface HeaderProps {
   project: AAMCProject;
@@ -70,33 +103,51 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="bg-[#1A1A1A] border-b border-[#333] text-[#E0E0E0] h-12 md:h-11 px-3 md:px-4 flex items-center justify-between select-none z-30 font-sans shrink-0 w-full max-w-full">
       {/* MOBILE HEADER LAYOUT (md:hidden) */}
-      <div className="flex md:hidden items-center justify-between w-full gap-2">
+      <div className="flex md:hidden items-center justify-between w-full gap-1 overflow-x-auto no-scrollbar">
         {/* Left: Mobile Menu Trigger + App Logo */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 shrink-0">
           {onToggleMobileMenu && (
             <button
               onClick={onToggleMobileMenu}
-              className="p-1.5 rounded bg-[#252525] hover:bg-[#333] text-[#90FF00] border border-[#333] transition-colors cursor-pointer min-h-[38px] min-w-[38px] flex items-center justify-center"
+              className="p-1.5 rounded bg-[#252525] hover:bg-[#333] text-[#90FF00] border border-[#333] transition-colors cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center shrink-0"
               aria-label="Open Navigation Menu"
             >
               <Menu className="w-5 h-5" />
             </button>
           )}
 
-          <div className="flex items-center gap-1.5" dir="ltr">
-            <img
-              src="branding/symbol.png"
-              alt="AAMC"
-              className="w-6 h-6 object-contain"
-            />
-            <span className="text-xs font-bold uppercase tracking-tight text-white">
+          <div className="flex items-center gap-1.5 shrink-0" dir="ltr">
+            <BrandSymbolMark sizeClass="w-6 h-6" />
+            <span className="text-xs font-bold uppercase tracking-tight text-white font-mono">
               AAMC
             </span>
           </div>
         </div>
 
-        {/* Right: AI Badge, Voice AI, Settings & Coach Trigger */}
-        <div className="flex items-center gap-1.5">
+        {/* Right: Search, Language, AI Badge, Voice, Settings & Coach Trigger */}
+        <div className="flex items-center gap-1 shrink-0 ms-auto">
+          <button
+            onClick={onOpenSearch}
+            className="p-1 rounded bg-[#252525] hover:bg-[#333] text-[#CCC] border border-[#333] cursor-pointer min-h-[34px] min-w-[34px] flex items-center justify-center shrink-0"
+            aria-label="Search"
+            title="Search"
+          >
+            <Search className="w-3.5 h-3.5 text-[#90FF00]" />
+          </button>
+
+          <button
+            onClick={() => {
+              const nextLang = language === 'en' ? 'he' : language === 'he' ? 'es' : 'en';
+              setLanguage(nextLang);
+            }}
+            className="p-1 rounded bg-[#252525] hover:bg-[#333] text-[#E0E0E0] border border-[#333] cursor-pointer min-h-[34px] px-1.5 flex items-center gap-1 font-mono text-[10px] font-bold uppercase shrink-0"
+            aria-label="Switch Language"
+            title="Language"
+          >
+            <Globe className="w-3 h-3 text-[#00E5FF]" />
+            <span>{currentLanguageConfig.code.toUpperCase()}</span>
+          </button>
+
           <AIStatusBadge onOpenSettings={onOpenSettings || (() => {})} onOpenSetup={onOpenSetup} />
 
           <VoiceControlWidget onTranscriptReceived={(text) => onOpenCoachWithMessage(text)} />
@@ -104,19 +155,21 @@ export const Header: React.FC<HeaderProps> = ({
           {onOpenSettings && (
             <button
               onClick={onOpenSettings}
-              className="p-1.5 rounded bg-[#252525] hover:bg-[#333] text-[#AAA] border border-[#333] cursor-pointer min-h-[38px] min-w-[38px] flex items-center justify-center"
+              className="p-1 rounded bg-[#252525] hover:bg-[#333] text-[#AAA] border border-[#333] cursor-pointer min-h-[34px] min-w-[34px] flex items-center justify-center shrink-0"
               aria-label="Settings"
+              title="Settings"
             >
-              <Settings className="w-4 h-4" />
+              <Settings className="w-3.5 h-3.5" />
             </button>
           )}
 
           <button
             onClick={onOpenCoach}
-            className="flex items-center gap-1 bg-[#90FF00] hover:bg-[#80e600] text-black px-2 py-1.5 rounded text-[10px] font-bold tracking-wider uppercase transition-colors cursor-pointer min-h-[38px]"
+            className="flex items-center gap-1 bg-[#90FF00] hover:bg-[#80e600] text-black px-2 py-1 rounded text-[10px] font-bold tracking-wider uppercase transition-colors cursor-pointer min-h-[34px] shrink-0"
+            title="AI Coach"
           >
             <Sparkles className="w-3.5 h-3.5 fill-current" />
-            <span>{coachLabel}</span>
+            <span className="text-[10px]">{coachLabel}</span>
           </button>
         </div>
       </div>
@@ -126,15 +179,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* App Branding & Logo Mark */}
         <Tooltip content={t ? t('header.title') : 'Ableton AI Music Coach'} position="bottom" delayMs={500}>
           <div className="flex items-center gap-2.5 cursor-pointer" dir="ltr">
-            <img
-              src="branding/symbol.png"
-              alt="Ableton AI Music Coach"
-              className="w-7 h-7 object-contain drop-shadow"
-              referrerPolicy="no-referrer"
-              onError={(e) => {
-                (e.target as HTMLElement).setAttribute('src', 'branding/symbol.svg');
-              }}
-            />
+            <BrandSymbolMark sizeClass="w-7 h-7" />
             <span className="text-xs font-bold tracking-tight uppercase text-white/90">
               Ableton <span className="text-[#90FF00]">AI</span> Music Coach
             </span>

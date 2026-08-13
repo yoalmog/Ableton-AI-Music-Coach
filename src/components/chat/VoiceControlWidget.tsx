@@ -61,15 +61,15 @@ export const VoiceControlWidget: React.FC<VoiceControlWidgetProps> = ({ onTransc
     <div className="flex items-center gap-2">
       <button
         onClick={toggleListening}
-        className={`px-2.5 py-1.5 rounded text-xs font-mono font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
+        className={`px-2 py-1 rounded text-xs font-mono font-bold flex items-center gap-1.5 transition-colors cursor-pointer h-8 shrink-0 ${
           isListening
             ? 'bg-[#FF5555] text-white animate-pulse'
-            : 'bg-[#252525] hover:bg-[#333] border border-[#444] text-[#00E5FF]'
+            : 'bg-[#252525] hover:bg-[#333] border border-[#333] text-[#00E5FF]'
         }`}
         title="Voice Control AI Assistant"
       >
         {isListening ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
-        <span>{isListening ? 'LISTENING...' : 'VOICE AI'}</span>
+        <span className="hidden sm:inline">{isListening ? 'LISTENING...' : 'VOICE AI'}</span>
       </button>
 
       {transcript && isListening && (

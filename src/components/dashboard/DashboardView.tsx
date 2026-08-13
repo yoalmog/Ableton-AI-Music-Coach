@@ -18,6 +18,7 @@ import { AAMCProject, GenreType } from '../../types';
 import { projectService } from '../../services/projectService';
 import { COURSES_DATA } from '../../data/coursesData';
 import { useLanguage } from '../../context/LanguageContext';
+import { getAssetPath } from '../../utils/assetPath';
 import { DashboardMetricsCard } from './DashboardMetricsCard';
 import { ProjectMetricsWidget } from './ProjectMetricsWidget';
 
@@ -102,12 +103,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Official Logo Banner Image */}
         <div className="shrink-0 w-48 md:w-64 flex justify-center z-10">
           <img
-            src="branding/logo.png"
+            src={getAssetPath('branding/logo.png')}
             alt="Ableton AI Music Coach Official Logo"
             className="max-h-28 object-contain filter drop-shadow-lg"
             referrerPolicy="no-referrer"
             onError={(e) => {
-              (e.target as HTMLElement).setAttribute('src', 'branding/logo.svg');
+              const target = e.currentTarget;
+              if (!target.dataset.fallback) {
+                target.dataset.fallback = 'true';
+                target.src = getAssetPath('branding/logo.svg');
+              }
             }}
           />
         </div>

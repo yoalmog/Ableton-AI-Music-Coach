@@ -24,6 +24,7 @@ import {
 import { useLanguage } from '../../context/LanguageContext';
 import { ViewType } from '../../types';
 import { Tooltip } from '../common/Tooltip';
+import { getAssetPath } from '../../utils/assetPath';
 
 interface SidebarProps {
   currentView: ViewType;
@@ -250,9 +251,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {!isCollapsed && (
               <div className="flex items-center gap-2">
                 <img
-                  src="branding/symbol.png"
+                  src={getAssetPath('branding/symbol.png')}
                   alt="AAMC"
                   className="w-5 h-5 object-contain"
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    if (!target.dataset.fallback) {
+                      target.dataset.fallback = 'true';
+                      target.src = getAssetPath('branding/symbol.svg');
+                    }
+                  }}
                 />
                 <span className="text-[11px] font-bold text-white tracking-wider font-mono uppercase">
                   AAMC MENU
