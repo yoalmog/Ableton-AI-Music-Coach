@@ -36,6 +36,11 @@ export const MidiGeneratorView: React.FC<MidiGeneratorViewProps> = ({
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [exportSuccess, setExportSuccess] = React.useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = React.useState(false);
+  const [zoomLevel, setZoomLevel] = React.useState<number>(1.0);
+
+  const handleZoomIn = () => setZoomLevel((prev) => Math.min(prev + 0.25, 2.5));
+  const handleZoomOut = () => setZoomLevel((prev) => Math.max(prev - 0.25, 0.75));
+  const handleResetZoom = () => setZoomLevel(1.0);
 
   // Active Pattern State
   const [activePattern, setActivePattern] = React.useState<MidiPattern>(() => {
@@ -91,9 +96,9 @@ export const MidiGeneratorView: React.FC<MidiGeneratorViewProps> = ({
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto text-[#E0E0E0] font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
+    <div className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6 w-full max-w-7xl mx-auto text-[#E0E0E0] font-sans overflow-x-hidden min-w-0" dir={isRtl ? 'rtl' : 'ltr'}>
       {/* Top Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#1A1A1A] border border-[#333] p-5 rounded-lg">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#1A1A1A] border border-[#333] p-4 sm:p-5 rounded-lg">
         <div>
           <div className="flex items-center gap-2 text-[10px] font-bold text-[#00E5FF] uppercase tracking-widest font-mono">
             <Music2 className="w-3.5 h-3.5" />
@@ -247,56 +252,85 @@ export const MidiGeneratorView: React.FC<MidiGeneratorViewProps> = ({
         </div>
 
         {/* Piano Roll Visualizer */}
-        <div className="lg:col-span-2 bg-[#1A1A1A] border border-[#333] rounded-lg p-5 space-y-4">
-          <div className="flex items-center justify-between border-b border-[#2A2A2A] pb-3">
+        <div className="lg:col-span-2 bg-[#1A1A1A] border border-[#333] rounded-lg p-4 sm:p-5 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#2A2A2A] pb-3 gap-2">
             <div>
               <h3 className="text-sm font-bold text-white" dir="ltr">{activePattern.name}</h3>
               <p className="text-xs text-[#888]" dir="ltr">
                 {activePattern.notes.length} {t('midi.events')} • {activePattern.timeSignature} {t('midi.time')} • {activePattern.bpm} BPM
               </p>
             </div>
-            <span className="text-xs font-mono bg-[#121212] border border-[#333] text-[#00E5FF] px-2 py-0.5 rounded" dir="ltr">
-              {activePattern.key} {activePattern.scale}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-mono bg-[#121212] border border-[#333] text-[#00E5FF] px-2 py-0.5 rounded" dir="ltr">
+                {activePattern.key} {activePattern.scale}
+              </span>
+
+              {/* Touch Zoom Controls */}
+              <div className="flex items-center gap-1 bg-[#121212] border border-[#333] rounded px-1.5 py-0.5 font-mono text-xs">
+                <button
+                  onClick={handleZoomOut}
+                  className="px-2 py-0.5 hover:bg-[#252525] text-[#90FF00] font-bold rounded cursor-pointer"
+                  title="Zoom Out"
+                >
+                  -
+                </button>
+                <button
+                  onClick={handleResetZoom}
+                  className="px-1.5 py-0.5 text-[#AAA] hover:text-white text-[10px] uppercase rounded cursor-pointer"
+                  title="Reset Zoom"
+                >
+                  {Math.round(zoomLevel * 100)}%
+                </button>
+                <button
+                  onClick={handleZoomIn}
+                  className="px-2 py-0.5 hover:bg-[#252525] text-[#90FF00] font-bold rounded cursor-pointer"
+                  title="Zoom In"
+                >
+                  +
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Visual Piano Roll Grid */}
-          <div className="bg-[#121212] p-3.5 rounded border border-[#2A2A2A] overflow-x-auto" dir="ltr">
-            <div className="text-[10px] text-[#666] font-mono mb-2 flex justify-between">
-              <span>BAR 1 (Beat 1)</span>
-              <span>Beat 2</span>
-              <span>Beat 3</span>
-              <span>Beat 4</span>
-              <span>BAR 2</span>
-            </div>
-
-            <div className="relative h-48 bg-[#181818] rounded border border-[#2A2A2A] p-2 overflow-hidden flex flex-col justify-between">
-              {/* Grid Lines */}
-              <div className="absolute inset-0 grid grid-cols-16 pointer-events-none opacity-20 divide-x divide-[#444]">
-                {Array.from({ length: 16 }).map((_, i) => (
-                  <div key={i} />
-                ))}
+          <div className="bg-[#121212] p-3.5 rounded border border-[#2A2A2A] overflow-x-auto touch-scroll-x" dir="ltr">
+            <div style={{ minWidth: `${Math.max(100, zoomLevel * 100)}%` }}>
+              <div className="text-[10px] text-[#666] font-mono mb-2 flex justify-between">
+                <span>BAR 1 (Beat 1)</span>
+                <span>Beat 2</span>
+                <span>Beat 3</span>
+                <span>Beat 4</span>
+                <span>BAR 2</span>
               </div>
 
-              {/* Render Note Bars */}
-              {activePattern.notes.map((n, idx) => {
-                const leftPercent = (n.time / 4) * 100;
-                const widthPercent = Math.max(4, (n.duration / 4) * 100);
-                return (
-                  <div
-                    key={idx}
-                    style={{
-                      left: `${leftPercent}%`,
-                      width: `${widthPercent}%`,
-                      top: `${(idx % 6) * 28 + 8}px`,
-                    }}
-                    className="absolute h-5 bg-[#90FF00] text-black rounded-xs text-[10px] font-mono font-bold px-1 flex items-center justify-between shadow border border-black/30"
-                    title={`${n.pitch} (Beat ${n.time.toFixed(2)}, Velocity ${n.velocity})`}
-                  >
-                    <span>{n.pitch}</span>
-                  </div>
-                );
-              })}
+              <div className="relative h-48 bg-[#181818] rounded border border-[#2A2A2A] p-2 overflow-hidden flex flex-col justify-between">
+                {/* Grid Lines */}
+                <div className="absolute inset-0 grid grid-cols-16 pointer-events-none opacity-20 divide-x divide-[#444]">
+                  {Array.from({ length: 16 }).map((_, i) => (
+                    <div key={i} />
+                  ))}
+                </div>
+
+                {/* Render Note Bars */}
+                {activePattern.notes.map((n, idx) => {
+                  const leftPercent = (n.time / 4) * 100;
+                  const widthPercent = Math.max(4, (n.duration / 4) * 100);
+                  return (
+                    <div
+                      key={idx}
+                      style={{
+                        left: `${leftPercent}%`,
+                        width: `${widthPercent}%`,
+                        top: `${(idx % 6) * 28 + 8}px`,
+                      }}
+                      className="absolute h-6 bg-[#90FF00] text-black rounded-xs text-[10px] font-mono font-bold px-1 flex items-center justify-between shadow border border-black/30 select-none"
+                      title={`${n.pitch} (Beat ${n.time.toFixed(2)}, Velocity ${n.velocity})`}
+                    >
+                      <span>{n.pitch}</span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
 

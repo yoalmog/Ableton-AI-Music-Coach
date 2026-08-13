@@ -124,9 +124,9 @@ export const DrumMachineView: React.FC<DrumMachineViewProps> = ({
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto text-[#E0E0E0] font-sans">
+    <div className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6 w-full max-w-7xl mx-auto text-[#E0E0E0] font-sans overflow-x-hidden min-w-0">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#1A1A1A] border border-[#333] p-5 rounded-lg">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#1A1A1A] border border-[#333] p-4 sm:p-5 rounded-lg">
         <div>
           <div className="flex items-center gap-2 text-[10px] font-bold text-[#90FF00] uppercase tracking-widest font-mono">
             <Grid className="w-3.5 h-3.5" />
@@ -196,32 +196,34 @@ export const DrumMachineView: React.FC<DrumMachineViewProps> = ({
                 </div>
               </div>
 
-              {/* 16 Step Buttons */}
-              <div className="grid grid-cols-16 gap-1.5 pt-1">
-                {tr.steps.map((st, stepIdx) => {
-                  const isCurrent = currentStep === stepIdx && isPlaying;
-                  const beatGroup = Math.floor(stepIdx / 4);
-                  return (
-                    <button
-                      key={stepIdx}
-                      onClick={() => toggleStep(tr.id, stepIdx)}
-                      className={`h-10 rounded-xs flex flex-col items-center justify-center text-[10px] font-mono font-bold transition-all cursor-pointer border ${
-                        st.active
-                          ? isCurrent
-                            ? 'bg-white text-black border-[#90FF00] scale-105 shadow'
-                            : 'bg-[#90FF00] text-black border-[#90FF00]'
-                          : isCurrent
-                          ? 'bg-[#333] text-[#00E5FF] border-[#00E5FF]'
-                          : beatGroup % 2 === 0
-                          ? 'bg-[#1A1A1A] border-[#2A2A2A] text-[#666] hover:border-[#444]'
-                          : 'bg-[#151515] border-[#2A2A2A] text-[#666] hover:border-[#444]'
-                      }`}
-                      title={`Step ${stepIdx + 1}`}
-                    >
-                      <span>{stepIdx + 1}</span>
-                    </button>
-                  );
-                })}
+              {/* 16 Step Buttons with internal horizontal scroll on mobile */}
+              <div className="overflow-x-auto touch-scroll-x pb-1 pt-1">
+                <div className="grid grid-cols-16 gap-1.5 min-w-[580px]">
+                  {tr.steps.map((st, stepIdx) => {
+                    const isCurrent = currentStep === stepIdx && isPlaying;
+                    const beatGroup = Math.floor(stepIdx / 4);
+                    return (
+                      <button
+                        key={stepIdx}
+                        onClick={() => toggleStep(tr.id, stepIdx)}
+                        className={`h-11 min-w-[32px] rounded-xs flex flex-col items-center justify-center text-[10px] font-mono font-bold transition-all cursor-pointer border ${
+                          st.active
+                            ? isCurrent
+                              ? 'bg-white text-black border-[#90FF00] scale-105 shadow'
+                              : 'bg-[#90FF00] text-black border-[#90FF00]'
+                            : isCurrent
+                            ? 'bg-[#333] text-[#00E5FF] border-[#00E5FF]'
+                            : beatGroup % 2 === 0
+                            ? 'bg-[#1A1A1A] border-[#2A2A2A] text-[#666] hover:border-[#444]'
+                            : 'bg-[#151515] border-[#2A2A2A] text-[#666] hover:border-[#444]'
+                        }`}
+                        title={`Step ${stepIdx + 1}`}
+                      >
+                        <span>{stepIdx + 1}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           ))}

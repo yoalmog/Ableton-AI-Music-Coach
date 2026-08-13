@@ -54,10 +54,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto text-[#E0E0E0] font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
+    <div className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6 w-full max-w-7xl mx-auto text-[#E0E0E0] font-sans overflow-x-hidden min-w-0" dir={isRtl ? 'rtl' : 'ltr'}>
       {/* Hero Welcome Banner */}
-      <div className="relative overflow-hidden rounded-lg bg-[#1A1A1A] border border-[#333] p-6 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
-        <div className="relative z-10 max-w-3xl space-y-3">
+      <div className="relative overflow-hidden rounded-xl bg-[#1A1A1A] border border-[#333] p-4 sm:p-6 flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6 shadow-xl">
+        <div className="relative z-10 w-full md:max-w-3xl space-y-3">
           <div className="flex items-center gap-2">
             <span className="px-2.5 py-0.5 bg-[#252525] text-[#90FF00] border border-[#333] rounded text-[10px] font-bold font-mono uppercase tracking-wider">
               {t('dashboard.console')}

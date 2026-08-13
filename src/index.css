@@ -1,5 +1,65 @@
 @import "tailwindcss";
 
+/* Mobile Safe Area & Layout Resets */
+:root {
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Touch-friendly Minimum Interactive Sizes */
+button, 
+a, 
+input[type="button"], 
+input[type="submit"] {
+  min-height: 38px;
+  min-width: 38px;
+}
+
+@media (max-width: 767px) {
+  button, 
+  a, 
+  [role="button"] {
+    min-height: 44px;
+  }
+}
+
+/* Internal Touch Scroll Containers */
+.touch-scroll-x {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+/* Custom Minimal Dark Scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #121212;
+}
+::-webkit-scrollbar-thumb {
+  background: #333333;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #555555;
+}
+
 /* High Contrast Theme Overrides */
 html[data-theme="high-contrast"] [class*="bg-[#1A1A1A]"],
 html[data-theme="high-contrast"] [class*="bg-[#121212]"],

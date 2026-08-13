@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
+import { MobileBottomNav } from './components/layout/MobileBottomNav';
 import { DashboardView } from './components/dashboard/DashboardView';
 import { AIProducerModeView } from './components/producer/AIProducerModeView';
 import { LessonsView } from './components/lessons/LessonsView';
@@ -46,6 +47,8 @@ export function AppContent() {
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const [theme, setTheme] = useState<ThemeMode>(getInitialTheme);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     setIsDesktop(desktopService.isDesktop());
@@ -200,6 +203,7 @@ export function AppContent() {
         onOpenCoachWithMessage={handleOpenCoachWithMessage}
         onOpenSettings={() => setCurrentView('settings')}
         onOpenSetup={() => setIsSetupOpen(true)}
+        onToggleMobileMenu={() => setIsMobileMenuOpen((prev) => !prev)}
         isDesktop={isDesktop}
       />
 
@@ -208,15 +212,25 @@ export function AppContent() {
         {/* Navigation Sidebar */}
         <Sidebar
           currentView={currentView}
-          onSelectView={setCurrentView}
+          onSelectView={(v) => {
+            setCurrentView(v);
+            setIsMobileMenuOpen(false);
+          }}
           onOpenCoach={() => {
             setCoachInitialMsg(undefined);
             setIsCoachOpen(true);
+            setIsMobileMenuOpen(false);
           }}
+          isOpen={isMobileMenuOpen}
+          onClose={() => setIsMobileMenuOpen(false)}
+          isCollapsed={isSidebarCollapsed}
+          onToggleCollapse={() => setIsSidebarCollapsed((prev) => !prev)}
         />
 
         {/* Dynamic View Container */}
-        <main className="flex-1 overflow-y-auto bg-[#121212]">{renderActiveView()}</main>
+        <main className="flex-1 overflow-y-auto bg-[#121212] pb-16 md:pb-0 min-w-0 max-w-full">
+          {renderActiveView()}
+        </main>
 
         {/* AI Co-Producer Assistant Drawer */}
         <ErrorBoundary isPanel={true}>
@@ -228,6 +242,20 @@ export function AppContent() {
           />
         </ErrorBoundary>
       </div>
+
+      {/* Compact Mobile Bottom Navigation */}
+      <MobileBottomNav
+        currentView={currentView}
+        onSelectView={(v) => {
+          setCurrentView(v);
+          setIsMobileMenuOpen(false);
+        }}
+        onOpenCoach={() => {
+          setCoachInitialMsg(undefined);
+          setIsCoachOpen(true);
+          setIsMobileMenuOpen(false);
+        }}
+      />
 
       {/* Global Search Modal */}
       <GlobalSearchModal
@@ -254,7 +282,7 @@ export function AppContent() {
       />
 
       {/* Studio Status Footer */}
-      <footer className="h-6 bg-[#1A1A1A] border-t border-[#333] px-4 flex items-center justify-between text-[10px] text-[#666] font-mono select-none z-20 shrink-0">
+      <footer className="hidden md:flex h-6 bg-[#1A1A1A] border-t border-[#333] px-4 items-center justify-between text-[10px] text-[#666] font-mono select-none z-20 shrink-0">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5">
             <div className="w-1.5 h-1.5 rounded-full bg-[#E5A500]" />

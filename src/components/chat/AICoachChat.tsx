@@ -165,10 +165,19 @@ export const AICoachChat: React.FC<AICoachChatProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div
-      className="fixed inset-y-0 right-0 w-full sm:w-[460px] bg-[#151515] border-l border-[#333] shadow-2xl z-50 flex flex-col justify-between select-none font-sans"
-      dir={isRTL ? 'rtl' : 'ltr'}
-    >
+    <>
+      {/* Mobile Backdrop */}
+      <div
+        className="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 sm:hidden"
+        onClick={onClose}
+      />
+
+      <div
+        className={`fixed inset-y-0 ${
+          isRTL ? 'left-0 border-r' : 'right-0 border-l'
+        } w-full sm:w-[460px] bg-[#151515] border-[#333] shadow-2xl z-50 flex flex-col justify-between font-sans overflow-hidden`}
+        dir={isRTL ? 'rtl' : 'ltr'}
+      >
       {/* Header */}
       <div className="p-3 bg-[#1A1A1A] border-b border-[#333] flex items-center justify-between">
         <div className="flex items-center gap-2.5">
@@ -299,7 +308,7 @@ export const AICoachChat: React.FC<AICoachChatProps> = ({
       </div>
 
       {/* Input Box */}
-      <div className="p-3 bg-[#1A1A1A] border-t border-[#333]">
+      <div className="p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] bg-[#1A1A1A] border-t border-[#333]">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -317,12 +326,13 @@ export const AICoachChat: React.FC<AICoachChatProps> = ({
           <button
             type="submit"
             disabled={!input.trim() || isTyping}
-            className="bg-[#90FF00] hover:bg-[#80e600] text-black px-3.5 py-2 rounded font-bold transition-colors disabled:opacity-30 cursor-pointer text-xs flex items-center justify-center shrink-0"
+            className="bg-[#90FF00] hover:bg-[#80e600] text-black px-3.5 py-2 rounded font-bold transition-colors disabled:opacity-30 cursor-pointer text-xs flex items-center justify-center shrink-0 min-h-[40px] min-w-[40px]"
           >
             <Send className="w-3.5 h-3.5" />
           </button>
         </form>
       </div>
     </div>
+    </>
   );
 };
