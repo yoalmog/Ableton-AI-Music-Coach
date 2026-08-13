@@ -50,9 +50,13 @@
     "vite": "^6.2.3"
   },
   "optionalDependencies": {
+    "@esbuild/linux-x64": "^0.25.0",
+    "@esbuild/win32-x64": "^0.25.0",
     "@resvg/resvg-js-linux-x64-gnu": "^2.6.2",
     "@resvg/resvg-js-win32-x64-msvc": "^2.6.2",
     "@rollup/rollup-linux-x64-gnu": "^4.30.0",
-    "@rollup/rollup-win32-x64-msvc": "^4.30.0"
+    "@rollup/rollup-win32-x64-msvc": "^4.30.0",
+    "lightningcss-linux-x64-gnu": "^1.27.0",
+    "lightningcss-win32-x64-msvc": "^1.27.0"
   }
 }
