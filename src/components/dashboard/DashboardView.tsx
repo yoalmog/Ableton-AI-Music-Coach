@@ -85,7 +85,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           <div className="pt-2 flex flex-wrap gap-2.5">
             <button
-              onClick={() => onNavigate('lessons')}
+              onClick={() => onNavigate('classroom')}
               className="bg-[#90FF00] hover:bg-[#80e600] text-black px-4 py-2 rounded text-xs font-bold flex items-center gap-2 transition-colors cursor-pointer uppercase tracking-wider shadow-md shadow-[#90FF00]/10"
             >
               <Zap className="w-3.5 h-3.5 fill-current" />

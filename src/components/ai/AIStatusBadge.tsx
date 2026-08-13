@@ -3,6 +3,7 @@ import { Cpu, Cloud, Lock, AlertCircle, RefreshCw, BookOpen, Smartphone } from '
 import { aiService } from '../../services/aiService';
 import { Tooltip } from '../common/Tooltip';
 import { AIProviderType } from '../../services/ai/aiTypes';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface AIStatusBadgeProps {
   onOpenSettings: () => void;
@@ -10,6 +11,7 @@ interface AIStatusBadgeProps {
 }
 
 export const AIStatusBadge: React.FC<AIStatusBadgeProps> = ({ onOpenSettings, onOpenSetup }) => {
+  const { t } = useLanguage();
   const [status, setStatus] = useState<{
     activeProvider: AIProviderType;
     activeModel: string;
@@ -65,7 +67,7 @@ export const AIStatusBadge: React.FC<AIStatusBadgeProps> = ({ onOpenSettings, on
       return (
         <div className="flex items-center gap-1.5 bg-[#1E1E1E] border border-[#333] px-2 py-1 rounded text-[10px] font-mono text-[#AAA]">
           <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#90FF00]" />
-          <span className="hidden sm:inline">AI INITIALIZING...</span>
+          <span className="hidden sm:inline">{t('header.aiInitializing')}</span>
         </div>
       );
     }
@@ -74,41 +76,68 @@ export const AIStatusBadge: React.FC<AIStatusBadgeProps> = ({ onOpenSettings, on
       return (
         <div className="flex items-center gap-1.5 bg-[#1B281B] border border-[#2D4D2D] px-2 py-1 rounded text-[10px] font-mono text-[#90FF00]">
           <Lock className="w-3.5 h-3.5 text-[#90FF00]" />
-          <span className="font-bold hidden sm:inline">PRIVACY MODE</span>
-          <span className="text-[9px] opacity-75 hidden md:inline">({status.activeModel})</span>
+          <span className="font-bold hidden sm:inline">{t('header.privacyMode')}</span>
+          <span className="text-[9px] opacity-75 hidden md:inline" dir="ltr">({status.activeModel})</span>
         </div>
       );
     }
 
     if (status.activeProvider === 'android_local' || status.activeProvider === 'ollama') {
+      const isConnected = status.localOk;
       return (
-        <div className="flex items-center gap-1.5 bg-[#122212] border border-[#1E441E] px-2 py-1 rounded text-[10px] font-mono text-[#90FF00] hover:bg-[#183018] transition-colors cursor-pointer">
+        <div
+          onClick={onOpenSetup || onOpenSettings}
+          className={`flex items-center gap-1.5 border px-2 py-1 rounded text-[10px] font-mono transition-colors cursor-pointer ${
+            isConnected
+              ? 'bg-[#122212] border-[#1E441E] text-[#90FF00] hover:bg-[#183018]'
+              : 'bg-[#2A1515] border-[#522222] text-[#FF5555] hover:bg-[#3D1A1A]'
+          }`}
+        >
           {status.isAndroid ? (
             <Smartphone className="w-3.5 h-3.5 text-[#90FF00] animate-pulse" />
           ) : (
             <Cpu className="w-3.5 h-3.5 text-[#90FF00] animate-pulse" />
           )}
-          <span className="font-bold hidden sm:inline">LOCAL AI</span>
-          <span className="text-[#CCC] text-[9px] hidden md:inline">({status.activeModel})</span>
+          <span className="font-bold hidden sm:inline">{t('header.localAI')}</span>
+          <span className="font-bold">
+            ● {isConnected ? t('header.connected') : t('header.disconnected')}
+          </span>
+          {isConnected && (
+            <span className="text-[#CCC] text-[9px] hidden md:inline" dir="ltr">({status.activeModel})</span>
+          )}
         </div>
       );
     }
 
     if (status.activeProvider === 'gemini') {
+      const isConnected = status.cloudOk;
       return (
-        <div className="flex items-center gap-1.5 bg-[#0D2229] border border-[#184857] px-2 py-1 rounded text-[10px] font-mono text-[#00E5FF] hover:bg-[#12313B] transition-colors cursor-pointer">
+        <div
+          onClick={onOpenSetup || onOpenSettings}
+          className={`flex items-center gap-1.5 border px-2 py-1 rounded text-[10px] font-mono transition-colors cursor-pointer ${
+            isConnected
+              ? 'bg-[#0D2229] border-[#184857] text-[#00E5FF] hover:bg-[#12313B]'
+              : 'bg-[#252010] border-[#4E3F1A] text-[#FFCC00] hover:bg-[#332A15]'
+          }`}
+        >
           <Cloud className="w-3.5 h-3.5 text-[#00E5FF]" />
-          <span className="font-bold hidden sm:inline">CLOUD AI</span>
-          <span className="text-[#CCC] text-[9px] hidden md:inline">(Gemini)</span>
+          <span className="font-bold hidden sm:inline">{t('header.cloudAI')}</span>
+          <span className="font-bold">
+            ● {isConnected ? t('header.connected') : t('header.notConfigured')}
+          </span>
+          <span className="text-[#CCC] text-[9px] hidden md:inline" dir="ltr">(Gemini)</span>
         </div>
       );
     }
 
     if (status.activeProvider === 'offline_coach') {
       return (
-        <div className="flex items-center gap-1.5 bg-[#252010] border border-[#4E3F1A] px-2 py-1 rounded text-[10px] font-mono text-[#FFCC00] hover:bg-[#332A15] transition-colors cursor-pointer">
+        <div
+          onClick={onOpenSetup || onOpenSettings}
+          className="flex items-center gap-1.5 bg-[#252010] border border-[#4E3F1A] px-2 py-1 rounded text-[10px] font-mono text-[#FFCC00] hover:bg-[#332A15] transition-colors cursor-pointer"
+        >
           <BookOpen className="w-3.5 h-3.5 text-[#FFCC00]" />
-          <span className="font-bold hidden sm:inline">OFFLINE</span>
+          <span className="font-bold hidden sm:inline">{t('header.offline')}</span>
           <span className="text-[#CCC] text-[9px] hidden md:inline">(Coach)</span>
         </div>
       );
@@ -120,13 +149,13 @@ export const AIStatusBadge: React.FC<AIStatusBadgeProps> = ({ onOpenSettings, on
         className="flex items-center gap-1.5 bg-[#2A1515] border border-[#522222] px-2 py-1 rounded text-[10px] font-mono text-[#FF5555] hover:bg-[#3D1A1A] transition-colors cursor-pointer"
       >
         <AlertCircle className="w-3.5 h-3.5 text-[#FF5555]" />
-        <span className="font-bold hidden sm:inline">AI SETUP</span>
+        <span className="font-bold hidden sm:inline">{t('header.aiSetup')}</span>
       </div>
     );
   };
 
   return (
-    <Tooltip content="Click to view AI Engine Status & Local AI Models" position="bottom">
+    <Tooltip content={t('header.aiStatusTooltip')} position="bottom">
       <div onClick={onOpenSetup || onOpenSettings} className="select-none">
         {getBadgeContent()}
       </div>

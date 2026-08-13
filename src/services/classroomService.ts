@@ -137,6 +137,35 @@ class ClassroomService {
     }
   }
 
+  public isFirstClassCompleted(): boolean {
+    const beginnerCourse = ABLETON_CLASSROOM_COURSES.find(c => c.id === 'beginner_core');
+    if (!beginnerCourse || !beginnerCourse.lessons.length) return true;
+    
+    // Check completed lessons count or quiz scores for beginner_core
+    const completedCount = beginnerCourse.lessons.filter(l => 
+      this.progress.completedLessonIds.includes(l.id) || (this.progress.quizScores[l.id] || 0) >= 80
+    ).length;
+
+    const percent = Math.round((completedCount / beginnerCourse.lessons.length) * 100);
+    return percent >= 80;
+  }
+
+  public isCourseUnlocked(courseId: string): boolean {
+    if (courseId === 'beginner_core') return true;
+    return this.isFirstClassCompleted();
+  }
+
+  public getFirstClassProgressPercent(): number {
+    const beginnerCourse = ABLETON_CLASSROOM_COURSES.find(c => c.id === 'beginner_core');
+    if (!beginnerCourse || !beginnerCourse.lessons.length) return 0;
+    
+    const completedCount = beginnerCourse.lessons.filter(l => 
+      this.progress.completedLessonIds.includes(l.id) || (this.progress.quizScores[l.id] || 0) >= 80
+    ).length;
+
+    return Math.round((completedCount / beginnerCourse.lessons.length) * 100);
+  }
+
   public searchTopics(query: string): AbletonSearchTopic[] {
     if (!query.trim()) return ABLETON_SEARCH_TOPICS;
     const q = query.toLowerCase().trim();

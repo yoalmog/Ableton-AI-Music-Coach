@@ -21,6 +21,7 @@ import { ProjectVersionManager } from './components/project/ProjectVersionManage
 import { SettingsView } from './components/settings/SettingsView';
 import { AICoachChat } from './components/chat/AICoachChat';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
+import { LoadingBoundary } from './components/common/LoadingBoundary';
 import { GlobalSearchModal } from './components/layout/GlobalSearchModal';
 import { FirstRunAISetup } from './components/ai/FirstRunAISetup';
 import { ProducerOnboardingModal } from './components/common/ProducerOnboardingModal';
@@ -189,7 +190,11 @@ export function AppContent() {
       case 'lessons':
         return <LessonsView onOpenCoach={() => setIsCoachOpen(true)} />;
       case 'classroom':
-        return <ClassroomView onOpenCoachWithMessage={handleOpenCoachWithMessage} />;
+        return (
+          <LoadingBoundary isPanel={true}>
+            <ClassroomView onOpenCoachWithMessage={handleOpenCoachWithMessage} />
+          </LoadingBoundary>
+        );
       case 'coursemap':
         return <VisualCourseMap onSelectModule={() => setCurrentView('lessons')} />;
       case 'buildtrack':
@@ -284,6 +289,8 @@ export function AppContent() {
       <Header
         project={project}
         onProjectChange={setProject}
+        currentView={currentView}
+        onNavigate={navigateWithEntitlementCheck}
         onOpenCoach={() => {
           setCoachInitialMsg(undefined);
           setIsCoachOpen(true);

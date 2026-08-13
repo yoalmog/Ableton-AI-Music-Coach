@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BookOpen, Sparkles, Trophy, Award, Search, HelpCircle, Layers, ArrowLeft, Bot, CheckCircle2, Loader2 } from 'lucide-react';
+import { BookOpen, Sparkles, Trophy, Award, Search, HelpCircle, Layers, ArrowLeft, Bot, CheckCircle2, Loader2, Lock } from 'lucide-react';
 import { HotspotTarget, LearningMode, InteractiveLesson } from '../../types/classroom';
 import { ABLETON_CLASSROOM_COURSES } from '../../data/classroomLessons';
 import { classroomService } from '../../services/classroomService';
@@ -8,6 +8,7 @@ import { LessonGuidePanel } from './LessonGuidePanel';
 import { WhereIsItModal } from './WhereIsItModal';
 import { QuizModal } from './QuizModal';
 import { SkillTreeView } from './SkillTreeView';
+import { LoadingBoundary } from '../common/LoadingBoundary';
 import { ErrorBoundary } from '../common/ErrorBoundary';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -52,6 +53,14 @@ export const ClassroomView: React.FC<ClassroomViewProps> = ({ onOpenCoachWithMes
   }, [currentStep, progress.currentStepIndex]);
 
   const handleSelectCourse = (courseId: string) => {
+    if (!classroomService.isCourseUnlocked(courseId)) {
+      const lockNotice = language === 'he'
+        ? 'יש להשלים את כיתה 1 (אבלטון לייב 12 — צעדים ראשונים) בציון 80%+ כדי לפתוח קורס זה!'
+        : 'Complete Class #1 (ABLETON LIVE 12 — FIRST STEPS) with 80%+ score to unlock this course!';
+      setStepSuccessNotice(lockNotice);
+      setTimeout(() => setStepSuccessNotice(null), 4000);
+      return;
+    }
     setIsLoading(true);
     const course = ABLETON_CLASSROOM_COURSES.find(c => c.id === courseId);
     if (course && course.lessons.length > 0) {
@@ -116,24 +125,7 @@ export const ClassroomView: React.FC<ClassroomViewProps> = ({ onOpenCoachWithMes
   };
 
   if (isLoading) {
-    return (
-      <div
-        dir={isRTL ? 'rtl' : 'ltr'}
-        className="p-6 max-w-7xl mx-auto min-h-[70vh] flex flex-col items-center justify-center text-gray-100"
-      >
-        <div className="bg-[#1A1A1A] border border-[#333] rounded-2xl p-8 max-w-md w-full text-center space-y-4 shadow-2xl">
-          <div className="w-12 h-12 mx-auto rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center">
-            <Loader2 className="w-6 h-6 animate-spin text-amber-400" />
-          </div>
-          <h3 className="text-sm md:text-base font-bold text-amber-400">
-            {t('simulator.loadingClassroom')}
-          </h3>
-          <div className="w-full bg-[#222] h-2 rounded-full overflow-hidden">
-            <div className="bg-amber-400 h-full animate-pulse w-3/4 rounded-full" />
-          </div>
-        </div>
-      </div>
-    );
+    return <LoadingBoundary isLoading={true} loadingText={t('simulator.loadingClassroom')} isPanel={true} />;
   }
 
   return (
@@ -202,17 +194,22 @@ export const ClassroomView: React.FC<ClassroomViewProps> = ({ onOpenCoachWithMes
             <span className="text-xs font-bold text-[#888] uppercase">{language === 'he' ? 'מסלול לימוד:' : 'Course:'}</span>
             {ABLETON_CLASSROOM_COURSES.map(c => {
               const isSelected = c.id === selectedCourseId;
+              const isUnlocked = classroomService.isCourseUnlocked(c.id);
               return (
                 <button
                   key={c.id}
                   onClick={() => handleSelectCourse(c.id)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 ${
                     isSelected
                       ? 'bg-amber-500 text-black shadow-md'
-                      : 'bg-[#222] border border-[#333] text-gray-300 hover:border-[#444]'
+                      : isUnlocked
+                      ? 'bg-[#222] border border-[#333] text-gray-300 hover:border-[#444]'
+                      : 'bg-[#181818] border border-[#2B2B2B] text-gray-500 hover:border-[#383838]'
                   }`}
+                  title={!isUnlocked ? (language === 'he' ? 'נעול — יש להשלים צעדים ראשונים ב-80%+' : 'Locked — Complete First Steps with 80%+') : undefined}
                 >
-                  {language === 'he' ? c.titleHe : c.title}
+                  {!isUnlocked && <Lock className="w-3 h-3 text-amber-500/70" />}
+                  <span>{language === 'he' ? c.titleHe : c.title}</span>
                 </button>
               );
             })}
@@ -247,13 +244,15 @@ export const ClassroomView: React.FC<ClassroomViewProps> = ({ onOpenCoachWithMes
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left/Main Column: DAW Interactive Simulator UI (8 Cols) */}
           <div className="lg:col-span-8">
-            <SimulatorUI
-              targetHighlight={highlightedTarget}
-              onUserAction={handleUserActionInSimulator}
-              onOpenWhereIsIt={() => setIsWhereIsItOpen(true)}
-              bpm={bpm}
-              onBpmChange={setBpm}
-            />
+            <LoadingBoundary isPanel={true}>
+              <SimulatorUI
+                targetHighlight={highlightedTarget}
+                onUserAction={handleUserActionInSimulator}
+                onOpenWhereIsIt={() => setIsWhereIsItOpen(true)}
+                bpm={bpm}
+                onBpmChange={setBpm}
+              />
+            </LoadingBoundary>
           </div>
 
           {/* Right Column: Step-by-Step Guided Mode Panel (4 Cols) */}

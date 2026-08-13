@@ -177,13 +177,13 @@ export const SimulatorUI: React.FC<SimulatorUIProps> = ({
   const [selectedInfoModal, setSelectedInfoModal] = useState<{ target: HotspotTarget; info: ElementInfo } | null>(null);
   const [hoveredElementKey, setHoveredElementKey] = useState<string | null>(null);
 
+  const { language, isRTL, t } = useLanguage();
+
   const [tracks, setTracks] = useState([
     { id: 't1', name: '1 Psy Bass', type: 'midi', muted: false, solo: false, armed: true, volume: 80, pan: 0 },
     { id: 't2', name: '2 Kick 909', type: 'audio', muted: false, solo: false, armed: false, volume: 90, pan: 0 },
     { id: 't3', name: '3 Lead Synth', type: 'midi', muted: false, solo: false, armed: false, volume: 75, pan: 0 }
   ]);
-
-  const { language, isRTL, t } = useLanguage();
 
   const isTarget = (element: HotspotTarget) => targetHighlight === element;
 
@@ -224,9 +224,10 @@ export const SimulatorUI: React.FC<SimulatorUIProps> = ({
   };
 
   const handleAddMidiTrack = () => {
+    const trackLabel = language === 'he' ? 'ערוץ MIDI' : 'MIDI Track';
     const newTrack = {
       id: `t${tracks.length + 1}`,
-      name: `${tracks.length + 1} MIDI Track`,
+      name: `${tracks.length + 1} ${trackLabel}`,
       type: 'midi',
       muted: false,
       solo: false,
@@ -271,7 +272,7 @@ export const SimulatorUI: React.FC<SimulatorUIProps> = ({
 
           <button
             onClick={onOpenWhereIsIt}
-            className="px-2.5 py-0.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded border border-amber-500/40 font-sans font-semibold flex items-center gap-1 transition"
+            className="px-2.5 py-0.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded border border-amber-500/40 font-sans font-semibold flex items-center gap-1 transition cursor-pointer"
           >
             <Search className="w-3 h-3" />
             <span>{t('simulator.whereIsIt')}</span>
@@ -281,16 +282,16 @@ export const SimulatorUI: React.FC<SimulatorUIProps> = ({
 
       {/* TOP CONTROL BAR (Transport, BPM, Metronome, Time Sig, View Toggles) */}
       <div className="bg-[#1C1C1C] px-3 py-2 border-b border-[#2B2B2B] flex flex-wrap items-center justify-between gap-3 text-xs">
-        {/* Left: Transport Controls */}
+        {/* Transport Controls */}
         <div className="flex items-center gap-2">
           <button
             onClick={() => handleElementClick('transport_play', handleTogglePlay)}
             onMouseEnter={() => setHoveredElementKey('transport_play')}
             onMouseLeave={() => setHoveredElementKey(null)}
-            className={`p-2 rounded font-bold transition flex items-center justify-center ${getHighlightClass('transport_play')} ${
+            className={`p-2 rounded font-bold transition flex items-center justify-center cursor-pointer ${getHighlightClass('transport_play')} ${
               isPlaying ? 'bg-amber-500 text-black' : 'bg-[#2A2A2A] hover:bg-[#353535] text-amber-400'
             }`}
-            title="Play (Spacebar)"
+            title={t('simulator.playTitle')}
           >
             <Play className="w-4 h-4 fill-current" />
           </button>
@@ -303,8 +304,8 @@ export const SimulatorUI: React.FC<SimulatorUIProps> = ({
             }
             onMouseEnter={() => setHoveredElementKey('transport_stop')}
             onMouseLeave={() => setHoveredElementKey(null)}
-            className={`p-2 bg-[#2A2A2A] hover:bg-[#353535] text-gray-300 rounded ${getHighlightClass('transport_stop')}`}
-            title="Stop (Spacebar)"
+            className={`p-2 bg-[#2A2A2A] hover:bg-[#353535] text-gray-300 rounded cursor-pointer ${getHighlightClass('transport_stop')}`}
+            title={t('simulator.stopTitle')}
           >
             <Square className="w-4 h-4 fill-current" />
           </button>
@@ -313,8 +314,8 @@ export const SimulatorUI: React.FC<SimulatorUIProps> = ({
             onClick={() => handleElementClick('transport_record')}
             onMouseEnter={() => setHoveredElementKey('transport_record')}
             onMouseLeave={() => setHoveredElementKey(null)}
-            className={`p-2 bg-[#2A2A2A] hover:bg-[#353535] text-red-500 rounded ${getHighlightClass('transport_record')}`}
-            title="Record (F9)"
+            className={`p-2 bg-[#2A2A2A] hover:bg-[#353535] text-red-500 rounded cursor-pointer ${getHighlightClass('transport_record')}`}
+            title={t('simulator.recordTitle')}
           >
             <Circle className="w-4 h-4 fill-current" />
           </button>
@@ -349,25 +350,25 @@ export const SimulatorUI: React.FC<SimulatorUIProps> = ({
             onClick={() => handleElementClick('metronome', handleToggleMetronome)}
             onMouseEnter={() => setHoveredElementKey('metronome')}
             onMouseLeave={() => setHoveredElementKey(null)}
-            className={`p-1.5 rounded border text-[11px] font-mono flex items-center gap-1 transition ${getHighlightClass('metronome')} ${
+            className={`p-1.5 rounded border text-[11px] font-mono flex items-center gap-1 transition cursor-pointer ${getHighlightClass('metronome')} ${
               isMetronomeOn
                 ? 'bg-amber-500/20 border-amber-400 text-amber-300'
                 : 'bg-[#141414] border-[#2B2B2B] text-[#777] hover:text-white'
             }`}
-            title="Metronome Click (C)"
+            title={t('simulator.metronomeTitle')}
           >
             <Disc className="w-3.5 h-3.5" />
             <span>{t('simulator.metronome')}</span>
           </button>
         </div>
 
-        {/* Right: View Toggles & Automation */}
+        {/* View Toggles & Automation */}
         <div className="flex items-center gap-2">
           <button
             onClick={() =>
               handleElementClick('view_toggle_arrangement', () => setViewMode('arrangement'))
             }
-            className={`px-2.5 py-1 rounded text-[11px] font-semibold flex items-center gap-1 border transition ${getHighlightClass('view_toggle_arrangement')} ${
+            className={`px-2.5 py-1 rounded text-[11px] font-semibold flex items-center gap-1 border transition cursor-pointer ${getHighlightClass('view_toggle_arrangement')} ${
               viewMode === 'arrangement'
                 ? 'bg-amber-500 text-black border-amber-400'
                 : 'bg-[#252525] border-[#333] text-[#888] hover:text-white'
@@ -381,7 +382,7 @@ export const SimulatorUI: React.FC<SimulatorUIProps> = ({
             onClick={() =>
               handleElementClick('view_toggle_session', () => setViewMode('session'))
             }
-            className={`px-2.5 py-1 rounded text-[11px] font-semibold flex items-center gap-1 border transition ${getHighlightClass('view_toggle_session')} ${
+            className={`px-2.5 py-1 rounded text-[11px] font-semibold flex items-center gap-1 border transition cursor-pointer ${getHighlightClass('view_toggle_session')} ${
               viewMode === 'session'
                 ? 'bg-amber-500 text-black border-amber-400'
                 : 'bg-[#252525] border-[#333] text-[#888] hover:text-white'
@@ -393,7 +394,7 @@ export const SimulatorUI: React.FC<SimulatorUIProps> = ({
 
           <button
             onClick={() => handleElementClick('automation_btn')}
-            className={`p-1.5 bg-[#252525] border border-[#333] hover:border-amber-400 text-pink-400 rounded ${getHighlightClass('automation_btn')}`}
+            className={`p-1.5 bg-[#252525] border border-[#333] hover:border-amber-400 text-pink-400 rounded cursor-pointer ${getHighlightClass('automation_btn')}`}
             title={t('simulator.automation')}
           >
             <Activity className="w-4 h-4" />
@@ -403,12 +404,12 @@ export const SimulatorUI: React.FC<SimulatorUIProps> = ({
 
       {/* MAIN BODY AREA (Browser + Tracks Area) */}
       <div className="flex-1 flex overflow-hidden">
-        {/* LEFT BROWSER PANEL */}
+        {/* LEFT BROWSER PANEL (RTL-aware logical border & margins) */}
         <div
           onClick={() => handleElementClick('browser')}
           onMouseEnter={() => setHoveredElementKey('browser')}
           onMouseLeave={() => setHoveredElementKey(null)}
-          className={`w-56 bg-[#171717] border-r rtl:border-r-0 rtl:border-l border-[#2B2B2B] flex flex-col ${getHighlightClass('browser')}`}
+          className={`w-56 bg-[#171717] border-e border-[#2B2B2B] flex flex-col ${getHighlightClass('browser')}`}
         >
           {/* Search Header */}
           <div className="p-2 border-b border-[#2A2A2A] space-y-1.5">
@@ -417,13 +418,13 @@ export const SimulatorUI: React.FC<SimulatorUIProps> = ({
               <span className="text-[9px] text-[#666]">Live 12</span>
             </div>
             <div className="relative">
-              <Search className="w-3 h-3 text-[#666] absolute left-2 top-2 rtl:left-auto rtl:right-2" />
+              <Search className="w-3 h-3 text-[#666] absolute start-2 top-2" />
               <input
                 type="text"
                 placeholder={t('simulator.searchBrowser')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#111] border border-[#2B2B2B] text-xs text-white pl-7 pr-2 rtl:pl-2 rtl:pr-7 py-1 rounded focus:border-amber-400 outline-none"
+                className="w-full bg-[#111] border border-[#2B2B2B] text-xs text-white ps-7 pe-2 py-1 rounded focus:border-amber-400 outline-none"
               />
             </div>
           </div>
@@ -432,7 +433,7 @@ export const SimulatorUI: React.FC<SimulatorUIProps> = ({
           <div className="p-2 space-y-1 text-xs">
             <button
               onClick={() => handleElementClick('browser_instruments', () => setActiveCategory('instruments'))}
-              className={`w-full text-start px-2.5 py-1.5 rounded flex items-center gap-2 transition ${getHighlightClass('browser_instruments')} ${
+              className={`w-full text-start px-2.5 py-1.5 rounded flex items-center gap-2 transition cursor-pointer ${getHighlightClass('browser_instruments')} ${
                 activeCategory === 'instruments' ? 'bg-amber-500/20 text-amber-300 font-semibold' : 'text-gray-300 hover:bg-[#222]'
               }`}
             >
@@ -441,7 +442,7 @@ export const SimulatorUI: React.FC<SimulatorUIProps> = ({
             </button>
             <button
               onClick={() => handleElementClick('browser_effects', () => setActiveCategory('effects'))}
-              className={`w-full text-start px-2.5 py-1.5 rounded flex items-center gap-2 transition ${getHighlightClass('browser_effects')} ${
+              className={`w-full text-start px-2.5 py-1.5 rounded flex items-center gap-2 transition cursor-pointer ${getHighlightClass('browser_effects')} ${
                 activeCategory === 'effects' ? 'bg-amber-500/20 text-amber-300 font-semibold' : 'text-gray-300 hover:bg-[#222]'
               }`}
             >
@@ -450,7 +451,7 @@ export const SimulatorUI: React.FC<SimulatorUIProps> = ({
             </button>
             <button
               onClick={() => handleElementClick('browser_samples', () => setActiveCategory('samples'))}
-              className={`w-full text-start px-2.5 py-1.5 rounded flex items-center gap-2 transition ${getHighlightClass('browser_samples')} ${
+              className={`w-full text-start px-2.5 py-1.5 rounded flex items-center gap-2 transition cursor-pointer ${getHighlightClass('browser_samples')} ${
                 activeCategory === 'samples' ? 'bg-amber-500/20 text-amber-300 font-semibold' : 'text-gray-300 hover:bg-[#222]'
               }`}
             >
@@ -464,13 +465,13 @@ export const SimulatorUI: React.FC<SimulatorUIProps> = ({
             {activeCategory === 'instruments' && (
               <>
                 <div onClick={() => setActiveBottomTab('operator')} className="hover:text-amber-300 cursor-pointer p-1 rounded hover:bg-[#222] font-mono">
-                  Operator (FM Synth)
+                  {t('simulator.operator')}
                 </div>
                 <div onClick={() => setActiveBottomTab('wavetable')} className="hover:text-amber-300 cursor-pointer p-1 rounded hover:bg-[#222] font-mono">
-                  Wavetable
+                  {t('simulator.wavetable')}
                 </div>
                 <div onClick={() => setActiveBottomTab('drum_rack')} className="hover:text-amber-300 cursor-pointer p-1 rounded hover:bg-[#222] font-mono">
-                  Drum Rack
+                  {t('simulator.drumRack')}
                 </div>
                 <div className="hover:text-amber-300 cursor-pointer p-1 rounded hover:bg-[#222] font-mono">Drift</div>
                 <div className="hover:text-amber-300 cursor-pointer p-1 rounded hover:bg-[#222] font-mono">Meld (Live 12)</div>
@@ -502,15 +503,15 @@ export const SimulatorUI: React.FC<SimulatorUIProps> = ({
             <div className="flex items-center gap-2">
               <button
                 onClick={handleAddMidiTrack}
-                className={`px-2.5 py-1 bg-[#282828] hover:bg-[#333] text-amber-300 rounded text-[11px] font-semibold flex items-center gap-1 border border-[#333] ${getHighlightClass('add_midi_track_btn')}`}
+                className={`px-2.5 py-1 bg-[#282828] hover:bg-[#333] text-amber-300 rounded text-[11px] font-semibold flex items-center gap-1 border border-[#333] cursor-pointer ${getHighlightClass('add_midi_track_btn')}`}
               >
                 <Plus className="w-3 h-3" />
-                <span>{language === 'he' ? '+ הוסף ערוץ MIDI' : '+ Add MIDI Track'}</span>
+                <span>{t('simulator.addMidiTrack')}</span>
               </button>
             </div>
             <div className="flex items-center gap-3 text-[10px] text-[#777] font-mono">
-              <span>Grid: 1/16</span>
-              <span>145.00 BPM</span>
+              <span>{t('simulator.grid16th')}</span>
+              <span>{bpm.toFixed(2)} BPM</span>
             </div>
           </div>
 
@@ -519,8 +520,8 @@ export const SimulatorUI: React.FC<SimulatorUIProps> = ({
             <div className="flex-1 overflow-y-auto divide-y divide-[#222]">
               {/* Timeline Header Ruler */}
               <div className="flex h-6 bg-[#1B1B1B] border-b border-[#2B2B2B] text-[10px] font-mono text-[#888]">
-                <div className="w-52 px-2 py-1 border-r rtl:border-r-0 rtl:border-l border-[#2B2B2B]">{t('simulator.trackName')}</div>
-                <div className="flex-1 flex items-center justify-between px-3">
+                <div className="w-52 px-2 py-1 border-e border-[#2B2B2B]">{t('simulator.trackName')}</div>
+                <div className="flex-1 flex items-center justify-between px-3" dir="ltr">
                   <span>1.1.1</span>
                   <span>2.1.1</span>
                   <span>3.1.1</span>
@@ -539,7 +540,7 @@ export const SimulatorUI: React.FC<SimulatorUIProps> = ({
                     onClick={() => handleElementClick('midi_track_header')}
                     onMouseEnter={() => setHoveredElementKey('midi_track_header')}
                     onMouseLeave={() => setHoveredElementKey(null)}
-                    className={`w-52 p-2 border-r rtl:border-r-0 rtl:border-l border-[#2A2A2A] bg-[#1E1E1E] flex flex-col justify-between text-xs ${getHighlightClass('midi_track_header')}`}
+                    className={`w-52 p-2 border-e border-[#2A2A2A] bg-[#1E1E1E] flex flex-col justify-between text-xs ${getHighlightClass('midi_track_header')}`}
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-amber-300 truncate">{track.name}</span>
@@ -552,19 +553,19 @@ export const SimulatorUI: React.FC<SimulatorUIProps> = ({
                           onClick={() => handleElementClick('track_mute')}
                           onMouseEnter={() => setHoveredElementKey('track_mute')}
                           onMouseLeave={() => setHoveredElementKey(null)}
-                          className={`w-6 h-5 rounded text-[10px] font-bold border transition ${getHighlightClass('track_mute')} ${
+                          className={`w-6 h-5 rounded text-[10px] font-bold border transition cursor-pointer ${getHighlightClass('track_mute')} ${
                             track.muted ? 'bg-amber-500/20 text-amber-400 border-amber-500' : 'bg-[#282828] border-[#383838] text-gray-400'
                           }`}
-                          title="Mute"
+                          title={t('simulator.mute')}
                         >
                           M
                         </button>
                         <button
                           onClick={() => handleElementClick('track_solo')}
-                          className={`w-6 h-5 rounded text-[10px] font-bold border transition ${getHighlightClass('track_solo')} ${
+                          className={`w-6 h-5 rounded text-[10px] font-bold border transition cursor-pointer ${getHighlightClass('track_solo')} ${
                             track.solo ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500' : 'bg-[#282828] border-[#383838] text-gray-400'
                           }`}
-                          title="Solo"
+                          title={t('simulator.solo')}
                         >
                           S
                         </button>
@@ -572,10 +573,10 @@ export const SimulatorUI: React.FC<SimulatorUIProps> = ({
                           onClick={() => handleElementClick('track_arm')}
                           onMouseEnter={() => setHoveredElementKey('track_arm')}
                           onMouseLeave={() => setHoveredElementKey(null)}
-                          className={`w-6 h-5 rounded text-[10px] font-bold border transition flex items-center justify-center ${getHighlightClass('track_arm')} ${
+                          className={`w-6 h-5 rounded text-[10px] font-bold border transition flex items-center justify-center cursor-pointer ${getHighlightClass('track_arm')} ${
                             track.armed ? 'bg-red-500 text-white border-red-400 shadow-[0_0_8px_rgba(239,68,68,0.8)]' : 'bg-[#282828] border-[#383838] text-red-500'
                           }`}
-                          title="Arm Record"
+                          title={t('simulator.arm')}
                         >
                           ●
                         </button>
@@ -591,13 +592,13 @@ export const SimulatorUI: React.FC<SimulatorUIProps> = ({
                     className={`flex-1 p-2 bg-[#121212] relative flex items-center gap-3 cursor-pointer hover:bg-[#181818] transition ${getHighlightClass('clip_slot')}`}
                   >
                     <div className="h-14 w-48 bg-amber-500/20 border border-amber-400/50 rounded p-1 text-[10px] text-amber-300 flex flex-col justify-between">
-                      <span className="font-semibold">{track.name} Clip</span>
-                      <span className="text-[9px] text-amber-400/70 font-mono">16th Note Pattern</span>
+                      <span className="font-semibold">{track.name} {t('simulator.clip')}</span>
+                      <span className="text-[9px] text-amber-400/70 font-mono">{t('simulator.pattern')}</span>
                     </div>
 
                     <div className="h-14 w-32 bg-cyan-500/10 border border-cyan-400/30 rounded p-1 text-[10px] text-cyan-300 flex flex-col justify-between">
-                      <span className="font-semibold">Variation B</span>
-                      <span className="text-[9px] text-cyan-400/70 font-mono">Loop</span>
+                      <span className="font-semibold">{t('simulator.variation')}</span>
+                      <span className="text-[9px] text-cyan-400/70 font-mono">{t('simulator.loop')}</span>
                     </div>
                   </div>
                 </div>
@@ -610,7 +611,7 @@ export const SimulatorUI: React.FC<SimulatorUIProps> = ({
                 onMouseLeave={() => setHoveredElementKey(null)}
                 className={`flex h-16 bg-[#1A1A1A] border-t-2 border-amber-500/40 cursor-pointer ${getHighlightClass('master_track')}`}
               >
-                <div className="w-52 p-2 border-r rtl:border-r-0 rtl:border-l border-[#2A2A2A] bg-[#222] font-bold text-xs text-amber-400 flex items-center justify-between">
+                <div className="w-52 p-2 border-e border-[#2A2A2A] bg-[#222] font-bold text-xs text-amber-400 flex items-center justify-between">
                   <span>{t('simulator.masterTrack')}</span>
                   <span className="text-[9px] bg-amber-500 text-black px-1.5 py-0.5 rounded font-mono font-bold">0.0 dBFS</span>
                 </div>
@@ -639,15 +640,15 @@ export const SimulatorUI: React.FC<SimulatorUIProps> = ({
                         onClick={() => handleElementClick('clip_slot')}
                         className={`h-12 bg-[#222] hover:bg-amber-500/20 border border-[#333] hover:border-amber-400 rounded-lg p-2 flex items-center justify-between text-xs cursor-pointer transition ${getHighlightClass('clip_slot')}`}
                       >
-                        <span className="text-[10px] text-[#888]">Clip {slotIdx}</span>
+                        <span className="text-[10px] text-[#888]">{t('simulator.clip')} {slotIdx}</span>
                         <Play className="w-3.5 h-3.5 text-amber-400" />
                       </div>
                     ))}
 
                     <div className="pt-2 border-t border-[#333] flex justify-center gap-1">
-                      <button className="px-2 py-1 bg-[#2B2B2B] text-[10px] rounded text-gray-300">M</button>
-                      <button className="px-2 py-1 bg-[#2B2B2B] text-[10px] rounded text-gray-300">S</button>
-                      <button className="px-2 py-1 bg-red-500 text-[10px] rounded text-white font-bold">●</button>
+                      <button className="px-2 py-1 bg-[#2B2B2B] text-[10px] rounded text-gray-300 cursor-pointer" title={t('simulator.mute')}>M</button>
+                      <button className="px-2 py-1 bg-[#2B2B2B] text-[10px] rounded text-gray-300 cursor-pointer" title={t('simulator.solo')}>S</button>
+                      <button className="px-2 py-1 bg-red-500 text-[10px] rounded text-white font-bold cursor-pointer" title={t('simulator.arm')}>●</button>
                     </div>
                   </div>
                 ))}
@@ -664,7 +665,7 @@ export const SimulatorUI: React.FC<SimulatorUIProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={() => handleElementClick('piano_roll', () => setActiveBottomTab('piano_roll'))}
-              className={`px-3 py-1 rounded text-[11px] font-semibold transition ${getHighlightClass('piano_roll')} ${
+              className={`px-3 py-1 rounded text-[11px] font-semibold transition cursor-pointer ${getHighlightClass('piano_roll')} ${
                 activeBottomTab === 'piano_roll' ? 'bg-amber-500 text-black shadow-sm' : 'text-[#888] hover:text-white'
               }`}
             >
@@ -672,7 +673,7 @@ export const SimulatorUI: React.FC<SimulatorUIProps> = ({
             </button>
             <button
               onClick={() => handleElementClick('operator_osc', () => setActiveBottomTab('operator'))}
-              className={`px-3 py-1 rounded text-[11px] font-semibold transition ${getHighlightClass('operator_osc')} ${
+              className={`px-3 py-1 rounded text-[11px] font-semibold transition cursor-pointer ${getHighlightClass('operator_osc')} ${
                 activeBottomTab === 'operator' ? 'bg-amber-500 text-black shadow-sm' : 'text-[#888] hover:text-white'
               }`}
             >
@@ -680,7 +681,7 @@ export const SimulatorUI: React.FC<SimulatorUIProps> = ({
             </button>
             <button
               onClick={() => handleElementClick('wavetable_pos', () => setActiveBottomTab('wavetable'))}
-              className={`px-3 py-1 rounded text-[11px] font-semibold transition ${getHighlightClass('wavetable_pos')} ${
+              className={`px-3 py-1 rounded text-[11px] font-semibold transition cursor-pointer ${getHighlightClass('wavetable_pos')} ${
                 activeBottomTab === 'wavetable' ? 'bg-amber-500 text-black shadow-sm' : 'text-[#888] hover:text-white'
               }`}
             >
@@ -688,7 +689,7 @@ export const SimulatorUI: React.FC<SimulatorUIProps> = ({
             </button>
             <button
               onClick={() => handleElementClick('drum_rack_pad', () => setActiveBottomTab('drum_rack'))}
-              className={`px-3 py-1 rounded text-[11px] font-semibold transition ${getHighlightClass('drum_rack_pad')} ${
+              className={`px-3 py-1 rounded text-[11px] font-semibold transition cursor-pointer ${getHighlightClass('drum_rack_pad')} ${
                 activeBottomTab === 'drum_rack' ? 'bg-amber-500 text-black shadow-sm' : 'text-[#888] hover:text-white'
               }`}
             >
@@ -749,7 +750,7 @@ export const SimulatorUI: React.FC<SimulatorUIProps> = ({
               </div>
               <button
                 onClick={() => setSelectedInfoModal(null)}
-                className="text-gray-400 hover:text-white p-1 rounded-lg bg-[#2B2B2B]"
+                className="text-gray-400 hover:text-white p-1 rounded-lg bg-[#2B2B2B] cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -780,7 +781,7 @@ export const SimulatorUI: React.FC<SimulatorUIProps> = ({
 
             <button
               onClick={() => setSelectedInfoModal(null)}
-              className="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs rounded-xl transition"
+              className="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs rounded-xl transition cursor-pointer"
             >
               {t('simulator.gotItReturn')}
             </button>

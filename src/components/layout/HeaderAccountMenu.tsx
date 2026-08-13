@@ -74,7 +74,7 @@ export const HeaderAccountMenu: React.FC<HeaderAccountMenuProps> = ({
             isPro ? 'bg-[#90FF00] text-black' : 'bg-[#333] text-gray-300'
           }`}
         >
-          {isPro ? 'PRO' : 'FREE'}
+          {isPro ? t('header.pro') : t('header.free')}
         </span>
 
         <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
@@ -90,7 +90,7 @@ export const HeaderAccountMenu: React.FC<HeaderAccountMenuProps> = ({
             <div className="text-xs font-bold font-mono text-white truncate">{user.displayName}</div>
             <div className="text-[11px] font-mono text-gray-400 truncate">{user.email}</div>
             <div className="mt-2 flex items-center justify-between text-[10px] font-mono text-gray-300">
-              <span>Cloud AI Requests:</span>
+              <span>{t('header.cloudRequests')}:</span>
               <span className="font-bold text-[#90FF00]">
                 {usage?.aiCloudRequestsCount || 0} / {usage?.aiCloudRequestsLimit || 15}
               </span>
@@ -146,7 +146,7 @@ export const HeaderAccountMenu: React.FC<HeaderAccountMenuProps> = ({
               className="w-full text-left rtl:text-right px-3 py-2 text-xs font-mono text-[#FF8888] hover:bg-[#FF5555]/10 rounded-lg flex items-center gap-2 cursor-pointer transition-colors"
             >
               <LogOut className="w-4 h-4" />
-              <span>{t('auth.loginBtn') === 'LOGIN' ? 'Log Out' : 'התנתק'}</span>
+              <span>{t('header.logout')}</span>
             </button>
           </div>
         </div>

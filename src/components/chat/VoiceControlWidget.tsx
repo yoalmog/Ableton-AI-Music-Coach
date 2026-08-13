@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Mic, MicOff, Volume2, Sparkles } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface VoiceControlWidgetProps {
   onTranscriptReceived: (text: string) => void;
@@ -8,6 +9,7 @@ interface VoiceControlWidgetProps {
 export const VoiceControlWidget: React.FC<VoiceControlWidgetProps> = ({ onTranscriptReceived }) => {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
+  const { t, language } = useLanguage();
 
   const toggleListening = () => {
     if (isListening) {
@@ -23,11 +25,11 @@ export const VoiceControlWidget: React.FC<VoiceControlWidgetProps> = ({ onTransc
       const recognition = new SpeechRecognition();
       recognition.continuous = false;
       recognition.interimResults = true;
-      recognition.lang = 'en-US';
+      recognition.lang = language === 'he' ? 'he-IL' : 'en-US';
 
       recognition.onstart = () => {
         setIsListening(true);
-        setTranscript('Listening...');
+        setTranscript(t('header.listening'));
       };
 
       recognition.onresult = (event: any) => {
@@ -37,20 +39,20 @@ export const VoiceControlWidget: React.FC<VoiceControlWidgetProps> = ({ onTransc
 
       recognition.onend = () => {
         setIsListening(false);
-        if (transcript && transcript !== 'Listening...') {
+        if (transcript && transcript !== t('header.listening')) {
           onTranscriptReceived(transcript);
         }
       };
 
       recognition.onerror = () => {
         setIsListening(false);
-        setTranscript('Voice input error. Try again.');
+        setTranscript(t('header.voiceError'));
       };
 
       recognition.start();
     } else {
       // Fallback for browsers without WebSpeech support
-      const simulatedText = prompt('Enter your voice command / prompt:');
+      const simulatedText = prompt(t('header.voicePrompt'));
       if (simulatedText) {
         onTranscriptReceived(simulatedText);
       }
@@ -66,10 +68,11 @@ export const VoiceControlWidget: React.FC<VoiceControlWidgetProps> = ({ onTransc
             ? 'bg-[#FF5555] text-white animate-pulse'
             : 'bg-[#252525] hover:bg-[#333] border border-[#333] text-[#00E5FF]'
         }`}
-        title="Voice Control AI Assistant"
+        title={t('header.voiceAITitle')}
+        aria-label={t('header.voiceAITitle')}
       >
         {isListening ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
-        <span className="hidden sm:inline">{isListening ? 'LISTENING...' : 'VOICE AI'}</span>
+        <span className="hidden sm:inline">{isListening ? t('header.listening') : t('header.voiceAI')}</span>
       </button>
 
       {transcript && isListening && (
