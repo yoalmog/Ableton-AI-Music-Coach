@@ -3,6 +3,9 @@ import path from "path";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
+import { authRouter } from "./server/authRoutes.js";
+import { paymentRouter } from "./server/paymentRoutes.js";
+import { dbStore } from "./server/dbStore.js";
 
 dotenv.config();
 
@@ -12,6 +15,10 @@ const OLLAMA_DEFAULT_URL = process.env.OLLAMA_URL || "http://localhost:11434";
 async function startServer() {
   const app = express();
   app.use(express.json({ limit: "10mb" }));
+
+  // Mount API routers
+  app.use("/api/auth", authRouter);
+  app.use("/api/payments", paymentRouter);
 
   // Helper lazy init for Gemini API
   const getGeminiClient = (customKey?: string) => {
@@ -89,10 +96,10 @@ async function startServer() {
     preferredModel: string,
     contents: any,
     config?: any,
-    timeoutMs = 15000
+    timeoutMs = 20000
   ): Promise<{ response: any; modelUsed: string; fallbackUsed: boolean }> {
     const candidates = Array.from(
-      new Set([preferredModel, "gemini-3.1-flash-lite", "gemini-2.0-flash", "gemini-2.0-flash-lite"])
+      new Set([preferredModel, "gemini-3.1-flash-lite", "gemini-flash-latest"])
     );
 
     let lastError: any = null;
@@ -289,7 +296,7 @@ async function startServer() {
         modelName,
         'Ping. Confirm Ableton AI Music Coach engine status.',
         { temperature: 0.1 },
-        12000
+        20000
       );
 
       const duration = Date.now() - startTime;
@@ -338,6 +345,22 @@ async function startServer() {
           offline: true,
           reply: `[OFFLINE MODE] Cloud Gemini API Key is not configured. Local AI (Ollama) is available for zero-cloud music production coaching.`,
         });
+      }
+
+      // Check user token & usage limit if present
+      const authHeader = req.headers.authorization || "";
+      const token = authHeader.replace(/^Bearer\s+/i, "").trim();
+      if (token) {
+        const session = dbStore.getSession(token);
+        if (session) {
+          const usageCheck = dbStore.incrementAiUsage(session.userId);
+          if (!usageCheck.allowed) {
+            return res.json({
+              offline: false,
+              reply: `[AI Monthly Request Limit Reached] You have used ${usageCheck.usage.aiCloudRequestsCount}/${usageCheck.usage.aiCloudRequestsLimit} cloud requests this month. Upgrade to Pro for high fair-use requests or switch to Local AI (Ollama) for unlimited local inference.`,
+            });
+          }
+        }
       }
 
       let promptText = `User Query: ${message}\n\n`;

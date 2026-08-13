@@ -27,6 +27,14 @@ import { ProducerOnboardingModal } from './components/common/ProducerOnboardingM
 import { VisualCourseMap } from './components/lessons/VisualCourseMap';
 import { GlossaryView } from './components/utilities/GlossaryView';
 import { BuildMyFirstTrackWizard } from './components/producer/BuildMyFirstTrackWizard';
+import { ClassroomView } from './components/classroom/ClassroomView';
+import { AccountView } from './components/account/AccountView';
+import { AuthModalContainer } from './components/auth/AuthModalContainer';
+import { SplashLoadingScreen } from './components/common/SplashLoadingScreen';
+import { UpgradeModal } from './components/subscription/UpgradeModal';
+import { PaywallModal } from './components/subscription/PaywallModal';
+import { authService } from './services/authService';
+import { subscriptionService } from './services/subscriptionService';
 import { projectService } from './services/projectService';
 import { desktopService } from './services/desktopService';
 import { aiService } from './services/aiService';
@@ -50,11 +58,38 @@ export function AppContent() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
+  // Commercial Auth & Subscription States
+  const [authState, setAuthState] = useState(authService.getAuthState());
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
+  const [paywallFeature, setPaywallFeature] = useState<{ name: string; desc?: string } | null>(null);
+
   useEffect(() => {
     setIsDesktop(desktopService.isDesktop());
     if (window.desktopAPI?.appReady) {
       window.desktopAPI.appReady();
     }
+
+    // Subscribe to Auth Service state updates
+    const unsubscribeAuth = authService.subscribe((state) => {
+      setAuthState(state);
+      setIsAuthChecking(state === 'AUTH_LOADING');
+      if (state === 'UNAUTHENTICATED') {
+        setIsAuthModalOpen(true);
+      } else {
+        setIsAuthModalOpen(false);
+      }
+    });
+
+    // Startup Session & Subscription verification
+    authService.initSession().then(({ state }) => {
+      setAuthState(state);
+      setIsAuthChecking(false);
+      if (state === 'UNAUTHENTICATED') {
+        setIsAuthModalOpen(true);
+      }
+    });
 
     // Check if First Run Producer Onboarding should pop up
     const hasSeenOnboarding = localStorage.getItem('aamc-seen-producer-onboarding');
@@ -73,6 +108,10 @@ export function AppContent() {
         localStorage.setItem('aamc-seen-ai-setup', 'true');
       });
     }
+
+    return () => {
+      unsubscribeAuth();
+    };
   }, []);
 
   useEffect(() => {
@@ -96,6 +135,37 @@ export function AppContent() {
     setIsCoachOpen(true);
   };
 
+  // Entitlement Gated Navigation
+  const navigateWithEntitlementCheck = (view: ViewType) => {
+    const isPro = subscriptionService.isPro();
+
+    if (!isPro) {
+      if (view === 'analyzer') {
+        setPaywallFeature({
+          name: 'Track Spectrum & LUFS Reference Analyzer',
+          desc: 'Analyze professional reference tracks and receive AI-driven EQ and LUFS matching parameters.',
+        });
+        return;
+      }
+      if (view === 'mixassistant') {
+        setPaywallFeature({
+          name: 'AI Mix Assistant & Stem Balance',
+          desc: 'Get frequency masking detection, channel headroom advice, and sidechain recommendations.',
+        });
+        return;
+      }
+      if (view === 'eartraining') {
+        setPaywallFeature({
+          name: 'Producer Ear Training & Frequency Trainer',
+          desc: 'Train your ears to recognize EQ cuts, compression ratios, and synth waveforms.',
+        });
+        return;
+      }
+    }
+
+    setCurrentView(view);
+  };
+
   const renderActiveView = () => {
     switch (currentView) {
       case 'dashboard':
@@ -103,7 +173,7 @@ export function AppContent() {
           <DashboardView
             project={project}
             onProjectChange={setProject}
-            onNavigate={(v) => setCurrentView(v)}
+            onNavigate={navigateWithEntitlementCheck}
             isDesktop={isDesktop}
           />
         );
@@ -112,12 +182,14 @@ export function AppContent() {
           <AIProducerModeView
             project={project}
             onProjectChange={setProject}
-            onNavigate={(v) => setCurrentView(v)}
+            onNavigate={navigateWithEntitlementCheck}
             onOpenCoachWithMessage={handleOpenCoachWithMessage}
           />
         );
       case 'lessons':
         return <LessonsView onOpenCoach={() => setIsCoachOpen(true)} />;
+      case 'classroom':
+        return <ClassroomView onOpenCoachWithMessage={handleOpenCoachWithMessage} />;
       case 'coursemap':
         return <VisualCourseMap onSelectModule={() => setCurrentView('lessons')} />;
       case 'buildtrack':
@@ -164,6 +236,8 @@ export function AppContent() {
         return <PromptLibraryView onOpenCoachWithMessage={handleOpenCoachWithMessage} />;
       case 'versions':
         return <ProjectVersionManager project={project} onProjectChange={setProject} />;
+      case 'account':
+        return <AccountView onOpenUpgradeModal={() => setIsUpgradeModalOpen(true)} />;
       case 'settings':
         return (
           <SettingsView
@@ -179,12 +253,16 @@ export function AppContent() {
           <DashboardView
             project={project}
             onProjectChange={setProject}
-            onNavigate={(v) => setCurrentView(v)}
+            onNavigate={navigateWithEntitlementCheck}
             isDesktop={isDesktop}
           />
         );
     }
   };
+
+  if (isAuthChecking || authState === 'AUTH_LOADING') {
+    return <SplashLoadingScreen />;
+  }
 
   return (
     <div
@@ -204,6 +282,9 @@ export function AppContent() {
         onOpenSettings={() => setCurrentView('settings')}
         onOpenSetup={() => setIsSetupOpen(true)}
         onToggleMobileMenu={() => setIsMobileMenuOpen((prev) => !prev)}
+        onOpenAuthModal={() => setIsAuthModalOpen(true)}
+        onOpenAccountView={() => setCurrentView('account')}
+        onOpenUpgradeModal={() => setIsUpgradeModalOpen(true)}
         isDesktop={isDesktop}
       />
 
@@ -213,7 +294,7 @@ export function AppContent() {
         <Sidebar
           currentView={currentView}
           onSelectView={(v) => {
-            setCurrentView(v);
+            navigateWithEntitlementCheck(v);
             setIsMobileMenuOpen(false);
           }}
           onOpenCoach={() => {
@@ -279,6 +360,31 @@ export function AppContent() {
         isOpen={isOnboardingOpen}
         onClose={() => setIsOnboardingOpen(false)}
         onSaveProfile={() => {}}
+      />
+
+      {/* Auth & Login/Register Screen Modal */}
+      {isAuthModalOpen && (
+        <AuthModalContainer
+          onSuccess={() => setIsAuthModalOpen(false)}
+        />
+      )}
+
+      {/* Pro Pricing & Plan Upgrade Modal */}
+      <UpgradeModal
+        isOpen={isUpgradeModalOpen}
+        onClose={() => setIsUpgradeModalOpen(false)}
+      />
+
+      {/* Feature Paywall Gate Modal */}
+      <PaywallModal
+        isOpen={!!paywallFeature}
+        featureName={paywallFeature?.name || 'Pro Feature'}
+        featureDescription={paywallFeature?.desc}
+        onUpgrade={() => {
+          setPaywallFeature(null);
+          setIsUpgradeModalOpen(true);
+        }}
+        onClose={() => setPaywallFeature(null)}
       />
 
       {/* Studio Status Footer */}

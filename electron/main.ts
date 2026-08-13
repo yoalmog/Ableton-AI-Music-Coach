@@ -135,10 +135,10 @@ async function generateContentWithFallback(
   preferredModel: string,
   contents: any,
   config?: any,
-  timeoutMs = 15000
+  timeoutMs = 20000
 ): Promise<{ response: any; modelUsed: string; fallbackUsed: boolean }> {
   const candidates = Array.from(
-    new Set([preferredModel, 'gemini-3.1-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite'])
+    new Set([preferredModel, 'gemini-3.1-flash-lite', 'gemini-flash-latest'])
   );
 
   let lastError: any = null;
@@ -502,7 +502,7 @@ ipcMain.handle('ai:test-connection', async (_event, params?: { customKey?: strin
       modelName,
       'Ping. Respond with "CONNECTED: Ableton AI Music Coach Engine Online".',
       { temperature: 0.1 },
-      12000
+      20000
     );
 
     const duration = Date.now() - startTime;

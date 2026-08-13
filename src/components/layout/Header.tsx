@@ -7,6 +7,7 @@ import { AAMCProject } from '../../types';
 import { VoiceControlWidget } from '../chat/VoiceControlWidget';
 import { Tooltip } from '../common/Tooltip';
 import { AIStatusBadge } from '../ai/AIStatusBadge';
+import { HeaderAccountMenu } from './HeaderAccountMenu';
 import { getAssetPath } from '../../utils/assetPath';
 
 // Resilient Logo Mark component with image fallback and vector icon backup
@@ -50,6 +51,9 @@ interface HeaderProps {
   onOpenSettings?: () => void;
   onOpenSetup?: () => void;
   onToggleMobileMenu?: () => void;
+  onOpenAuthModal?: () => void;
+  onOpenAccountView?: () => void;
+  onOpenUpgradeModal?: () => void;
   isDesktop: boolean;
 }
 
@@ -62,6 +66,9 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenSettings,
   onOpenSetup,
   onToggleMobileMenu,
+  onOpenAuthModal,
+  onOpenAccountView,
+  onOpenUpgradeModal,
   isDesktop,
 }) => {
   const [vol, setVol] = React.useState(80);
@@ -282,8 +289,15 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* Right: Master Volume, Real AI Provider Badge & Coach Trigger */}
+        {/* Right: Master Volume, Real AI Provider Badge, Account Menu & Coach Trigger */}
         <div className="flex items-center gap-3">
+          {/* Header Account & Subscription Badge */}
+          <HeaderAccountMenu
+            onOpenAuthModal={onOpenAuthModal || (() => {})}
+            onOpenAccountView={onOpenAccountView || (() => {})}
+            onOpenUpgradeModal={onOpenUpgradeModal || (() => {})}
+          />
+
           {/* Real AI Provider Badge */}
           <AIStatusBadge onOpenSettings={onOpenSettings || (() => {})} onOpenSetup={onOpenSetup} />
 

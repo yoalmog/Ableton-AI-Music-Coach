@@ -21,6 +21,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { getAssetPath } from '../../utils/assetPath';
 import { DashboardMetricsCard } from './DashboardMetricsCard';
 import { ProjectMetricsWidget } from './ProjectMetricsWidget';
+import { ContinueLearningCard } from './ContinueLearningCard';
 
 interface DashboardViewProps {
   project: AAMCProject;
@@ -121,41 +122,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* CSS Grid Layout for Core Dashboard Widgets & Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         
-        {/* 1. Continue Learning Card with responsive column spans */}
-        <div className="col-span-1 md:col-span-1 lg:col-span-1 bg-[#1A1A1A] border border-[#333] rounded-xl p-5 space-y-4 flex flex-col justify-between shadow-lg">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-mono text-[#00E5FF] uppercase tracking-widest font-bold">
-                Continue Learning
-              </span>
-              <span className="text-[10px] font-mono bg-[#121212] text-[#90FF00] px-2 py-0.5 rounded border border-[#333]">
-                Module 1 of 16
-              </span>
-            </div>
-
-            <div className="space-y-1">
-              <h3 className="text-sm font-bold text-white">Psytrance Production Masterclass</h3>
-              <p className="text-xs text-[#AAA]">Lesson 1: Psytrance BPM, Keys & Scale Foundations</p>
-            </div>
-
-            <div className="space-y-1.5 pt-2">
-              <div className="flex justify-between text-[10px] font-mono text-[#888]">
-                <span>Course Progress</span>
-                <span className="text-[#90FF00]">35%</span>
-              </div>
-              <div className="w-full bg-[#121212] h-2 rounded-full overflow-hidden border border-[#333]">
-                <div className="bg-[#90FF00] h-full rounded-full" style={{ width: '35%' }} />
-              </div>
-            </div>
-          </div>
-
-          <button
-            onClick={() => onNavigate('lessons')}
-            className="w-full bg-[#252525] hover:bg-[#333] text-[#90FF00] border border-[#333] py-2.5 rounded text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-colors uppercase tracking-wider"
-          >
-            <BookOpen className="w-3.5 h-3.5" />
-            <span>Resume Masterclass Lesson</span>
-          </button>
+        {/* 1. Continue Learning Classroom Card */}
+        <div className="col-span-1 md:col-span-1 lg:col-span-1">
+          <ContinueLearningCard onNavigateToClassroom={() => onNavigate('classroom')} />
         </div>
 
         {/* 2. Daily Mission Widget with responsive column spans */}

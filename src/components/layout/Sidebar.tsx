@@ -71,6 +71,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
         categoryKey: 'nav.area.learn',
         items: [
           {
+            id: 'classroom' as ViewType,
+            labelKey: 'nav.classroom',
+            descKey: 'sidebar.classroom',
+            icon: <Sparkles className="w-4 h-4 text-amber-400" />,
+          },
+          {
             id: 'lessons' as ViewType,
             labelKey: 'nav.lessons',
             descKey: 'sidebar.lessons',

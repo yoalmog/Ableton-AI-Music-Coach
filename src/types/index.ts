@@ -17,7 +17,9 @@ export type ViewType =
   | 'arrangement'
   | 'prompts'
   | 'versions'
-  | 'settings';
+  | 'settings'
+  | 'account'
+  | 'classroom';
 
 export type GenreType = 
   | 'Psytrance'
