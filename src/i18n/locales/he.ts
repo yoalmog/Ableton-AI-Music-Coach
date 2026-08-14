@@ -164,6 +164,17 @@ export const he: TranslationDictionary = {
   'header.logout': 'התנתק',
   'header.login': 'התחבר',
   'header.notConfigured': 'לא מוגדר',
+  'header.exportMidi': 'ייצא MIDI',
+  'header.saveAs': 'שמור בשם',
+  'header.noProject': 'אין פרויקט פתוח',
+  'header.student': 'תלמיד',
+  'header.provider': 'ספק',
+  'header.model': 'מודל',
+  'header.currentLesson': 'שיעור נוכחי',
+  'header.status': 'סטטוס',
+  'header.abletonStatus': 'Ableton',
+  'header.abletonConnected': 'מחובר',
+  'header.aiCoachTitle': 'מאמן AI',
   'nav.home': 'בית',
 
   // Dashboard

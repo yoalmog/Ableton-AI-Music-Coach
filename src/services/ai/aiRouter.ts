@@ -11,7 +11,7 @@ const DEFAULT_SETTINGS: AISettings = {
   localModel: 'qwen3.5:9b',
   androidLocalModel: 'qwen2.5-3b-instruct',
   cloudProvider: 'gemini',
-  cloudModel: 'gemini-3.6-flash',
+  cloudModel: 'gemini-2.5-flash',
   privacyMode: false,
   fallbackEnabled: true,
   apiKey: '',

@@ -1,4 +1,4 @@
-import { MidiNote, MidiPattern, DrumPattern, BassSettings, KeyType } from '../types';
+import { MidiNote, MidiPattern, DrumPattern, BassSettings, KeyType, AAMCProject } from '../types';
 import { desktopService } from './desktopService';
 
 // Standard MIDI constants
@@ -137,6 +137,27 @@ export class MidiService {
       }
     }
     return bytes;
+  }
+
+  /**
+   * Export a complete AAMCProject to a MIDI file
+   */
+  public async exportProjectMidi(project: AAMCProject): Promise<boolean> {
+    const allNotes: MidiNote[] = [];
+    if (project.midiPatterns && project.midiPatterns.length > 0) {
+      project.midiPatterns.forEach((pat) => {
+        if (pat.notes) {
+          allNotes.push(...pat.notes);
+        }
+      });
+    }
+    if (allNotes.length === 0) {
+      const defaultNotes = this.generatePsyBassline('K-B-B-B', project.key || 'F#', project.bpm || 142);
+      allNotes.push(...defaultNotes);
+    }
+    const buffer = this.createMidiFileBuffer(allNotes, project.bpm || 142);
+    const fileName = `${(project.name || 'Project').replace(/\s+/g, '_')}_MIDI.mid`;
+    return await desktopService.exportMIDI(fileName, buffer);
   }
 
   /**

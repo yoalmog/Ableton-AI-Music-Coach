@@ -61,7 +61,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     localEndpoint: 'http://localhost:11434',
     localModel: 'qwen3.5:9b',
     cloudProvider: 'gemini',
-    cloudModel: 'gemini-3.6-flash',
+    cloudModel: 'gemini-2.5-flash',
     privacyMode: false,
     fallbackEnabled: true,
     apiKey: '',
@@ -404,9 +404,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 className="w-full bg-[#181818] border border-[#333] rounded p-2 text-xs font-mono text-[#00E5FF] font-bold focus:outline-none"
                 dir="ltr"
               >
-                <option value="gemini-3.6-flash">gemini-3.6-flash (Recommended)</option>
-                <option value="gemini-3.1-pro-preview">gemini-3.1-pro-preview (Deep Reasoning)</option>
-                <option value="gemini-3.1-flash-lite">gemini-3.1-flash-lite (Fast)</option>
+                <option value="gemini-2.5-flash">gemini-2.5-flash (Recommended)</option>
+                <option value="gemini-2.5-pro">gemini-2.5-pro (Deep Music Reasoning)</option>
+                <option value="gemini-1.5-flash">gemini-1.5-flash (Fast & Low Latency)</option>
               </select>
             </div>
 

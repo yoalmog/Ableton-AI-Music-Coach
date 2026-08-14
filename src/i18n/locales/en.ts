@@ -164,6 +164,17 @@ export const en: TranslationDictionary = {
   'header.logout': 'Log Out',
   'header.login': 'Log In',
   'header.notConfigured': 'Not Configured',
+  'header.exportMidi': 'Export MIDI',
+  'header.saveAs': 'Save As',
+  'header.noProject': 'No project open',
+  'header.student': 'Student',
+  'header.provider': 'Provider',
+  'header.model': 'Model',
+  'header.currentLesson': 'Current Lesson',
+  'header.status': 'Status',
+  'header.abletonStatus': 'Ableton',
+  'header.abletonConnected': 'Connected',
+  'header.aiCoachTitle': 'AI COACH',
   'nav.home': 'Home',
 
   // Dashboard

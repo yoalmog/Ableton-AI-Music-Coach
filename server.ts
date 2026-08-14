@@ -98,8 +98,13 @@ async function startServer() {
     config?: any,
     timeoutMs = 20000
   ): Promise<{ response: any; modelUsed: string; fallbackUsed: boolean }> {
+    let targetPreferred = preferredModel || "gemini-2.5-flash";
+    if (targetPreferred.includes("gemini-3.") || targetPreferred.includes("latest")) {
+      targetPreferred = "gemini-2.5-flash";
+    }
+
     const candidates = Array.from(
-      new Set([preferredModel, "gemini-3.1-flash-lite", "gemini-flash-latest"])
+      new Set([targetPreferred, "gemini-2.5-flash", "gemini-2.5-pro", "gemini-1.5-flash"])
     );
 
     let lastError: any = null;
@@ -274,7 +279,7 @@ async function startServer() {
     try {
       const { customKey, customModel } = req.body || {};
       const apiKey = customKey || process.env.GEMINI_API_KEY;
-      const modelName = customModel || "gemini-3.6-flash";
+      const modelName = customModel || "gemini-2.5-flash";
 
       if (!apiKey || apiKey === "MY_GEMINI_API_KEY") {
         return res.json({
@@ -337,7 +342,7 @@ async function startServer() {
   app.post("/api/ai/chat", async (req, res) => {
     try {
       const { message, history, context, model } = req.body;
-      const modelName = model || "gemini-3.6-flash";
+      const modelName = model || "gemini-2.5-flash";
       const ai = getGeminiClient();
 
       if (!ai) {
@@ -431,7 +436,7 @@ Return JSON ONLY matching structure:
 
       const { response, modelUsed } = await generateContentWithFallback(
         ai,
-        "gemini-3.6-flash",
+        "gemini-2.5-flash",
         promptText,
         {
           responseMimeType: "application/json",
@@ -509,7 +514,7 @@ Return JSON ONLY matching structure:
 
       const { response } = await generateContentWithFallback(
         ai,
-        "gemini-3.6-flash",
+        "gemini-2.5-flash",
         promptText,
         {
           responseMimeType: "application/json",
