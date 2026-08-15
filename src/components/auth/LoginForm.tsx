@@ -8,6 +8,7 @@ interface LoginFormProps {
   onSelectRegister: () => void;
   onSelectForgotPassword: () => void;
   onBackToWelcome: () => void;
+  onContinueAsGuest?: () => void;
 }
 
 export const LoginForm: React.FC<LoginFormProps> = ({
@@ -15,6 +16,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   onSelectRegister,
   onSelectForgotPassword,
   onBackToWelcome,
+  onContinueAsGuest,
 }) => {
   const { t, isRTL } = useLanguage();
   const [email, setEmail] = useState('');
@@ -135,13 +137,23 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           </button>
         </form>
 
-        <div className="mt-6 pt-4 border-t border-[#2A2A2A] text-center">
+        <div className="mt-6 pt-4 border-t border-[#2A2A2A] flex flex-col items-center gap-2.5 text-center">
           <button
             onClick={onSelectRegister}
             className="text-xs text-gray-300 hover:text-[#90FF00] transition-colors cursor-pointer"
           >
             {t('auth.noAccountLink')}
           </button>
+
+          {onContinueAsGuest && (
+            <button
+              type="button"
+              onClick={onContinueAsGuest}
+              className="text-[11px] font-mono text-gray-400 hover:text-white transition-colors cursor-pointer"
+            >
+              {t('auth.continueGuestBtn')}
+            </button>
+          )}
         </div>
       </div>
     </div>

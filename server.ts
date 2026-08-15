@@ -90,6 +90,21 @@ async function startServer() {
     }
   });
 
+  // Sanitize obsolete or deprecated model names
+  function sanitizeModel(modelName?: string): string {
+    if (!modelName) return "gemini-3.7-flash";
+    if (
+      modelName.includes("1.5") ||
+      modelName.includes("2.0") ||
+      modelName.includes("2.5") ||
+      modelName.includes("3.6") ||
+      modelName === "gemini-pro"
+    ) {
+      return "gemini-3.7-flash";
+    }
+    return modelName;
+  }
+
   // Helper helper to generate content with model fallback retries for 503 / timeout
   async function generateContentWithFallback(
     ai: GoogleGenAI,
@@ -98,13 +113,10 @@ async function startServer() {
     config?: any,
     timeoutMs = 20000
   ): Promise<{ response: any; modelUsed: string; fallbackUsed: boolean }> {
-    let targetPreferred = preferredModel || "gemini-2.5-flash";
-    if (targetPreferred.includes("gemini-3.") || targetPreferred.includes("latest")) {
-      targetPreferred = "gemini-2.5-flash";
-    }
+    const targetPreferred = sanitizeModel(preferredModel);
 
     const candidates = Array.from(
-      new Set([targetPreferred, "gemini-2.5-flash", "gemini-2.5-pro", "gemini-1.5-flash"])
+      new Set([targetPreferred, "gemini-3.7-flash", "gemini-3.1-flash-lite", "gemini-flash-latest", "gemini-3.1-pro-preview"])
     );
 
     let lastError: any = null;
@@ -279,7 +291,7 @@ async function startServer() {
     try {
       const { customKey, customModel } = req.body || {};
       const apiKey = customKey || process.env.GEMINI_API_KEY;
-      const modelName = customModel || "gemini-2.5-flash";
+      const modelName = customModel || "gemini-3.7-flash";
 
       if (!apiKey || apiKey === "MY_GEMINI_API_KEY") {
         return res.json({
@@ -342,7 +354,7 @@ async function startServer() {
   app.post("/api/ai/chat", async (req, res) => {
     try {
       const { message, history, context, model } = req.body;
-      const modelName = model || "gemini-2.5-flash";
+      const modelName = model || "gemini-3.7-flash";
       const ai = getGeminiClient();
 
       if (!ai) {
@@ -436,7 +448,7 @@ Return JSON ONLY matching structure:
 
       const { response, modelUsed } = await generateContentWithFallback(
         ai,
-        "gemini-2.5-flash",
+        "gemini-3.7-flash",
         promptText,
         {
           responseMimeType: "application/json",
@@ -514,7 +526,7 @@ Return JSON ONLY matching structure:
 
       const { response } = await generateContentWithFallback(
         ai,
-        "gemini-2.5-flash",
+        "gemini-3.7-flash",
         promptText,
         {
           responseMimeType: "application/json",

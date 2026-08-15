@@ -91,6 +91,56 @@ class DbStore {
 
   constructor() {
     this.db = this.loadDatabase();
+    this.seedDefaults();
+  }
+
+  private seedDefaults() {
+    const defaultEmail = 'yoalmog@gmail.com';
+    const existing = this.getUserByEmail(defaultEmail);
+    const passwordHash = this.hashPassword('1985Yossi');
+    const now = new Date().toISOString();
+
+    if (!existing) {
+      const userId = 'usr_yoalmog_primary';
+      const user: User = {
+        userId,
+        email: defaultEmail,
+        passwordHash,
+        displayName: 'Yossi Almog',
+        language: 'he',
+        createdAt: now,
+        lastLoginAt: now,
+        emailVerified: true,
+        experienceLevel: 'Advanced',
+        favoriteGenre: 'Psytrance',
+        learningGoal: 'Master Psytrance production & Ableton Live coaching',
+        subscriptionStatus: 'active',
+        subscriptionPlan: 'pro_yearly',
+        subscriptionExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+      };
+
+      this.db.users[userId] = user;
+      this.db.emailToUserId[defaultEmail] = userId;
+      this.db.subscriptions[userId] = {
+        id: `sub_${userId}`,
+        userId,
+        plan: 'pro_yearly',
+        status: 'active',
+        currentPeriodStart: now,
+        currentPeriodEnd: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+        cancelAtPeriodEnd: false,
+        updatedAt: now,
+      };
+      this.saveDatabase();
+    } else {
+      existing.passwordHash = passwordHash;
+      existing.emailVerified = true;
+      if (existing.subscriptionPlan === 'free') {
+        existing.subscriptionPlan = 'pro_yearly';
+        existing.subscriptionStatus = 'active';
+      }
+      this.saveDatabase();
+    }
   }
 
   private loadDatabase(): DatabaseSchema {

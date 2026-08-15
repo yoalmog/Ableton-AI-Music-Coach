@@ -4,6 +4,7 @@ import { LoginForm } from './LoginForm';
 import { RegisterForm } from './RegisterForm';
 import { VerifyEmailForm } from './VerifyEmailForm';
 import { ForgotPasswordForm } from './ForgotPasswordForm';
+import { authService } from '../../services/authService';
 
 export type AuthScreenMode = 'welcome' | 'login' | 'register' | 'verifyEmail' | 'forgotPassword';
 
@@ -18,6 +19,11 @@ export const AuthModalContainer: React.FC<AuthModalContainerProps> = ({
 }) => {
   const [mode, setMode] = useState<AuthScreenMode>(initialMode);
 
+  const handleContinueAsGuest = () => {
+    authService.continueAsGuest();
+    onSuccess();
+  };
+
   switch (mode) {
     case 'login':
       return (
@@ -26,6 +32,7 @@ export const AuthModalContainer: React.FC<AuthModalContainerProps> = ({
           onSelectRegister={() => setMode('register')}
           onSelectForgotPassword={() => setMode('forgotPassword')}
           onBackToWelcome={() => setMode('welcome')}
+          onContinueAsGuest={handleContinueAsGuest}
         />
       );
 
@@ -35,6 +42,7 @@ export const AuthModalContainer: React.FC<AuthModalContainerProps> = ({
           onSuccess={() => setMode('verifyEmail')}
           onSelectLogin={() => setMode('login')}
           onBackToWelcome={() => setMode('welcome')}
+          onContinueAsGuest={handleContinueAsGuest}
         />
       );
 
@@ -59,7 +67,7 @@ export const AuthModalContainer: React.FC<AuthModalContainerProps> = ({
         <WelcomeScreen
           onSelectLogin={() => setMode('login')}
           onSelectRegister={() => setMode('register')}
-          onSelectGuest={onSuccess}
+          onSelectGuest={handleContinueAsGuest}
         />
       );
   }

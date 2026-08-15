@@ -8,12 +8,14 @@ interface RegisterFormProps {
   onSuccess: () => void;
   onSelectLogin: () => void;
   onBackToWelcome: () => void;
+  onContinueAsGuest?: () => void;
 }
 
 export const RegisterForm: React.FC<RegisterFormProps> = ({
   onSuccess,
   onSelectLogin,
   onBackToWelcome,
+  onContinueAsGuest,
 }) => {
   const { t, isRTL, language, setLanguage } = useLanguage();
 
@@ -271,13 +273,23 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
           </button>
         </form>
 
-        <div className="mt-6 pt-4 border-t border-[#2A2A2A] text-center">
+        <div className="mt-6 pt-4 border-t border-[#2A2A2A] flex flex-col items-center gap-2.5 text-center">
           <button
             onClick={onSelectLogin}
             className="text-xs text-gray-300 hover:text-[#90FF00] transition-colors cursor-pointer"
           >
             {t('auth.hasAccountLink')}
           </button>
+
+          {onContinueAsGuest && (
+            <button
+              type="button"
+              onClick={onContinueAsGuest}
+              className="text-[11px] font-mono text-gray-400 hover:text-white transition-colors cursor-pointer"
+            >
+              {t('auth.continueGuestBtn')}
+            </button>
+          )}
         </div>
       </div>
     </div>

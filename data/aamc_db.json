@@ -1,0 +1,58 @@
+{
+  "users": {
+    "usr_yoalmog_primary": {
+      "userId": "usr_yoalmog_primary",
+      "email": "yoalmog@gmail.com",
+      "passwordHash": "afbe2c5edd14836692b0c48804e6257ced8b9c317e1e198a034ef6f1b80a5e8e10fccdf274011931cdaaf4391882651afe6c4d1c4381e82072f73eb585c2cf4a",
+      "displayName": "Yossi Almog",
+      "language": "he",
+      "createdAt": "2026-08-14T14:47:06.803Z",
+      "lastLoginAt": "2026-08-14T14:47:33.450Z",
+      "emailVerified": true,
+      "experienceLevel": "Advanced",
+      "favoriteGenre": "Psytrance",
+      "learningGoal": "Master Psytrance production & Ableton Live coaching",
+      "subscriptionStatus": "active",
+      "subscriptionPlan": "pro_yearly",
+      "subscriptionExpiresAt": "2027-08-14T14:47:06.804Z"
+    }
+  },
+  "emailToUserId": {
+    "yoalmog@gmail.com": "usr_yoalmog_primary"
+  },
+  "sessions": {
+    "sess_db5e880ab5d7a9ecf6af1dd7ee968593956c7b375dcb6e4f25a9be16d954fe2b": {
+      "token": "sess_db5e880ab5d7a9ecf6af1dd7ee968593956c7b375dcb6e4f25a9be16d954fe2b",
+      "userId": "usr_yoalmog_primary",
+      "createdAt": "2026-08-14T14:47:33.450Z",
+      "expiresAt": "2026-09-13T14:47:33.450Z"
+    }
+  },
+  "subscriptions": {
+    "usr_yoalmog_primary": {
+      "id": "sub_usr_yoalmog_primary",
+      "userId": "usr_yoalmog_primary",
+      "plan": "pro_yearly",
+      "status": "active",
+      "currentPeriodStart": "2026-08-14T14:47:06.803Z",
+      "currentPeriodEnd": "2027-08-14T14:47:06.804Z",
+      "cancelAtPeriodEnd": false,
+      "updatedAt": "2026-08-14T14:47:06.803Z"
+    }
+  },
+  "usage": {
+    "usr_yoalmog_primary": {
+      "2026-08": {
+        "userId": "usr_yoalmog_primary",
+        "period": "2026-08",
+        "aiCloudRequestsCount": 0,
+        "aiCloudRequestsLimit": 1000,
+        "projectsCount": 1,
+        "lastRequestAt": "2026-08-14T14:47:33.451Z"
+      }
+    }
+  },
+  "paymentEvents": {},
+  "verificationTokens": {},
+  "resetPasswordTokens": {}
+}
