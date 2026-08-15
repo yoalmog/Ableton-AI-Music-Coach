@@ -3,6 +3,8 @@ import { desktopService } from './desktopService';
 import { debugLog } from '../utils/debug';
 
 const RECENT_PROJECTS_KEY = 'aamc_recent_projects';
+const ACTIVE_PROJECT_KEY = 'aamc_active_project';
+const LOCAL_PROJECTS_KEY = 'aamc_local_projects';
 
 export class ProjectService {
   /**
@@ -16,7 +18,7 @@ export class ProjectService {
     scale: ScaleType = 'Minor'
   ): AAMCProject {
     const now = new Date().toISOString();
-    return {
+    const project: AAMCProject = {
       format: 'AAMC',
       id: `aamc_${Date.now()}`,
       version: 1,
@@ -36,6 +38,99 @@ export class ProjectService {
       createdAt: now,
       updatedAt: now,
     };
+    this.saveActiveProject(project);
+    return project;
+  }
+
+  /**
+   * Get active project from local storage or fallback to new project
+   */
+  public getActiveProject(): AAMCProject {
+    try {
+      const raw = localStorage.getItem(ACTIVE_PROJECT_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object' && parsed.name) {
+          // Normalize fields if needed
+          return {
+            format: 'AAMC',
+            id: parsed.id || `aamc_${Date.now()}`,
+            version: 1,
+            name: parsed.name,
+            genre: parsed.genre || 'Psytrance',
+            subgenre: parsed.subgenre || 'Full-On Psytrance',
+            bpm: parsed.bpm || 142,
+            key: parsed.key || 'F#',
+            scale: parsed.scale || 'Minor',
+            completedLessonIds: parsed.completedLessonIds || [],
+            midiPatterns: parsed.midiPatterns || [],
+            userNotes: parsed.userNotes || '',
+            aiNotes: parsed.aiNotes || [],
+            createdAt: parsed.createdAt || new Date().toISOString(),
+            updatedAt: parsed.updatedAt || new Date().toISOString(),
+          };
+        }
+      }
+    } catch (err) {
+      debugLog.warn('Failed to parse active project from localStorage:', err);
+    }
+    return this.createNewProject('My Psytrance Track', 'Psytrance', 142, 'F#', 'Minor');
+  }
+
+  /**
+   * Persist active project to local storage
+   */
+  public saveActiveProject(project: AAMCProject): void {
+    try {
+      project.updatedAt = new Date().toISOString();
+      localStorage.setItem(ACTIVE_PROJECT_KEY, JSON.stringify(project));
+      this.saveLocalProject(project);
+    } catch (err) {
+      debugLog.warn('Failed to persist active project to localStorage:', err);
+    }
+  }
+
+  /**
+   * Get all local projects stored in browser
+   */
+  public getLocalProjects(): AAMCProject[] {
+    try {
+      const raw = localStorage.getItem(LOCAL_PROJECTS_KEY);
+      if (raw) {
+        return JSON.parse(raw);
+      }
+    } catch (err) {
+      debugLog.warn('Failed to read local projects:', err);
+    }
+    return [];
+  }
+
+  /**
+   * Upsert a project into local projects list
+   */
+  public saveLocalProject(project: AAMCProject): void {
+    try {
+      const list = this.getLocalProjects().filter((p) => p.id !== project.id);
+      list.unshift(project);
+      // Keep up to 25 local projects
+      const trimmed = list.slice(0, 25);
+      localStorage.setItem(LOCAL_PROJECTS_KEY, JSON.stringify(trimmed));
+      this.addRecentProject(project.name, undefined, project.genre);
+    } catch (err) {
+      debugLog.warn('Failed to save to local projects list:', err);
+    }
+  }
+
+  /**
+   * Delete a project from local storage
+   */
+  public deleteLocalProject(projectId: string): void {
+    try {
+      const list = this.getLocalProjects().filter((p) => p.id !== projectId);
+      localStorage.setItem(LOCAL_PROJECTS_KEY, JSON.stringify(list));
+    } catch (err) {
+      debugLog.warn('Failed to delete local project:', err);
+    }
   }
 
   /**

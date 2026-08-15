@@ -46,9 +46,7 @@ import { getInitialTheme, applyTheme, ThemeMode } from './utils/themeSync';
 export function AppContent() {
   const { dir } = useLanguage();
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
-  const [project, setProject] = useState<AAMCProject>(() =>
-    projectService.createNewProject('My Psytrance Track', 'Psytrance', 142, 'F#', 'Minor')
-  );
+  const [project, setProject] = useState<AAMCProject>(() => projectService.getActiveProject());
   const [isCoachOpen, setIsCoachOpen] = useState(false);
   const [coachInitialMsg, setCoachInitialMsg] = useState<string | undefined>(undefined);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -118,6 +116,13 @@ export function AppContent() {
   useEffect(() => {
     applyTheme(theme);
   }, [theme]);
+
+  // Persist project changes to local storage
+  useEffect(() => {
+    if (project) {
+      projectService.saveActiveProject(project);
+    }
+  }, [project]);
 
   // Keyboard shortcut Ctrl+K / Cmd+K for search modal
   useEffect(() => {

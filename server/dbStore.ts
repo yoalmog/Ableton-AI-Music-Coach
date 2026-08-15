@@ -22,6 +22,7 @@ export interface User {
   subscriptionExpiresAt?: string | null;
   stripeCustomerId?: string | null;
   stripeSubscriptionId?: string | null;
+  isGuest?: boolean;
 }
 
 export interface Session {
@@ -356,6 +357,53 @@ class DbStore {
   }
 
   // Session Management
+  public createGuestSession(guestId?: string, displayName?: string, language?: string): {
+    token: string;
+    user: User;
+    session: Session;
+  } {
+    const rawId = guestId || `guest_${crypto.randomBytes(8).toString('hex')}`;
+    const token = `gst_${crypto.randomBytes(24).toString('hex')}`;
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(); // 7-day temporary session
+
+    let user = this.db.users[rawId];
+    if (!user) {
+      user = {
+        userId: rawId,
+        email: `${rawId}@guest.local`,
+        passwordHash: '',
+        displayName: displayName || 'Guest Producer',
+        language: language || 'en',
+        createdAt: now.toISOString(),
+        lastLoginAt: now.toISOString(),
+        emailVerified: false,
+        experienceLevel: 'Beginner',
+        favoriteGenre: 'Psytrance',
+        learningGoal: 'Explore Ableton AI Music Coach',
+        subscriptionStatus: 'active',
+        subscriptionPlan: 'free',
+        isGuest: true,
+      };
+      this.db.users[rawId] = user;
+    } else {
+      user.lastLoginAt = now.toISOString();
+      user.isGuest = true;
+    }
+
+    const session: Session = {
+      token,
+      userId: rawId,
+      createdAt: now.toISOString(),
+      expiresAt,
+    };
+
+    this.db.sessions[token] = session;
+    this.saveDatabase();
+
+    return { token, user, session };
+  }
+
   public createSession(userId: string): Session {
     const token = `sess_${crypto.randomBytes(32).toString('hex')}`;
     const now = new Date();

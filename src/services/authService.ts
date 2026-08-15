@@ -9,7 +9,22 @@ import {
 
 const TOKEN_KEY = 'aamc_auth_token';
 const GUEST_KEY = 'aamc_is_guest';
+const GUEST_ID_KEY = 'aamc_guest_id';
+const GUEST_TOKEN_KEY = 'aamc_guest_session_token';
 const LICENSE_CACHE_KEY = 'aamc_license_cache';
+
+function getOrCreateGuestId(): string {
+  let id = localStorage.getItem(GUEST_ID_KEY);
+  if (!id) {
+    id = `guest_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 8)}`;
+    localStorage.setItem(GUEST_ID_KEY, id);
+  }
+  return id;
+}
+
+function generateGuestToken(): string {
+  return `gst_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 10)}${Math.random().toString(36).substring(2, 10)}`;
+}
 
 const GUEST_USER: UserProfile = {
   userId: 'guest_producer',
@@ -47,7 +62,7 @@ class AuthService {
   private listeners: Array<(state: AuthState, user: UserProfile | null) => void> = [];
 
   constructor() {
-    this.currentToken = localStorage.getItem(TOKEN_KEY);
+    this.currentToken = localStorage.getItem(TOKEN_KEY) || localStorage.getItem(GUEST_TOKEN_KEY);
   }
 
   public subscribe(listener: (state: AuthState, user: UserProfile | null) => void) {
@@ -82,7 +97,7 @@ class AuthService {
   }
 
   public isGuest(): boolean {
-    return Boolean(this.currentUser?.isGuest);
+    return Boolean(this.currentUser?.isGuest || this.authState === 'GUEST');
   }
 
   public async initSession(): Promise<{ state: AuthState; user: UserProfile | null }> {
@@ -90,9 +105,13 @@ class AuthService {
     this.notify();
 
     const isGuestStored = localStorage.getItem(GUEST_KEY) === 'true';
-    const savedToken = localStorage.getItem(TOKEN_KEY);
+    const savedToken = localStorage.getItem(TOKEN_KEY) || localStorage.getItem(GUEST_TOKEN_KEY);
+    const guestId = getOrCreateGuestId();
 
+    // Check for standard or guest session token
     if (savedToken) {
+      const isGuestToken = savedToken.startsWith('gst_') || isGuestStored;
+
       try {
         const res = await fetch('/api/auth/me', {
           headers: {
@@ -107,14 +126,14 @@ class AuthService {
             this.currentUser = data.user;
             this.currentEntitlements = data.entitlements || DEFAULT_GUEST_ENTITLEMENTS;
             this.currentUsage = data.usage || null;
-            this.authState = 'AUTHENTICATED';
+            this.authState = isGuestToken || data.user.isGuest ? 'GUEST' : 'AUTHENTICATED';
 
             if (data.licenseToken) {
               this.cacheOfflineLicense(data.licenseToken, data.user, data.entitlements);
             }
 
             this.notify();
-            return { state: 'AUTHENTICATED', user: this.currentUser };
+            return { state: this.authState, user: this.currentUser };
           }
         }
       } catch (err) {
@@ -123,19 +142,39 @@ class AuthService {
         if (cached) {
           this.currentUser = cached.user;
           this.currentEntitlements = cached.entitlements;
-          this.authState = 'AUTHENTICATED';
+          this.authState = isGuestToken || cached.user.isGuest ? 'GUEST' : 'AUTHENTICATED';
           this.notify();
-          return { state: 'AUTHENTICATED', user: this.currentUser };
+          return { state: this.authState, user: this.currentUser };
         }
+      }
+
+      // If token was a valid guest token format, maintain guest session even if server was transiently unreachable
+      if (isGuestToken) {
+        this.currentToken = savedToken;
+        this.currentUser = {
+          ...GUEST_USER,
+          userId: guestId,
+        };
+        this.currentEntitlements = DEFAULT_GUEST_ENTITLEMENTS;
+        this.authState = 'GUEST';
+        this.notify();
+        return { state: 'GUEST', user: this.currentUser };
       }
     }
 
     if (isGuestStored) {
-      this.currentUser = GUEST_USER;
+      const tempToken = generateGuestToken();
+      this.currentToken = tempToken;
+      this.currentUser = {
+        ...GUEST_USER,
+        userId: guestId,
+      };
       this.currentEntitlements = DEFAULT_GUEST_ENTITLEMENTS;
       this.authState = 'GUEST';
+      localStorage.setItem(GUEST_TOKEN_KEY, tempToken);
+      localStorage.setItem(TOKEN_KEY, tempToken);
       this.notify();
-      return { state: 'GUEST', user: GUEST_USER };
+      return { state: 'GUEST', user: this.currentUser };
     }
 
     this.authState = 'UNAUTHENTICATED';
@@ -224,21 +263,56 @@ class AuthService {
 
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(GUEST_KEY);
+    localStorage.removeItem(GUEST_TOKEN_KEY);
     localStorage.removeItem(LICENSE_CACHE_KEY);
 
     this.notify();
   }
 
-  public continueAsGuest(): void {
-    this.currentToken = null;
-    this.currentUser = GUEST_USER;
+  public async continueAsGuest(): Promise<{ token: string; user: UserProfile }> {
+    const guestId = getOrCreateGuestId();
+    let token = generateGuestToken();
+
+    const localGuestUser: UserProfile = {
+      ...GUEST_USER,
+      userId: guestId,
+    };
+
+    this.currentToken = token;
+    this.currentUser = localGuestUser;
     this.currentEntitlements = DEFAULT_GUEST_ENTITLEMENTS;
     this.authState = 'GUEST';
 
-    localStorage.removeItem(TOKEN_KEY);
     localStorage.setItem(GUEST_KEY, 'true');
-
+    localStorage.setItem(TOKEN_KEY, token);
+    localStorage.setItem(GUEST_TOKEN_KEY, token);
     this.notify();
+
+    // Sync with backend guest session in background
+    try {
+      const res = await fetch('/api/auth/guest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ guestId }),
+      });
+      if (res.ok) {
+        const data: AuthResponse = await res.json();
+        if (data.ok && data.token && data.user) {
+          this.currentToken = data.token;
+          this.currentUser = data.user;
+          this.currentEntitlements = data.entitlements || DEFAULT_GUEST_ENTITLEMENTS;
+          this.currentUsage = data.usage || null;
+          localStorage.setItem(TOKEN_KEY, data.token);
+          localStorage.setItem(GUEST_TOKEN_KEY, data.token);
+          this.notify();
+          return { token: data.token, user: data.user };
+        }
+      }
+    } catch {
+      // Offline / network fallback is already active
+    }
+
+    return { token, user: localGuestUser };
   }
 
   public async requestPasswordReset(email: string): Promise<{ ok: boolean; message?: string; error?: string }> {
