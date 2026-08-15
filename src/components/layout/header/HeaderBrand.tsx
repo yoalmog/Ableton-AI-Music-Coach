@@ -46,11 +46,11 @@ export const HeaderBrand: React.FC<HeaderBrandProps> = ({
   const { t } = useLanguage();
 
   return (
-    <div className="flex items-center gap-2.5 shrink-0 min-w-0">
+    <div className="flex items-center gap-2 shrink-0 min-w-0">
       {onToggleMobileMenu && (
         <button
           onClick={onToggleMobileMenu}
-          className="md:hidden p-1.5 rounded bg-[#222] hover:bg-[#333] text-[#90FF00] border border-[#333] transition-colors cursor-pointer shrink-0"
+          className="md:hidden p-1.5 rounded-md bg-[#1C1C1C] hover:bg-[#282828] text-gray-300 hover:text-white border border-[#2E2E2E] transition-colors cursor-pointer shrink-0"
           aria-label={t('header.toggleMenu')}
         >
           <Menu className="w-4 h-4" />
@@ -59,15 +59,15 @@ export const HeaderBrand: React.FC<HeaderBrandProps> = ({
 
       <div
         onClick={() => onNavigate && onNavigate('dashboard')}
-        className="flex items-center gap-2 cursor-pointer group shrink-0 select-none"
+        className="flex items-center gap-2 cursor-pointer group shrink-0 select-none py-1"
       >
-        <BrandSymbolMark sizeClass="w-7 h-7" />
-        <div className="flex flex-col leading-tight">
-          <span className="text-xs md:text-sm font-extrabold text-white tracking-tight group-hover:text-[#90FF00] transition-colors font-sans">
-            Ableton AI Music Coach
+        <BrandSymbolMark sizeClass="w-6 h-6" />
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs sm:text-sm font-bold text-white tracking-tight group-hover:text-[#90FF00] transition-colors font-sans">
+            Ableton AI Coach
           </span>
-          <span className="text-[10px] text-gray-400 font-mono font-medium truncate max-w-[170px] sm:max-w-none">
-            {t('header.brandSubtitle')}
+          <span className="hidden sm:inline-block px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-[#1E1E1E] text-gray-400 border border-[#2E2E2E]">
+            Live 12
           </span>
         </div>
       </div>

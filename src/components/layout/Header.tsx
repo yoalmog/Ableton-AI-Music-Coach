@@ -6,7 +6,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { AAMCProject } from '../../types';
 import { HeaderBrand } from './header/HeaderBrand';
 import { HeaderActions } from './header/HeaderActions';
-import { ProjectStatusBar } from './header/ProjectStatusBar';
+import { ProjectMenu } from './header/ProjectMenu';
 
 interface HeaderProps {
   project: AAMCProject;
@@ -127,17 +127,38 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="bg-[#0A0A0A] border-b border-[#262626] text-[#E0E0E0] select-none z-30 font-sans shrink-0 w-full max-w-full flex flex-col shadow-2xl"
+      className="bg-[#101010] border-b border-[#222222] text-[#E0E0E0] select-none z-30 font-sans shrink-0 w-full max-w-full"
     >
-      {/* ROW 1: BRAND IDENTITY & PRIMARY CONTROLS (~56px) */}
-      <div className="h-[56px] px-3 md:px-4 bg-[#111111] flex items-center justify-between gap-2 border-b border-[#222222] min-w-0">
-        {/* Brand Section */}
-        <HeaderBrand
-          onNavigate={onNavigate}
-          onToggleMobileMenu={onToggleMobileMenu}
-        />
+      <div className="h-12 px-3 md:px-4 flex items-center justify-between gap-3 min-w-0">
+        {/* Left: Brand & Active Project */}
+        <div className="flex items-center gap-2.5 min-w-0 shrink-0">
+          <HeaderBrand
+            onNavigate={onNavigate}
+            onToggleMobileMenu={onToggleMobileMenu}
+          />
 
-        {/* Action Controls Section */}
+          <div className="h-4 w-px bg-[#262626] mx-0.5 hidden sm:block" />
+
+          {/* Minimal Project Dropdown */}
+          <div className="hidden sm:flex items-center gap-2">
+            <ProjectMenu
+              project={project}
+              onProjectChange={onProjectChange}
+              onSave={handleSave}
+              onLoad={handleLoad}
+              saveStatus={saveStatus}
+            />
+
+            {/* Quick Musical Stats Pill */}
+            <div className="hidden lg:flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#161616] border border-[#262626] text-[11px] font-mono text-gray-400">
+              <span className="text-[#90FF00] font-bold">{project.bpm || 142} BPM</span>
+              <span>•</span>
+              <span className="text-[#00E5FF] font-bold">{project.key || 'F#'} {project.scale || 'Minor'}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Right: Minimal Utility Actions & Account */}
         <HeaderActions
           onOpenSearch={onOpenSearch}
           onOpenCoach={onOpenCoach}
@@ -153,18 +174,6 @@ export const Header: React.FC<HeaderProps> = ({
           onVolumeChange={handleVolumeChange}
         />
       </div>
-
-      {/* ROW 2: WORKSPACE PROJECT BAR (~42px) */}
-      <ProjectStatusBar
-        project={project}
-        onProjectChange={onProjectChange}
-        onSave={handleSave}
-        onLoad={handleLoad}
-        saveStatus={saveStatus}
-        status={aiStatus}
-        onOpenSetup={onOpenSetup}
-        onOpenSettings={onOpenSettings}
-      />
     </header>
   );
 };

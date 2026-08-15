@@ -1,11 +1,8 @@
-import React, { useState } from 'react';
-import { Search, Settings, Mic, Sparkles } from 'lucide-react';
+import React from 'react';
+import { Search, Settings, Sparkles, MessageSquare } from 'lucide-react';
 import { useLanguage } from '../../../context/LanguageContext';
 import { AAMCProject } from '../../../types';
 import { HeaderAccountMenu } from '../HeaderAccountMenu';
-import { VolumePopover } from './VolumePopover';
-import { AIStatusPopover } from './AIStatusPopover';
-import { VoiceControlWidget } from '../../chat/VoiceControlWidget';
 
 interface HeaderActionsProps {
   onOpenSearch: () => void;
@@ -33,111 +30,66 @@ interface HeaderActionsProps {
 export const HeaderActions: React.FC<HeaderActionsProps> = ({
   onOpenSearch,
   onOpenCoach,
-  onOpenCoachWithMessage,
   onOpenSettings,
-  onOpenSetup,
   onOpenAuthModal,
   onOpenAccountView,
   onOpenUpgradeModal,
   status,
-  project,
-  volume,
-  onVolumeChange,
 }) => {
-  const [isAIPopoverOpen, setIsAIPopoverOpen] = useState(false);
-  const { t, language, setLanguage, currentLanguageConfig } = useLanguage();
+  const { t } = useLanguage();
 
   const isConnected = status.activeProvider === 'gemini'
     ? status.cloudOk
     : status.localOk || status.activeProvider === 'offline_coach';
 
-  const providerShortName = status.activeProvider === 'gemini'
-    ? t('header.cloudAI')
-    : status.activeProvider === 'offline_coach'
-    ? t('header.offline')
-    : t('header.localAI');
-
   return (
     <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-      {/* Search Trigger */}
+      {/* Global Search Button */}
       <button
         onClick={onOpenSearch}
-        title={t('header.search')}
+        title={t('header.searchTooltip')}
         aria-label={t('header.search')}
-        className="p-1.5 rounded bg-[#1C1C1C] hover:bg-[#282828] text-gray-300 border border-[#333] transition-colors cursor-pointer"
+        className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-[#181818] hover:bg-[#252525] text-gray-400 hover:text-white border border-[#2E2E2E] transition-colors cursor-pointer text-xs font-mono"
       >
         <Search className="w-3.5 h-3.5" />
+        <span className="hidden lg:inline text-[10px] bg-[#121212] px-1 py-0.2 rounded text-gray-400 border border-[#2A2A2A]">
+          ⌘K
+        </span>
       </button>
 
-      {/* Compact AI Status Indicator */}
-      <div className="relative">
-        <button
-          onClick={() => setIsAIPopoverOpen((prev) => !prev)}
-          title={t('header.aiStatusTooltip')}
-          aria-label={t('header.aiStatusTooltip')}
-          className={`flex items-center gap-1.5 px-2 py-1 rounded text-xs font-mono font-bold border transition cursor-pointer ${
+      {/* AI Coach Action Button */}
+      <button
+        onClick={onOpenCoach}
+        title={t('header.openCoach')}
+        aria-label={t('header.openCoachBtn')}
+        className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#162316] hover:bg-[#1E331E] border border-[#244A24] text-[#90FF00] transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer text-xs font-mono font-bold"
+      >
+        <span
+          className={`w-1.5 h-1.5 rounded-full shrink-0 ${
             status.loading
-              ? 'bg-[#1E1E1E] border-[#333] text-gray-400'
+              ? 'bg-[#00E5FF] animate-ping'
               : isConnected
-              ? 'bg-[#122212] border-[#1E441E] text-[#90FF00] hover:bg-[#183018]'
-              : 'bg-[#2A1515] border-[#522222] text-[#FF5555] hover:bg-[#3D1A1A]'
+              ? 'bg-[#90FF00]'
+              : 'bg-[#FF5555]'
           }`}
-        >
-          <span
-            className={`w-2 h-2 rounded-full ${
-              status.loading
-                ? 'bg-[#00E5FF] animate-ping'
-                : isConnected
-                ? 'bg-[#90FF00]'
-                : 'bg-[#FF5555]'
-            }`}
-          />
-          <span className="hidden sm:inline">{providerShortName}</span>
-        </button>
-
-        {/* AI Popover */}
-        <AIStatusPopover
-          isOpen={isAIPopoverOpen}
-          onClose={() => setIsAIPopoverOpen(false)}
-          status={status}
-          project={project}
-          onOpenSetup={onOpenSetup}
-          onOpenSettings={onOpenSettings}
         />
-      </div>
-
-      {/* Voice AI Control */}
-      <VoiceControlWidget onSendMessage={onOpenCoachWithMessage} />
-
-      {/* Volume Control Popover */}
-      <VolumePopover volume={volume} onVolumeChange={onVolumeChange} />
-
-      {/* Compact Language Switcher */}
-      <button
-        onClick={() => {
-          const nextLang = language === 'en' ? 'he' : language === 'he' ? 'es' : 'en';
-          setLanguage(nextLang);
-        }}
-        title={`${t('header.language')}: ${currentLanguageConfig.nativeName}`}
-        aria-label={t('header.language')}
-        className="px-2 py-1 rounded bg-[#1C1C1C] hover:bg-[#282828] text-[#E0E0E0] border border-[#333] transition-colors cursor-pointer text-xs font-mono font-bold"
-      >
-        <span>{currentLanguageConfig.nativeName}</span>
+        <Sparkles className="w-3.5 h-3.5 fill-current" />
+        <span className="hidden sm:inline">{t('header.openCoachBtn')}</span>
       </button>
 
-      {/* Settings Trigger */}
-      <button
-        onClick={() => {
-          if (onOpenSettings) onOpenSettings();
-        }}
-        title={t('header.settings')}
-        aria-label={t('header.settings')}
-        className="p-1.5 rounded bg-[#1C1C1C] hover:bg-[#282828] text-gray-300 border border-[#333] transition-colors cursor-pointer"
-      >
-        <Settings className="w-3.5 h-3.5" />
-      </button>
+      {/* Settings Modal Launcher */}
+      {onOpenSettings && (
+        <button
+          onClick={onOpenSettings}
+          title={t('header.settings')}
+          aria-label={t('header.settings')}
+          className="p-1.5 rounded-md bg-[#181818] hover:bg-[#252525] text-gray-400 hover:text-white border border-[#2E2E2E] transition-colors cursor-pointer"
+        >
+          <Settings className="w-3.5 h-3.5" />
+        </button>
+      )}
 
-      {/* Account Menu */}
+      {/* Account / User Menu */}
       <HeaderAccountMenu
         onOpenAuthModal={onOpenAuthModal || (() => {})}
         onOpenAccountView={onOpenAccountView || (() => {})}
