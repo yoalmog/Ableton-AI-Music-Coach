@@ -64,7 +64,7 @@ export class GeminiProvider implements AIProvider {
     // Web Express route test
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 12000);
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
 
       const response = await fetch('/api/ai/test-connection', {
         method: 'POST',
@@ -145,7 +145,7 @@ export class GeminiProvider implements AIProvider {
     // 2. Express Web Path
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 25000);
+      const timeoutId = setTimeout(() => controller.abort(), 50000);
 
       const response = await fetch('/api/ai/chat', {
         method: 'POST',

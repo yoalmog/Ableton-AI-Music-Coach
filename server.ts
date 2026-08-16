@@ -1,7 +1,7 @@
 import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, ThinkingLevel } from "@google/genai";
 import dotenv from "dotenv";
 import { authRouter } from "./server/authRoutes.js";
 import { paymentRouter } from "./server/paymentRoutes.js";
@@ -105,18 +105,25 @@ async function startServer() {
     return modelName;
   }
 
-  // Helper helper to generate content with model fallback retries for 503 / timeout
+  // Helper to generate content with model fallback retries for 503 / timeout
   async function generateContentWithFallback(
     ai: GoogleGenAI,
     preferredModel: string,
     contents: any,
-    config?: any,
-    timeoutMs = 20000
+    baseConfig: any = {},
+    timeoutMs = 35000
   ): Promise<{ response: any; modelUsed: string; fallbackUsed: boolean }> {
     const targetPreferred = sanitizeModel(preferredModel);
 
+    // Candidates in order of preference and speed
     const candidates = Array.from(
-      new Set([targetPreferred, "gemini-3.7-flash", "gemini-3.1-flash-lite", "gemini-flash-latest", "gemini-3.1-pro-preview"])
+      new Set([
+        targetPreferred,
+        "gemini-3.1-flash-lite",
+        "gemini-flash-latest",
+        "gemini-3.7-flash",
+        "gemini-3.1-pro-preview",
+      ])
     );
 
     let lastError: any = null;
@@ -124,14 +131,23 @@ async function startServer() {
     for (let i = 0; i < candidates.length; i++) {
       const model = candidates[i];
       try {
+        // Apply low thinking level for fast interactive audio coach responses if model supports it
+        const modelConfig = { ...baseConfig };
+        if (model.includes("3.7-flash") || model.includes("3.1-pro")) {
+          if (!modelConfig.thinkingConfig) {
+            modelConfig.thinkingConfig = { thinkingLevel: ThinkingLevel.LOW };
+          }
+        }
+
         const response = await withTimeout(
           ai.models.generateContent({
             model,
             contents,
-            config,
+            config: modelConfig,
           }),
           timeoutMs
         );
+
         return {
           response,
           modelUsed: model,
@@ -152,7 +168,7 @@ async function startServer() {
           throw err;
         }
 
-        console.warn(`Model ${model} failed (${errStr}). Trying next candidate if available...`);
+        console.warn(`Model ${model} note (${errStr}). Trying next candidate if available...`);
       }
     }
 
@@ -313,7 +329,7 @@ async function startServer() {
         modelName,
         'Ping. Confirm Ableton AI Music Coach engine status.',
         { temperature: 0.1 },
-        20000
+        25000
       );
 
       const duration = Date.now() - startTime;
@@ -402,7 +418,7 @@ async function startServer() {
         modelName,
         promptText,
         { temperature: 0.7 },
-        20000
+        45000
       );
 
       return res.json({
@@ -454,7 +470,7 @@ Return JSON ONLY matching structure:
           responseMimeType: "application/json",
           temperature: 0.6,
         },
-        20000
+        45000
       );
 
       let parsed: any = null;
@@ -532,7 +548,7 @@ Return JSON ONLY matching structure:
           responseMimeType: "application/json",
           temperature: 0.4,
         },
-        20000
+        45000
       );
 
       let parsed: any = null;
