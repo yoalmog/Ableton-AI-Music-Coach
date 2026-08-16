@@ -397,12 +397,13 @@ async function startServer() {
       }
 
       let promptText = `User Query: ${message}\n\n`;
+      const detectedLang = context?.language || (/[\u0590-\u05FF]/.test(message) ? "he" : "en");
       if (context) {
         promptText += `Project Context:\n`;
         promptText += `- Genre: ${context.genre || "Psytrance"}\n`;
         promptText += `- Tempo: ${context.bpm || 142} BPM\n`;
         promptText += `- Key: ${context.key || "F#"} ${context.scale || "Minor"}\n`;
-        promptText += `- UI Language: ${context.language || "he"}\n\n`;
+        promptText += `- UI Language: ${detectedLang}\n\n`;
       }
 
       if (history && history.length > 0) {

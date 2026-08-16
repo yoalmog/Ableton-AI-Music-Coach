@@ -109,6 +109,88 @@ export class AudioService {
   }
 
   /**
+   * Synthesizes a Snare / Clap sound
+   */
+  public playSnare(timeOffset: number = 0) {
+    this.initAudio();
+    if (!this.ctx || !this.masterGain) return;
+
+    const t = this.ctx.currentTime + timeOffset;
+
+    // Body tone
+    const osc = this.ctx.createOscillator();
+    const oscGain = this.ctx.createGain();
+    osc.frequency.setValueAtTime(220, t);
+    osc.frequency.exponentialRampToValueAtTime(80, t + 0.1);
+    oscGain.gain.setValueAtTime(0.7, t);
+    oscGain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+    osc.connect(oscGain);
+    oscGain.connect(this.masterGain);
+    osc.start(t);
+    osc.stop(t + 0.15);
+
+    // Noise snap
+    const bufferSize = Math.floor(this.ctx.sampleRate * 0.15);
+    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+    const output = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
+
+    const noise = this.ctx.createBufferSource();
+    noise.buffer = buffer;
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(1800, t);
+    const noiseGain = this.ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.6, t);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+
+    noise.connect(filter);
+    filter.connect(noiseGain);
+    noiseGain.connect(this.masterGain);
+    noise.start(t);
+  }
+
+  /**
+   * Synthesizes a Melodic Lead / Arp / Acid Synth note
+   */
+  public playLeadNote(noteStr: string, timeOffset: number = 0, durationSec: number = 0.22, isAcid: boolean = false) {
+    this.initAudio();
+    if (!this.ctx || !this.masterGain) return;
+
+    const t = this.ctx.currentTime + timeOffset;
+    const midiNum = parseNoteToMidiNumber(noteStr);
+    const freq = 440 * Math.pow(2, (midiNum - 69) / 12);
+
+    const osc1 = this.ctx.createOscillator();
+    const osc2 = this.ctx.createOscillator();
+    osc1.type = isAcid ? 'sawtooth' : 'sawtooth';
+    osc2.type = isAcid ? 'square' : 'sawtooth';
+
+    osc1.frequency.setValueAtTime(freq, t);
+    osc2.frequency.setValueAtTime(freq * (isAcid ? 1.0 : 1.006), t); // subtle stereo detune
+
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(isAcid ? 3200 : 2600, t);
+    filter.frequency.exponentialRampToValueAtTime(isAcid ? 400 : 800, t + durationSec);
+    filter.Q.setValueAtTime(isAcid ? 12 : 4, t);
+
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0.4, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + durationSec);
+
+    osc1.connect(filter);
+    osc2.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.masterGain);
+
+    osc1.start(t);
+    osc2.start(t);
+    osc1.stop(t + durationSec + 0.05);
+    osc2.stop(t + durationSec + 0.05);
+  }
+
+  /**
    * Synthesizes a Hi-Hat / Percussion sound
    */
   public playHiHat(timeOffset: number = 0, isOpen: boolean = false) {
@@ -154,12 +236,24 @@ export class AudioService {
     notes.forEach((note) => {
       const timeOffset = note.time * secondsPerBeat;
       const durationSec = Math.max(0.08, note.duration * secondsPerBeat);
+      const midiNum = parseNoteToMidiNumber(note.pitch);
 
       if (note.pitch.startsWith('C1')) {
         this.playKick(timeOffset);
-      } else if (note.pitch.startsWith('F#1') || note.pitch.startsWith('G1')) {
-        this.playHiHat(timeOffset);
+      } else if (note.pitch.startsWith('D1') || note.pitch.startsWith('D#1')) {
+        this.playSnare(timeOffset);
+      } else if (note.pitch.startsWith('A#1') || note.pitch.startsWith('Bb1')) {
+        this.playHiHat(timeOffset, true);
+      } else if (note.pitch.startsWith('F#1') || note.pitch.startsWith('G#1')) {
+        this.playHiHat(timeOffset, false);
+      } else if (note.pitch.startsWith('C#2')) {
+        this.playHiHat(timeOffset, true); // Crash / open perc
+      } else if (midiNum >= 48) {
+        // Octave 3+ (Leads, Arps, Acid Hooks)
+        const isAcid = note.velocity >= 120 || note.duration > 0.3;
+        this.playLeadNote(note.pitch, timeOffset, durationSec, isAcid);
       } else {
+        // Low Basslines (Octaves 1 & 2)
         this.playPsyBassNote(note.pitch, timeOffset, durationSec);
       }
     });

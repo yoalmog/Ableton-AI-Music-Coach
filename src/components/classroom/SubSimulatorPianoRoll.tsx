@@ -95,7 +95,7 @@ export const SubSimulatorPianoRoll: React.FC<SubSimulatorPianoRollProps> = ({
           <button
             onClick={handleQuantize}
             className="px-2 py-1 bg-[#2A2A2A] hover:bg-[#353535] text-gray-300 rounded text-[10px] font-mono"
-            title="Snap notes to 1/16 grid"
+            title={t('simulator.quantize16th')}
           >
             {t('simulator.quantize16th')}
           </button>
@@ -111,7 +111,7 @@ export const SubSimulatorPianoRoll: React.FC<SubSimulatorPianoRollProps> = ({
       {/* Grid Canvas Area */}
       <div className="flex border border-[#2B2B2B] rounded bg-[#151515] overflow-x-auto">
         {/* Piano Keys Column */}
-        <div className="w-12 shrink-0 border-r rtl:border-r-0 rtl:border-l border-[#2B2B2B] bg-[#1A1A1A] select-none">
+        <div className="w-12 shrink-0 border-e border-[#2B2B2B] bg-[#1A1A1A] select-none">
           {PITCHES.map(pitch => {
             const isAccidental = pitch.includes('#');
             return (
@@ -132,7 +132,7 @@ export const SubSimulatorPianoRoll: React.FC<SubSimulatorPianoRollProps> = ({
           {Array.from({ length: 16 }).map((_, step) => (
             <div
               key={step}
-              className={`border-r rtl:border-r-0 rtl:border-l ${
+              className={`border-e ${
                 step % 4 === 3 ? 'border-[#3D3D3D]' : 'border-[#222]'
               } ${isPlaying && activeBeat === step ? 'bg-amber-500/10' : ''}`}
             >

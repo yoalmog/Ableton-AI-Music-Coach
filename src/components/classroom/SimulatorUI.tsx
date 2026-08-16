@@ -224,7 +224,7 @@ export const SimulatorUI: React.FC<SimulatorUIProps> = ({
   };
 
   const handleAddMidiTrack = () => {
-    const trackLabel = language === 'he' ? 'ערוץ MIDI' : 'MIDI Track';
+    const trackLabel = t('simulator.midiTrack') || (language === 'he' ? 'ערוץ MIDI' : 'MIDI Track');
     const newTrack = {
       id: `t${tracks.length + 1}`,
       name: `${tracks.length + 1} ${trackLabel}`,

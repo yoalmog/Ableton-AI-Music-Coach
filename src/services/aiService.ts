@@ -1,6 +1,7 @@
 import { aiRouter } from './ai/aiRouter';
 import { AISettings, AIRequest, AIResponse, AIHealth } from './ai/aiTypes';
-import { MidiPattern, AnalysisResult } from '../types';
+import { MidiPattern, AnalysisResult, KeyType, ScaleType } from '../types';
+import { midiService } from './midiService';
 
 export class AIService {
   public getSettings(): AISettings {
@@ -58,45 +59,57 @@ export class AIService {
     bpm: number,
     key: string,
     scale: string,
-    energy: number = 7
+    energy: number = 7,
+    lang?: string
   ): Promise<{ pattern: MidiPattern; offline: boolean }> {
-    const prompt = `Generate a musical pattern for Ableton Live 12.
+    let currentLang = lang;
+    if (!currentLang && typeof localStorage !== 'undefined') {
+      try {
+        currentLang = localStorage.getItem('aamc-language') || undefined;
+      } catch {
+        // ignore
+      }
+    }
+    if (!currentLang) currentLang = 'en';
+
+    const prompt = `Generate musical sound design and pattern advice for Ableton Live 12.
 Type: ${type}
 Genre: ${genre}
 BPM: ${bpm}
 Key: ${key}
 Scale: ${scale}
 Energy: ${energy}
+Language: ${currentLang}
 
-Please output structured MIDI notes.`;
+Provide practical, step-by-step sound design advice for Ableton Live 12 in the requested language (${currentLang}).`;
 
-    const res = await this.chat(prompt, { genre, bpm, key, scale, currentModule: 'MIDI Generator' });
+    const res = await this.chat(prompt, { genre, bpm, key, scale, language: currentLang, currentModule: 'MIDI Generator' });
 
-    // Build pattern from response or standard generator logic
+    // Build algorithmic dynamic pattern matching selected parameters
+    const generated = midiService.generateMusicalPattern({
+      type: type as any,
+      genre,
+      bpm,
+      key: key as KeyType,
+      scale: scale as ScaleType,
+      energy,
+    });
+
     const pattern: MidiPattern = {
-      id: `pat_${Date.now()}`,
-      name: `${genre} ${type.charAt(0).toUpperCase() + type.slice(1)} (${key} ${scale})`,
+      id: `pat_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+      name: generated.name,
       type: (type as any) || 'bassline',
       genre: (genre as any) || 'Psytrance',
       bpm,
       key: (key as any) || 'F#',
       scale: (scale as any) || 'Minor',
-      timeSignature: '4/4',
-      notes: [
-        { pitch: `${key}1`, time: 0.25, duration: 0.2, velocity: 100 },
-        { pitch: `${key}1`, time: 0.5, duration: 0.2, velocity: 95 },
-        { pitch: `${key}1`, time: 0.75, duration: 0.2, velocity: 105 },
-        { pitch: `${key}1`, time: 1.25, duration: 0.2, velocity: 100 },
-        { pitch: `${key}1`, time: 1.5, duration: 0.2, velocity: 95 },
-        { pitch: `${key}1`, time: 1.75, duration: 0.2, velocity: 105 },
-        { pitch: `${key}1`, time: 2.25, duration: 0.2, velocity: 100 },
-        { pitch: `${key}1`, time: 2.5, duration: 0.2, velocity: 95 },
-        { pitch: `${key}1`, time: 2.75, duration: 0.2, velocity: 105 },
-        { pitch: `${key}1`, time: 3.25, duration: 0.2, velocity: 100 },
-        { pitch: `${key}1`, time: 3.5, duration: 0.2, velocity: 95 },
-        { pitch: `${key}1`, time: 3.75, duration: 0.2, velocity: 110 },
-      ],
-      abletonTips: res.reply || 'In Ableton Live 12, insert Operator or Drift. Set Osc A to Saw wave, 24dB LP Filter, 0ms Attack, 160ms Decay, 0 Sustain.',
+      timeSignature: generated.timeSignature || '4/4',
+      notes: generated.notes,
+      abletonTips: res.reply || (currentLang === 'he' 
+        ? 'ב-Ableton Live 12, טען Operator או Drift. הגדר את Osc A לגל Saw, פילטר 24dB LP, התקפה 0ms, דעיכה 160ms.' 
+        : currentLang === 'es'
+        ? 'En Ableton Live 12, inserta Operator o Drift. Configura Osc A en onda Saw, filtro 24dB LP, ataque 0ms y decaimiento 160ms.'
+        : 'In Ableton Live 12, insert Operator or Drift. Set Osc A to Saw wave, 24dB LP Filter, 0ms Attack, 160ms Decay, 0 Sustain.'),
       createdAt: new Date().toISOString(),
     };
 
@@ -111,16 +124,28 @@ Please output structured MIDI notes.`;
     lowMidRatio: number;
     stereoWidth: number;
     userNotes?: string;
+    lang?: string;
   }): Promise<{ analysis: AnalysisResult; offline: boolean }> {
+    let currentLang = params.lang;
+    if (!currentLang && typeof localStorage !== 'undefined') {
+      try {
+        currentLang = localStorage.getItem('aamc-language') || undefined;
+      } catch {
+        // ignore
+      }
+    }
+    if (!currentLang) currentLang = 'en';
+
     const prompt = `Analyze this mixdown for ${params.genre}:
 - Measured LUFS: ${params.lufs} dB
 - Peak: ${params.peak} dB
 - RMS: ${params.rms} dB
 - Stereo Width Index: ${params.stereoWidth}
 - Low/Mid Ratio: ${params.lowMidRatio}
-- Notes: ${params.userNotes || 'None'}`;
+- Notes: ${params.userNotes || 'None'}
+- Language: ${currentLang}`;
 
-    const res = await this.chat(prompt, { genre: params.genre, currentModule: 'Track Analyzer' });
+    const res = await this.chat(prompt, { genre: params.genre, language: currentLang, currentModule: 'Track Analyzer' });
 
     const analysis: AnalysisResult = {
       overallRating: 'Mix Analysis',

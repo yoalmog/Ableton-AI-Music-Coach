@@ -31,7 +31,7 @@ export const TrackAnalyzerView: React.FC<TrackAnalyzerViewProps> = ({ project })
   const [isAnalyzing, setIsAnalyzing] = React.useState(false);
   const [analysisResult, setAnalysisResult] = React.useState<AnalysisResult | null>(null);
   const [userNotes, setUserNotes] = React.useState('');
-  const { t } = useLanguage();
+  const { t, language, isRtl } = useLanguage();
 
   // Live Spectrum Visualizer Loop
   React.useEffect(() => {
@@ -98,6 +98,7 @@ export const TrackAnalyzerView: React.FC<TrackAnalyzerViewProps> = ({ project })
         lowMidRatio: metrics.lowMidRatio,
         stereoWidth: metrics.stereoWidth,
         userNotes,
+        lang: language,
       });
 
       setAnalysisResult(res.analysis);

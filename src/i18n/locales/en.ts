@@ -795,6 +795,7 @@ What are we working on in your track today?`,
   'simulator.stopTitle': 'Stop (Spacebar)',
   'simulator.recordTitle': 'Record (F9)',
   'simulator.metronomeTitle': 'Metronome Click (C)',
+  'simulator.midiTrack': 'MIDI Track',
 };
 
 

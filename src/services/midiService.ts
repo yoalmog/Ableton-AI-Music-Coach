@@ -1,4 +1,4 @@
-import { MidiNote, MidiPattern, DrumPattern, BassSettings, KeyType, AAMCProject } from '../types';
+import { MidiNote, MidiPattern, DrumPattern, BassSettings, KeyType, ScaleType, AAMCProject } from '../types';
 import { desktopService } from './desktopService';
 
 // Standard MIDI constants
@@ -22,6 +22,42 @@ export function parseNoteToMidiNumber(noteStr: string): number {
 
   // MIDI note 60 is C4 (in standard DAW notation C1 = 24, C2 = 36)
   return (octave + 1) * 12 + semitone;
+}
+
+export const SCALE_INTERVALS: Record<string, number[]> = {
+  Minor: [0, 2, 3, 5, 7, 8, 10],
+  Phrygian: [0, 1, 3, 5, 7, 8, 10],
+  Dorian: [0, 2, 3, 5, 7, 9, 10],
+  'Harmonic Minor': [0, 2, 3, 5, 7, 8, 11],
+  Aeolian: [0, 2, 3, 5, 7, 8, 10],
+  Major: [0, 2, 4, 5, 7, 9, 11],
+};
+
+const MIDI_TO_NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
+export function midiNumberToNoteString(midiNum: number): string {
+  const octave = Math.floor(midiNum / 12) - 1;
+  const semitone = midiNum % 12;
+  return `${MIDI_TO_NOTE_NAMES[semitone]}${octave}`;
+}
+
+export function getScaleMidiNotes(rootKey: KeyType, scale: ScaleType, octaves: number[] = [1, 2, 3, 4]): number[] {
+  const rootSemitone = NOTE_TO_MIDI[rootKey] ?? 6;
+  const intervals = SCALE_INTERVALS[scale] || SCALE_INTERVALS.Minor;
+  const result: number[] = [];
+
+  octaves.forEach((oct) => {
+    const baseMidi = (oct + 1) * 12 + rootSemitone;
+    intervals.forEach((interval) => {
+      result.push(baseMidi + interval);
+    });
+  });
+
+  return result.sort((a, b) => a - b);
+}
+
+export function getScaleNoteStrings(rootKey: KeyType, scale: ScaleType, octaves: number[] = [1, 2, 3, 4]): string[] {
+  return getScaleMidiNotes(rootKey, scale, octaves).map(midiNumberToNoteString);
 }
 
 interface MidiEventInternal {
@@ -250,6 +286,251 @@ export class MidiService {
     }
 
     return notes;
+  }
+
+  /**
+   * Generate complete musical patterns (Bassline, Lead, Drums, Arp, Acid 303)
+   * dynamically tailored by Key, Scale, BPM, Energy, and Genre with rich variations.
+   */
+  public generateMusicalPattern(params: {
+    type: 'bassline' | 'lead' | 'drum' | 'arp' | 'acid' | string;
+    genre: string;
+    bpm: number;
+    key: KeyType;
+    scale: ScaleType;
+    energy: number;
+    seed?: number;
+  }): { notes: MidiNote[]; name: string; timeSignature: string; abletonTips?: string } {
+    const { type, genre, bpm, key, scale, energy } = params;
+    const seed = params.seed ?? Math.floor(Math.random() * 100000);
+    const random = (offset: number) => {
+      const x = Math.sin(seed + offset) * 10000;
+      return x - Math.floor(x);
+    };
+
+    const scaleMidiLow = getScaleMidiNotes(key, scale, [1, 2]);
+    const scaleMidiMid = getScaleMidiNotes(key, scale, [2, 3, 4]);
+    const scaleMidiHigh = getScaleMidiNotes(key, scale, [3, 4, 5]);
+
+    const rootMidiLow = parseNoteToMidiNumber(`${key}1`);
+    const rootMidiMid = parseNoteToMidiNumber(`${key}2`);
+    const rootMidiHigh = parseNoteToMidiNumber(`${key}3`);
+
+    const notes: MidiNote[] = [];
+    const totalBars = energy >= 6 ? 4 : 2;
+    const totalBeats = totalBars * 4;
+    let patternName = `${genre} ${type.charAt(0).toUpperCase() + type.slice(1)} (${key} ${scale})`;
+
+    if (type === 'bassline') {
+      const bassStyles = ['Rolling Psy (K-B-B-B)', 'Goa Gallop', 'Triplet Drive', 'Psy-Tech Offbeat'];
+      const styleIdx = Math.floor(random(1) * bassStyles.length);
+      const chosenStyle = bassStyles[styleIdx];
+      patternName = `${genre} ${chosenStyle} (${key})`;
+
+      for (let bar = 0; bar < totalBars; bar++) {
+        for (let step = 0; step < 16; step++) {
+          const globalBeat = bar * 4 + step * 0.25;
+          const isKick = step % 4 === 0;
+
+          if (chosenStyle.startsWith('Rolling')) {
+            if (!isKick) {
+              // Higher energy adds pitch variation on turnaround steps
+              let pitchMidi = rootMidiLow;
+              if (energy >= 7 && (bar === 1 || bar === 3) && step >= 13) {
+                // Turnaround octave hop or scale degree 2
+                const hopDegree = scaleMidiLow[1] || rootMidiMid;
+                pitchMidi = random(bar * 16 + step) > 0.4 ? hopDegree : rootMidiMid;
+              }
+              const vel = step % 4 === 1 ? 92 : step % 4 === 2 ? 104 : 110;
+              notes.push({
+                pitch: midiNumberToNoteString(pitchMidi),
+                time: Number(globalBeat.toFixed(3)),
+                duration: 0.21,
+                velocity: Math.min(127, vel + Math.floor(energy * 1.5)),
+              });
+            }
+          } else if (chosenStyle === 'Goa Gallop') {
+            // Gallop on 16th 1 & 2
+            if (step % 4 === 1 || step % 4 === 2) {
+              const pitchMidi = (energy >= 8 && step === 14) ? rootMidiMid : rootMidiLow;
+              notes.push({
+                pitch: midiNumberToNoteString(pitchMidi),
+                time: Number(globalBeat.toFixed(3)),
+                duration: 0.18,
+                velocity: step % 4 === 2 ? 112 : 96,
+              });
+            }
+          } else if (chosenStyle === 'Triplet Drive') {
+            // Triplet syncopated feel
+            if (step % 4 !== 0) {
+              const isAccent = step === 7 || step === 15;
+              notes.push({
+                pitch: isAccent && energy >= 6 ? midiNumberToNoteString(scaleMidiLow[2] || rootMidiLow) : `${key}1`,
+                time: Number(globalBeat.toFixed(3)),
+                duration: 0.19,
+                velocity: isAccent ? 115 : 95,
+              });
+            }
+          } else {
+            // Offbeat Bass
+            if (step % 4 === 2) {
+              notes.push({
+                pitch: `${key}1`,
+                time: Number(globalBeat.toFixed(3)),
+                duration: 0.24,
+                velocity: 110,
+              });
+            }
+          }
+        }
+      }
+    } else if (type === 'lead') {
+      patternName = `${genre} Psy Hook (${key} ${scale})`;
+      const notePool = scaleMidiHigh.length > 0 ? scaleMidiHigh : [rootMidiHigh, rootMidiHigh + 3, rootMidiHigh + 7];
+      
+      // Generate structured melodic motifs across bars
+      for (let bar = 0; bar < totalBars; bar++) {
+        const isVariationBar = bar % 2 === 1;
+        const stepsInBar = 16;
+
+        for (let s = 0; s < stepsInBar; s += 2) {
+          const randVal = random(seed + bar * 32 + s);
+          // Higher energy = higher note probability
+          const threshold = energy >= 8 ? 0.35 : energy >= 5 ? 0.5 : 0.65;
+
+          if (randVal > threshold) {
+            const poolIdx = Math.floor(random(seed * 2 + bar * 16 + s) * notePool.length);
+            const pitchMidi = notePool[poolIdx];
+            const beat = bar * 4 + s * 0.25;
+            const duration = random(bar + s) > 0.6 ? 0.45 : 0.22;
+            const velocity = Math.min(127, Math.floor(85 + random(s) * 35 + energy * 2));
+
+            notes.push({
+              pitch: midiNumberToNoteString(pitchMidi),
+              time: Number(beat.toFixed(3)),
+              duration: Number(duration.toFixed(3)),
+              velocity,
+            });
+          }
+        }
+      }
+    } else if (type === 'drum') {
+      patternName = `${genre} Drum Rack Groove`;
+      for (let bar = 0; bar < totalBars; bar++) {
+        // Kick on 0, 1, 2, 3
+        for (let beat = 0; beat < 4; beat++) {
+          notes.push({
+            pitch: 'C1', // Standard Kick
+            time: bar * 4 + beat,
+            duration: 0.2,
+            velocity: 120,
+          });
+
+          // Snare / Clap on beat 1 & 3 (2 & 4 in 1-based index)
+          if (beat === 1 || beat === 3) {
+            notes.push({
+              pitch: 'D1', // Snare
+              time: bar * 4 + beat,
+              duration: 0.2,
+              velocity: 110,
+            });
+          }
+
+          // Open Hi-Hat on offbeat (0.5, 1.5, 2.5, 3.5)
+          notes.push({
+            pitch: 'A#1', // Open Hat
+            time: bar * 4 + beat + 0.5,
+            duration: 0.18,
+            velocity: 100,
+          });
+        }
+
+        // Closed Hi-Hats on 16th grid
+        for (let s = 0; s < 16; s++) {
+          if (s % 2 === 1 && s % 4 !== 2) {
+            notes.push({
+              pitch: 'F#1', // Closed Hat
+              time: bar * 4 + s * 0.25,
+              duration: 0.12,
+              velocity: s % 4 === 1 ? 85 : 95,
+            });
+          }
+        }
+
+        // Crash on Bar 1
+        if (bar === 0) {
+          notes.push({
+            pitch: 'C#2', // Crash Cymbal
+            time: 0,
+            duration: 0.8,
+            velocity: 115,
+          });
+        }
+      }
+    } else if (type === 'arp') {
+      patternName = `${genre} Trance Matrix Arp (${key} ${scale})`;
+      const arpNotes = scaleMidiMid;
+      let noteIndex = 0;
+      const stepDuration = 0.25; // 16th notes
+
+      for (let bar = 0; bar < totalBars; bar++) {
+        for (let s = 0; s < 16; s++) {
+          const beat = bar * 4 + s * stepDuration;
+          const noteMidi = arpNotes[noteIndex % arpNotes.length];
+          const isAccent = s % 4 === 0 || s === 14;
+          
+          notes.push({
+            pitch: midiNumberToNoteString(noteMidi),
+            time: Number(beat.toFixed(3)),
+            duration: 0.19,
+            velocity: isAccent ? 115 : 90 + Math.floor((s % 4) * 5),
+          });
+
+          // Arp direction motion
+          if (energy >= 7) {
+            noteIndex = (noteIndex + 2) % arpNotes.length;
+          } else {
+            noteIndex = (noteIndex + 1) % arpNotes.length;
+          }
+        }
+      }
+    } else if (type === 'acid') {
+      patternName = `${genre} TB-303 Acid Sequence (${key})`;
+      const acidPool = [rootMidiLow, rootMidiMid, scaleMidiLow[1] || rootMidiLow + 1, scaleMidiLow[2] || rootMidiLow + 3, scaleMidiLow[4] || rootMidiLow + 7];
+
+      for (let bar = 0; bar < totalBars; bar++) {
+        for (let s = 0; s < 16; s++) {
+          const beat = bar * 4 + s * 0.25;
+          const r = random(seed + bar * 16 + s);
+
+          // Rest probability
+          if (r > 0.28) {
+            const noteIdx = Math.floor(random(seed * 3 + bar * 8 + s) * acidPool.length);
+            const pitchMidi = acidPool[noteIdx];
+            const isSlide = random(bar * 10 + s) > 0.65;
+            const isAccent = random(bar * 5 + s) > 0.6;
+            const duration = isSlide ? 0.38 : 0.18;
+            const velocity = isAccent ? 127 : 88;
+
+            notes.push({
+              pitch: midiNumberToNoteString(pitchMidi),
+              time: Number(beat.toFixed(3)),
+              duration: Number(duration.toFixed(3)),
+              velocity,
+            });
+          }
+        }
+      }
+    }
+
+    // Sort notes by time then pitch
+    notes.sort((a, b) => a.time - b.time || parseNoteToMidiNumber(a.pitch) - parseNoteToMidiNumber(b.pitch));
+
+    return {
+      notes,
+      name: patternName,
+      timeSignature: '4/4',
+    };
   }
 }
 

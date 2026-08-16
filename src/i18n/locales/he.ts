@@ -795,6 +795,7 @@ export const he: TranslationDictionary = {
   'simulator.stopTitle': 'עצור (מקש רווח)',
   'simulator.recordTitle': 'הקלט (F9)',
   'simulator.metronomeTitle': 'נקישת מטרונום (C)',
+  'simulator.midiTrack': 'ערוץ MIDI',
 };
 
 
