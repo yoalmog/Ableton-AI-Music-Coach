@@ -60,7 +60,8 @@ export class AIService {
     key: string,
     scale: string,
     energy: number = 7,
-    lang?: string
+    lang?: string,
+    forcedSeed?: number
   ): Promise<{ pattern: MidiPattern; offline: boolean }> {
     let currentLang = lang;
     if (!currentLang && typeof localStorage !== 'undefined') {
@@ -72,20 +73,7 @@ export class AIService {
     }
     if (!currentLang) currentLang = 'en';
 
-    const prompt = `Generate musical sound design and pattern advice for Ableton Live 12.
-Type: ${type}
-Genre: ${genre}
-BPM: ${bpm}
-Key: ${key}
-Scale: ${scale}
-Energy: ${energy}
-Language: ${currentLang}
-
-Provide practical, step-by-step sound design advice for Ableton Live 12 in the requested language (${currentLang}).`;
-
-    const res = await this.chat(prompt, { genre, bpm, key, scale, language: currentLang, currentModule: 'MIDI Generator' });
-
-    // Build algorithmic dynamic pattern matching selected parameters
+    // Build algorithmic dynamic pattern matching selected parameters immediately
     const generated = midiService.generateMusicalPattern({
       type: type as any,
       genre,
@@ -93,7 +81,14 @@ Provide practical, step-by-step sound design advice for Ableton Live 12 in the r
       key: key as KeyType,
       scale: scale as ScaleType,
       energy,
+      seed: forcedSeed ?? Math.floor(Math.random() * 1000000),
     });
+
+    const defaultTips = currentLang === 'he' 
+      ? 'ב-Ableton Live 12, טען Operator או Drift. הגדר את Osc A לגל Saw, פילטר 24dB LP, התקפה 0ms, דעיכה 160ms.' 
+      : currentLang === 'es'
+      ? 'En Ableton Live 12, inserta Operator o Drift. Configura Osc A en onda Saw, filtro 24dB LP, ataque 0ms y decaimiento 160ms.'
+      : 'In Ableton Live 12, insert Operator or Drift. Set Osc A to Saw wave, 24dB LP Filter, 0ms Attack, 160ms Decay, 0 Sustain.';
 
     const pattern: MidiPattern = {
       id: `pat_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
@@ -105,15 +100,11 @@ Provide practical, step-by-step sound design advice for Ableton Live 12 in the r
       scale: (scale as any) || 'Minor',
       timeSignature: generated.timeSignature || '4/4',
       notes: generated.notes,
-      abletonTips: res.reply || (currentLang === 'he' 
-        ? 'ב-Ableton Live 12, טען Operator או Drift. הגדר את Osc A לגל Saw, פילטר 24dB LP, התקפה 0ms, דעיכה 160ms.' 
-        : currentLang === 'es'
-        ? 'En Ableton Live 12, inserta Operator o Drift. Configura Osc A en onda Saw, filtro 24dB LP, ataque 0ms y decaimiento 160ms.'
-        : 'In Ableton Live 12, insert Operator or Drift. Set Osc A to Saw wave, 24dB LP Filter, 0ms Attack, 160ms Decay, 0 Sustain.'),
+      abletonTips: generated.abletonTips || defaultTips,
       createdAt: new Date().toISOString(),
     };
 
-    return { pattern, offline: res.offline };
+    return { pattern, offline: false };
   }
 
   public async analyzeTrack(params: {

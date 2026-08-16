@@ -51,6 +51,8 @@ export const en: TranslationDictionary = {
   'nav.cat.utilities': 'Library & Utilities',
 
   'nav.dashboard': 'Dashboard',
+  'nav.visualcoach': 'Visual Ableton Coach',
+  'sidebar.visualcoach': 'Learn on real Ableton Live 12 screens',
   'nav.classroom': 'Ableton Classroom',
   'nav.producer': 'AI Producer Mode',
   'nav.nextStep': 'AI Next Step Engine',

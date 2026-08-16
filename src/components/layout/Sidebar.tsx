@@ -20,6 +20,7 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
+  Monitor,
 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { ViewType } from '../../types';
@@ -70,6 +71,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {
         categoryKey: 'nav.area.learn',
         items: [
+          {
+            id: 'visualcoach' as ViewType,
+            labelKey: 'nav.visualcoach',
+            descKey: 'sidebar.visualcoach',
+            icon: <Monitor className="w-4 h-4 text-[#90FF00]" />,
+          },
           {
             id: 'classroom' as ViewType,
             labelKey: 'nav.classroom',

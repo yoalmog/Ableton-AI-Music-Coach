@@ -51,6 +51,8 @@ export const he: TranslationDictionary = {
   'nav.cat.utilities': 'ספרייה וכלי עזר',
 
   'nav.dashboard': 'לוח בקרה',
+  'nav.visualcoach': 'מאמן Ableton ויזואלי',
+  'sidebar.visualcoach': 'לימוד ויזואלי על מסך Ableton Live 12 האמיתי',
   'nav.classroom': 'כיתת Ableton',
   'nav.producer': 'מצב מפיק AI',
   'nav.nextStep': 'מנוע הצעד הבא AI',

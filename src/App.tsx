@@ -26,6 +26,7 @@ import { GlobalSearchModal } from './components/layout/GlobalSearchModal';
 import { FirstRunAISetup } from './components/ai/FirstRunAISetup';
 import { ProducerOnboardingModal } from './components/common/ProducerOnboardingModal';
 import { VisualCourseMap } from './components/lessons/VisualCourseMap';
+import { VisualCoachLessonView } from './components/visualcoach/VisualCoachLessonView';
 import { GlossaryView } from './components/utilities/GlossaryView';
 import { BuildMyFirstTrackWizard } from './components/producer/BuildMyFirstTrackWizard';
 import { ClassroomView } from './components/classroom/ClassroomView';
@@ -181,6 +182,14 @@ export function AppContent() {
             onProjectChange={setProject}
             onNavigate={navigateWithEntitlementCheck}
             isDesktop={isDesktop}
+          />
+        );
+      case 'visualcoach':
+        return (
+          <VisualCoachLessonView
+            project={project}
+            language={dir === 'rtl' ? 'he' : 'en'}
+            onBackToDashboard={() => setCurrentView('dashboard')}
           />
         );
       case 'producer':

@@ -35,6 +35,7 @@ export const MidiGeneratorView: React.FC<MidiGeneratorViewProps> = ({
   const [bpm, setBpm] = React.useState<number>(project.bpm || 144);
   const [energy, setEnergy] = React.useState<number>(8);
   const [isGenerating, setIsGenerating] = React.useState(false);
+  const [justGenerated, setJustGenerated] = React.useState(false);
   const [isPlaying, setIsPlaying] = React.useState(false);
   const [playheadProgress, setPlayheadProgress] = React.useState(0);
   const [exportSuccess, setExportSuccess] = React.useState(false);
@@ -75,22 +76,29 @@ export const MidiGeneratorView: React.FC<MidiGeneratorViewProps> = ({
     };
   });
 
-  const handleGenerate = async (forcedSeed?: number) => {
+  const handleGenerate = (forcedSeed?: number) => {
     setIsGenerating(true);
+    setJustGenerated(true);
+
     try {
-      // Generate pattern with fresh seed
+      // 1. Generate new pattern INSTANTLY and SYNCHRONOUSLY
+      const seed = forcedSeed ?? (Date.now() + Math.floor(Math.random() * 1000000));
       const generated = midiService.generateMusicalPattern({
         type: patternType,
-        genre: project.genre,
+        genre: project.genre || 'Psytrance',
         bpm,
         key,
         scale,
         energy,
-        seed: forcedSeed ?? Math.floor(Math.random() * 1000000),
+        seed,
       });
 
-      const res = await aiService.generatePattern(patternType, project.genre, bpm, key, scale, energy, language);
-      
+      const defaultTips = language === 'he' 
+        ? 'ב-Ableton Live 12, טען את המכשיר המתאים, כוון מעטפת פילטר מהירה ובצע איקיו מדויק.'
+        : language === 'es'
+        ? 'En Ableton Live 12, inserta el dispositivo adecuado, ajusta la envolvente rápida del filtro y aplica EQ Eight.'
+        : 'In Ableton Live 12, load the recommended device, shape a fast filter envelope, and clean frequencies with EQ Eight.';
+
       const newPattern: MidiPattern = {
         id: `pat_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
         name: generated.name,
@@ -101,26 +109,35 @@ export const MidiGeneratorView: React.FC<MidiGeneratorViewProps> = ({
         scale,
         timeSignature: '4/4',
         notes: generated.notes,
-        abletonTips: res.pattern.abletonTips || (language === 'he' 
-          ? 'ב-Ableton Live 12, טען את המכשיר המתאים, כוון מעטפת פילטר מהירה ובצע איקיו מדויק.'
-          : language === 'es'
-          ? 'En Ableton Live 12, inserta el dispositivo adecuado, ajusta la envolvente rápida del filtro y aplica EQ Eight.'
-          : 'In Ableton Live 12, load the recommended device, shape a fast filter envelope, and clean frequencies with EQ Eight.'),
+        abletonTips: defaultTips,
         createdAt: new Date().toISOString(),
       };
 
+      // 2. Set active pattern immediately so UI & Piano Roll render with 0 latency
       setActivePattern(newPattern);
 
-      // Save pattern into active project
+      // 3. Save pattern into active project immediately
       const updatedMidiList = [newPattern, ...project.midiPatterns.filter((p) => p.id !== newPattern.id)];
       onProjectChange({
         ...project,
         midiPatterns: updatedMidiList,
       });
+
+      // 4. If currently playing, smoothly trigger audio preview with new notes
+      if (isPlaying) {
+        audioService.playMidiPattern(newPattern.notes, newPattern.bpm);
+      }
+
+      // 5. Briefly show visual highlight confirmation
+      setTimeout(() => {
+        setJustGenerated(false);
+        setIsGenerating(false);
+      }, 350);
+
     } catch (err) {
       debugLog.error('Pattern generation error:', err);
-    } finally {
       setIsGenerating(false);
+      setJustGenerated(false);
     }
   };
 
@@ -360,17 +377,28 @@ export const MidiGeneratorView: React.FC<MidiGeneratorViewProps> = ({
             <div className="space-y-2 pt-1">
               <button
                 onClick={() => handleGenerate()}
-                disabled={isGenerating}
-                className="w-full bg-[#90FF00] hover:bg-[#80e600] text-black py-2.5 rounded font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer uppercase tracking-wider disabled:opacity-40 shadow-lg shadow-[#90FF00]/10 active:scale-[0.98]"
+                className={`w-full py-2.5 rounded font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer uppercase tracking-wider shadow-lg active:scale-[0.97] select-none ${
+                  justGenerated
+                    ? 'bg-[#00E5FF] text-black shadow-[#00E5FF]/25 ring-2 ring-[#00E5FF]'
+                    : 'bg-[#90FF00] hover:bg-[#80e600] text-black shadow-[#90FF00]/15'
+                }`}
               >
-                <Sparkles className="w-3.5 h-3.5 fill-current" />
-                <span>{isGenerating ? t('midi.generating') : t('midi.generateBtn')}</span>
+                {justGenerated ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                    <span>{language === 'es' ? '¡NUEVO PATRÓN GENERADO!' : language === 'he' ? '!תבנית חדשה נוצרה' : 'NEW PATTERN GENERATED!'}</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-3.5 h-3.5 fill-current" />
+                    <span>{t('midi.generateBtn')}</span>
+                  </>
+                )}
               </button>
 
               <button
-                onClick={() => handleGenerate(Math.floor(Math.random() * 999999))}
-                disabled={isGenerating}
-                className="w-full bg-[#222] hover:bg-[#2A2A2A] text-[#00E5FF] border border-[#333] hover:border-[#00E5FF]/40 py-2 rounded font-semibold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer uppercase tracking-wider disabled:opacity-40"
+                onClick={() => handleGenerate(Date.now() + Math.floor(Math.random() * 999999))}
+                className="w-full bg-[#222] hover:bg-[#2A2A2A] active:scale-[0.98] text-[#00E5FF] border border-[#333] hover:border-[#00E5FF]/40 py-2 rounded font-semibold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer uppercase tracking-wider select-none"
               >
                 <Wand2 className="w-3 h-3" />
                 <span>{language === 'es' ? 'MUTAR VARIACIÓN' : language === 'he' ? 'שנה וריאציה' : 'MUTATE VARIATION'}</span>

@@ -15,6 +15,13 @@ declare global {
       loadProjectFile: (filePath: string) => Promise<string>;
       exportMidiFile: (fileName: string, binaryBuffer: ArrayBuffer) => Promise<{ success: boolean; filePath: string } | null>;
       openExternalUrl: (url: string) => Promise<void>;
+      getScreenSources?: () => Promise<Array<{
+        id: string;
+        name: string;
+        thumbnail: string;
+        appIcon?: string | null;
+        isAbleton: boolean;
+      }>>;
       appReady?: () => void;
       reportProgress?: (msg: string, percent: number) => void;
       ai?: {
@@ -178,6 +185,74 @@ export class DesktopService {
       await window.desktopAPI.openExternalUrl(url);
     } else {
       window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  }
+
+  /**
+   * Get available screen/window capture sources (Electron native or Web media stream)
+   */
+  public async getScreenSources(): Promise<Array<{
+    id: string;
+    name: string;
+    thumbnail: string;
+    appIcon?: string | null;
+    isAbleton: boolean;
+  }>> {
+    if (this.isDesktop() && window.desktopAPI?.getScreenSources) {
+      try {
+        return await window.desktopAPI.getScreenSources();
+      } catch (err) {
+        debugLog.error('Failed to get desktop screen sources:', err);
+      }
+    }
+    return [];
+  }
+
+  /**
+   * Capture a single snapshot using browser navigator.mediaDevices.getDisplayMedia
+   * Explicit user selection required. Privacy safe.
+   */
+  public async captureScreenWeb(): Promise<string | null> {
+    if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getDisplayMedia) {
+      return null;
+    }
+
+    let stream: MediaStream | null = null;
+    try {
+      stream = await navigator.mediaDevices.getDisplayMedia({
+        video: {
+          displaySurface: 'window',
+        },
+        audio: false,
+      });
+
+      const video = document.createElement('video');
+      video.srcObject = stream;
+      video.muted = true;
+      await video.play();
+
+      // Wait a frame for video dimensions to settle
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth || 1920;
+      canvas.height = video.videoHeight || 1080;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return null;
+
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL('image/png', 0.95);
+
+      // Stop all video tracks immediately after capture
+      stream.getTracks().forEach((track) => track.stop());
+
+      return dataUrl;
+    } catch (err) {
+      if (stream) {
+        stream.getTracks().forEach((track) => track.stop());
+      }
+      debugLog.warn('Web screen capture was cancelled or failed:', err);
+      return null;
     }
   }
 }

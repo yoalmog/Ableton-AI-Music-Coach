@@ -21,6 +21,9 @@ const apiBridge = {
   
   // System shell
   openExternalUrl: (url: string) => ipcRenderer.invoke('desktop:open-external', url),
+  
+  // Screen & Window Capturing for Visual Ableton Coach
+  getScreenSources: () => ipcRenderer.invoke('desktop:get-screen-sources'),
 
   // Splash & Initialization lifecycle
   appReady: () => ipcRenderer.send('desktop:app-ready'),

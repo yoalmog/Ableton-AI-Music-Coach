@@ -22,6 +22,7 @@ import { getAssetPath } from '../../utils/assetPath';
 import { DashboardMetricsCard } from './DashboardMetricsCard';
 import { ProjectMetricsWidget } from './ProjectMetricsWidget';
 import { ContinueLearningCard } from './ContinueLearningCard';
+import { VisualCoachDashboardCard } from '../visualcoach/VisualCoachDashboardCard';
 
 interface DashboardViewProps {
   project: AAMCProject;
@@ -118,6 +119,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           />
         </div>
       </div>
+
+      {/* Primary Visual Ableton Coach Prominent Card */}
+      <VisualCoachDashboardCard
+        onOpenVisualCoach={(lessonId) => onNavigate('visualcoach')}
+        language={isRtl ? 'he' : 'en'}
+      />
 
       {/* CSS Grid Layout for Core Dashboard Widgets & Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

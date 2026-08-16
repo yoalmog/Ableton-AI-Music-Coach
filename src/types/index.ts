@@ -1,5 +1,8 @@
+import { VisualLesson, UserVisualLessonProgress, UserUploadedImage } from './visualLesson';
+
 export type ViewType =
   | 'dashboard'
+  | 'visualcoach'
   | 'producer'
   | 'lessons'
   | 'coursemap'
@@ -127,6 +130,7 @@ export interface SoundDesignRecipe {
 
 export * from './lesson';
 export * from './learning';
+export * from './visualLesson';
 
 export interface TrackMetrics {
   lufs: number; // e.g. -8.5
@@ -238,6 +242,12 @@ export interface AAMCProject {
   userNotes: string;
   aiNotes: string[];
   favorites?: { id: string; type: 'lesson' | 'pattern' | 'recipe' | 'prompt'; title: string }[];
+  // Visual Music Production Learning Engine extension (.aamc backward compatible)
+  visualLessons?: VisualLesson[];
+  currentVisualLessonId?: string;
+  currentVisualStepIndex?: number;
+  visualLearningProgress?: Record<string, UserVisualLessonProgress>;
+  projectImages?: UserUploadedImage[];
   createdAt: string;
   updatedAt: string;
 }

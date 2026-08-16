@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog, shell, screen } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, shell, screen, desktopCapturer } from 'electron';
 import path from 'path';
 import fs from 'fs';
 import os from 'os';
@@ -439,6 +439,26 @@ ipcMain.handle('desktop:export-midi-file', async (_event, { fileName, binaryBuff
 ipcMain.handle('desktop:open-external', async (_event, url) => {
   if (url.startsWith('http://') || url.startsWith('https://')) {
     await shell.openExternal(url);
+  }
+});
+
+ipcMain.handle('desktop:get-screen-sources', async () => {
+  try {
+    const sources = await desktopCapturer.getSources({
+      types: ['window', 'screen'],
+      thumbnailSize: { width: 1920, height: 1080 },
+      fetchWindowIcons: true,
+    });
+    return sources.map((s) => ({
+      id: s.id,
+      name: s.name,
+      thumbnail: s.thumbnail.toDataURL(),
+      appIcon: s.appIcon ? s.appIcon.toDataURL() : null,
+      isAbleton: s.name.toLowerCase().includes('ableton') || s.name.toLowerCase().includes('live'),
+    }));
+  } catch (err: any) {
+    console.error('Failed to get screen sources in Electron:', err);
+    return [];
   }
 });
 

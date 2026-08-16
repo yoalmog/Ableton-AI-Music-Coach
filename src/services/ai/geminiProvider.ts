@@ -145,7 +145,7 @@ export class GeminiProvider implements AIProvider {
     // 2. Express Web Path
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 50000);
+      const timeoutId = setTimeout(() => controller.abort(), 4000);
 
       const response = await fetch('/api/ai/chat', {
         method: 'POST',

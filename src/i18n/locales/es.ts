@@ -45,6 +45,8 @@ export const es: TranslationDictionary = {
   'nav.cat.utilities': 'Biblioteca y Utilidades',
 
   'nav.dashboard': 'Panel Principal',
+  'nav.visualcoach': 'Entrenador Visual de Ableton',
+  'sidebar.visualcoach': 'Aprende en la interfaz real de Ableton Live 12',
   'nav.producer': 'Modo Productor IA',
   'nav.nextStep': 'Motor de Siguiente Paso IA',
   'nav.lessons': 'Cursos y Lecciones',
