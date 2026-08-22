@@ -191,6 +191,30 @@ export class AudioService {
   }
 
   /**
+   * Synthesizes a subtle UI click / metronome / feedback click
+   */
+  public playClick(timeOffset: number = 0, isHigh: boolean = false) {
+    this.initAudio();
+    if (!this.ctx || !this.masterGain) return;
+
+    const t = this.ctx.currentTime + timeOffset;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.frequency.setValueAtTime(isHigh ? 1600 : 950, t);
+    osc.frequency.exponentialRampToValueAtTime(300, t + 0.03);
+
+    gain.gain.setValueAtTime(0.3, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
+
+    osc.connect(gain);
+    gain.connect(this.masterGain);
+
+    osc.start(t);
+    osc.stop(t + 0.04);
+  }
+
+  /**
    * Synthesizes a Hi-Hat / Percussion sound
    */
   public playHiHat(timeOffset: number = 0, isOpen: boolean = false) {
@@ -257,6 +281,18 @@ export class AudioService {
         this.playPsyBassNote(note.pitch, timeOffset, durationSec);
       }
     });
+  }
+
+  /**
+   * Stop all active audio and reset master gain smoothly
+   */
+  public stopAll() {
+    if (this.ctx && this.masterGain) {
+      const now = this.ctx.currentTime;
+      this.masterGain.gain.cancelScheduledValues(now);
+      this.masterGain.gain.setValueAtTime(0, now);
+      this.masterGain.gain.setValueAtTime(0.8, now + 0.05);
+    }
   }
 
   /**

@@ -46,12 +46,12 @@ export const HeaderBrand: React.FC<HeaderBrandProps> = ({
   const { t } = useLanguage();
 
   return (
-    <div className="flex items-center gap-2 shrink-0 min-w-0">
+    <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 min-w-0">
       {onToggleMobileMenu && (
         <button
           onClick={onToggleMobileMenu}
           className="md:hidden p-1.5 rounded-md bg-[#1C1C1C] hover:bg-[#282828] text-gray-300 hover:text-white border border-[#2E2E2E] transition-colors cursor-pointer shrink-0"
-          aria-label={t('header.toggleMenu')}
+          aria-label={t('header.toggleMenu') || 'Toggle menu'}
         >
           <Menu className="w-4 h-4" />
         </button>
@@ -59,11 +59,11 @@ export const HeaderBrand: React.FC<HeaderBrandProps> = ({
 
       <div
         onClick={() => onNavigate && onNavigate('dashboard')}
-        className="flex items-center gap-2 cursor-pointer group shrink-0 select-none py-1"
+        className="flex items-center gap-1.5 sm:gap-2 cursor-pointer group shrink-0 select-none py-1"
       >
-        <BrandSymbolMark sizeClass="w-6 h-6" />
-        <div className="flex items-center gap-1.5">
-          <span className="text-xs sm:text-sm font-bold text-white tracking-tight group-hover:text-[#90FF00] transition-colors font-sans">
+        <BrandSymbolMark sizeClass="w-5 h-5 sm:w-6 sm:h-6" />
+        <div className="flex items-center gap-1 sm:gap-1.5">
+          <span className="text-xs sm:text-sm font-bold text-white tracking-tight group-hover:text-[#90FF00] transition-colors font-sans whitespace-nowrap">
             Ableton AI Coach
           </span>
           <span className="hidden sm:inline-block px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-[#1E1E1E] text-gray-400 border border-[#2E2E2E]">

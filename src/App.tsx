@@ -27,6 +27,7 @@ import { FirstRunAISetup } from './components/ai/FirstRunAISetup';
 import { ProducerOnboardingModal } from './components/common/ProducerOnboardingModal';
 import { VisualCourseMap } from './components/lessons/VisualCourseMap';
 import { VisualCoachLessonView } from './components/visualcoach/VisualCoachLessonView';
+import { AbletonSimulator } from './components/simulator/AbletonSimulator';
 import { GlossaryView } from './components/utilities/GlossaryView';
 import { BuildMyFirstTrackWizard } from './components/producer/BuildMyFirstTrackWizard';
 import { ClassroomView } from './components/classroom/ClassroomView';
@@ -184,6 +185,14 @@ export function AppContent() {
             isDesktop={isDesktop}
           />
         );
+      case 'simulator':
+        return (
+          <AbletonSimulator
+            project={project}
+            onBackToDashboard={() => setCurrentView('dashboard')}
+            onOpenCoachWithMessage={handleOpenCoachWithMessage}
+          />
+        );
       case 'visualcoach':
         return (
           <VisualCoachLessonView
@@ -297,7 +306,7 @@ export function AppContent() {
   return (
     <div
       dir={dir}
-      className="h-screen w-screen overflow-hidden bg-[#0A0A0A] text-[#E0E0E0] flex flex-col font-sans antialiased selection:bg-[#90FF00] selection:text-black"
+      className="flex flex-col h-[100dvh] w-full min-w-0 max-w-full overflow-hidden bg-[#0A0A0A] text-[#E0E0E0] font-sans antialiased selection:bg-[#90FF00] selection:text-black"
     >
       {/* Top Header */}
       <Header
@@ -321,7 +330,7 @@ export function AppContent() {
       />
 
       {/* Main Body Layout */}
-      <div className="flex-1 flex overflow-hidden relative">
+      <div className="flex-1 flex overflow-hidden relative min-h-0 min-w-0 w-full max-w-full">
         {/* Navigation Sidebar */}
         <Sidebar
           currentView={currentView}
@@ -341,7 +350,7 @@ export function AppContent() {
         />
 
         {/* Dynamic View Container */}
-        <main className="flex-1 overflow-y-auto bg-[#121212] pb-16 md:pb-0 min-w-0 max-w-full">
+        <main className="flex-1 overflow-y-auto min-h-0 min-w-0 w-full max-w-full flex flex-col bg-[#121212] pb-16 md:pb-0">
           {renderActiveView()}
         </main>
 
@@ -449,7 +458,11 @@ export function AppContentWrapper() {
     return null;
   }
 
-  return <AppContent />;
+  return (
+    <div className="flex flex-col h-[100dvh] w-full min-w-0 max-w-full overflow-hidden">
+      <AppContent />
+    </div>
+  );
 }
 
 export default function App() {

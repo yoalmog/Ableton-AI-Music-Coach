@@ -96,8 +96,8 @@ export const ProjectMenu: React.FC<ProjectMenuProps> = ({
         className="flex items-center gap-1.5 bg-[#181818] hover:bg-[#222222] border border-[#2E2E2E] hover:border-[#404040] px-2.5 py-1 rounded-md text-xs font-mono transition cursor-pointer"
         aria-label={t('header.project')}
       >
-        <Folder className="w-3.5 h-3.5 text-[#90FF00]" />
-        <span className="font-bold text-gray-200 max-w-[120px] md:max-w-[160px] truncate" dir="auto">
+        <Folder className="w-3.5 h-3.5 text-[#90FF00] shrink-0" />
+        <span className="font-bold text-gray-200 max-w-[100px] xs:max-w-[130px] sm:max-w-[160px] md:max-w-[200px] truncate" dir="auto">
           {projectName}
         </span>
         <ChevronDown className={`w-3 h-3 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />

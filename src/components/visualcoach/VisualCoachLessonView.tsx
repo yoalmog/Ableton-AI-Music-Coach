@@ -43,6 +43,7 @@ import { VisualLessonViewer } from './VisualLessonViewer';
 import { VisualLessonEditor } from './VisualLessonEditor';
 import { LiveScreenCaptureModal } from './LiveScreenCaptureModal';
 import { ImageUploader } from './ImageUploader';
+import { AbletonSimulator } from '../simulator/AbletonSimulator';
 import { visualCoachStorageService } from '../../services/visualCoachStorageService';
 import { visualLessonAiService } from '../../services/visualLessonAiService';
 import { aiService } from '../../services/aiService';
@@ -89,6 +90,7 @@ export const VisualCoachLessonView: React.FC<VisualCoachLessonViewProps> = ({
   const [isShowMePlaying, setIsShowMePlaying] = useState<boolean>(false);
 
   // Modals: Visual Lesson Editor, Screen Capture & Image Uploader
+  const [isSimulatorMode, setIsSimulatorMode] = useState<boolean>(true);
   const [isEditorOpen, setIsEditorOpen] = useState<boolean>(false);
   const [editingLesson, setEditingLesson] = useState<VisualLesson | null>(null);
   const [isCaptureModalOpen, setIsCaptureModalOpen] = useState<boolean>(false);
@@ -247,6 +249,28 @@ export const VisualCoachLessonView: React.FC<VisualCoachLessonViewProps> = ({
     setIsEditorOpen(false);
   };
 
+  if (isSimulatorMode) {
+    return (
+      <div className="flex flex-col h-full w-full bg-[#121212] overflow-hidden">
+        <div className="h-9 px-3 bg-[#1A1A1A] border-b border-[#2C2C2C] flex items-center justify-between text-xs font-mono text-gray-300 shrink-0">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#FFE853]" />
+            <span className="text-[#FFE853] font-bold">ABLETON LIVE 12 SIMULATOR MODE</span>
+          </div>
+          <button
+            onClick={() => setIsSimulatorMode(false)}
+            className="px-2.5 py-1 rounded bg-[#2A2A2A] hover:bg-[#3A3A3A] text-gray-200 text-xs font-mono flex items-center gap-1.5 cursor-pointer"
+          >
+            <span>{isHe ? 'עבור למצב צילומי מסך והסברים' : 'Switch to Annotated Screenshots'}</span>
+          </button>
+        </div>
+        <div className="flex-1 min-h-0">
+          <AbletonSimulator project={project} onBackToDashboard={onClose} />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className="flex flex-col h-full w-full bg-[#07090D] text-white font-sans select-none overflow-hidden"
@@ -255,113 +279,129 @@ export const VisualCoachLessonView: React.FC<VisualCoachLessonViewProps> = ({
       {/* ------------------------------------------------------------- */}
       {/* TOP APPLICATION HEADER */}
       {/* ------------------------------------------------------------- */}
-      <header className="flex items-center justify-between px-6 py-3 bg-[#0C0F15] border-b border-[#1C2330] shrink-0">
+      <header className="flex flex-col md:flex-row items-stretch md:items-center justify-between px-3 sm:px-6 py-2.5 sm:py-3 bg-[#0C0F15] border-b border-[#1C2330] gap-2.5 shrink-0">
         {/* Left: Brand & Active Lesson Info */}
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#00E5FF] to-[#90FF00] p-0.5 flex items-center justify-center shadow-[0_0_15px_rgba(0,229,255,0.4)]">
+        <div className="flex items-center justify-between md:justify-start gap-3 min-w-0">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-[#00E5FF] to-[#90FF00] p-0.5 flex items-center justify-center shadow-[0_0_15px_rgba(0,229,255,0.4)] shrink-0">
               <div className="w-full h-full bg-[#0A0D14] rounded-[10px] flex items-center justify-center">
-                <Eye size={18} className="text-[#00E5FF]" />
+                <Eye size={16} className="text-[#00E5FF]" />
               </div>
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-sm font-black tracking-tight text-white">
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <h1 className="text-xs sm:text-sm font-black tracking-tight text-white truncate">
                   {isHe ? 'מאמן חזותי אינטראקטיבי' : 'Visual Ableton Coach'}
                 </h1>
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#90FF00]/15 text-[#90FF00] border border-[#90FF00]/30 uppercase">
+                <span className="px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-[#90FF00]/15 text-[#90FF00] border border-[#90FF00]/30 uppercase shrink-0">
                   Interactive Vision
                 </span>
               </div>
-              <p className="text-[11px] text-gray-400 font-medium">
+              <p className="text-[10px] sm:text-[11px] text-gray-400 font-medium truncate">
                 {currentLesson.title[language] || currentLesson.title.he}
               </p>
             </div>
           </div>
         </div>
 
-        {/* Center: Interactive Mode Switcher */}
-        <div className="flex items-center gap-1 p-1 bg-[#121620] rounded-xl border border-[#202736]">
-          <button
-            type="button"
-            onClick={() => setLearningMode('guided')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-              learningMode === 'guided'
-                ? 'bg-[#00E5FF] text-black shadow-[0_0_12px_#00E5FF]'
-                : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            <BookOpen size={13} />
-            <span>{isHe ? 'מודרך (Guided)' : 'Guided'}</span>
-          </button>
+        {/* Center & Right Controls */}
+        <div className="flex items-center justify-between md:justify-end gap-2 flex-wrap">
+          {/* Mode Switcher */}
+          <div className="flex items-center gap-1 p-1 bg-[#121620] rounded-xl border border-[#202736] overflow-x-auto no-scrollbar shrink-0">
+            <button
+              type="button"
+              onClick={() => setLearningMode('guided')}
+              className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 sm:gap-1.5 whitespace-nowrap ${
+                learningMode === 'guided'
+                  ? 'bg-[#00E5FF] text-black shadow-[0_0_12px_#00E5FF]'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              <BookOpen size={13} />
+              <span>{isHe ? 'מודרך (Guided)' : 'Guided'}</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => setLearningMode('practice')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-              learningMode === 'practice'
-                ? 'bg-[#90FF00] text-black shadow-[0_0_12px_#90FF00]'
-                : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            <Compass size={13} />
-            <span>{isHe ? 'תרגול (Practice)' : 'Practice'}</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => setLearningMode('practice')}
+              className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 sm:gap-1.5 whitespace-nowrap ${
+                learningMode === 'practice'
+                  ? 'bg-[#90FF00] text-black shadow-[0_0_12px_#90FF00]'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              <Compass size={13} />
+              <span>{isHe ? 'תרגול (Practice)' : 'Practice'}</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => setLearningMode('challenge')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-              learningMode === 'challenge'
-                ? 'bg-[#FF0055] text-white shadow-[0_0_12px_#FF0055]'
-                : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            <Target size={13} />
-            <span>{isHe ? 'אתגר (Challenge)' : 'Challenge'}</span>
-          </button>
-        </div>
+            <button
+              type="button"
+              onClick={() => setLearningMode('challenge')}
+              className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 sm:gap-1.5 whitespace-nowrap ${
+                learningMode === 'challenge'
+                  ? 'bg-[#FF0055] text-white shadow-[0_0_12px_#FF0055]'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              <Target size={13} />
+              <span>{isHe ? 'אתגר (Challenge)' : 'Challenge'}</span>
+            </button>
+          </div>
 
-        {/* Right: Lesson Creator / Editor & Screen Capture & Image Uploader */}
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setIsImageUploaderOpen(true)}
-            className="px-3 py-1.5 rounded-lg bg-[#1F2937] hover:bg-[#374151] border border-[#4B5563] text-xs font-bold text-[#90FF00] flex items-center gap-1.5 transition-colors shadow-sm"
-          >
-            <Upload size={14} />
-            <span>{isHe ? 'העלאת תמונה / דיאגרמה' : 'Upload Image'}</span>
-          </button>
+          {/* Right: Studio & Media Buttons */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              type="button"
+              onClick={() => setIsSimulatorMode(true)}
+              className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg bg-[#FFE853] hover:bg-[#FFF080] text-black text-xs font-bold flex items-center gap-1.5 shadow-[0_0_12px_rgba(255,232,83,0.4)] transition-all cursor-pointer"
+              title={isHe ? 'עבור לסימולטור Ableton 12' : 'Ableton 12 Simulator'}
+            >
+              <Sparkles size={13} />
+              <span>{isHe ? 'סימולטור Live 12' : 'Live 12 Simulator'}</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => {
-              setEditingLesson(currentLesson);
-              setIsEditorOpen(true);
-            }}
-            className="px-3 py-1.5 rounded-lg bg-[#9D4EDD] hover:bg-[#B060FF] text-white text-xs font-bold flex items-center gap-1.5 shadow-[0_0_15px_rgba(157,78,221,0.3)] transition-all"
-          >
-            <Plus size={14} />
-            <span>{isHe ? 'ערוך שיעור זה בסטודיו' : 'Edit in Studio'}</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => setIsImageUploaderOpen(true)}
+              className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg bg-[#1F2937] hover:bg-[#374151] border border-[#4B5563] text-xs font-bold text-[#90FF00] flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
+              title={isHe ? 'העלאת תמונה / דיאגרמה' : 'Upload Image'}
+            >
+              <Upload size={13} />
+              <span className="hidden sm:inline">{isHe ? 'העלאת תמונה' : 'Upload'}</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => setIsCaptureModalOpen(true)}
-            className="px-3 py-1.5 rounded-lg bg-[#18202E] hover:bg-[#222C40] border border-[#2E3B52] text-xs font-bold text-gray-300 hover:text-[#00E5FF] flex items-center gap-1.5 transition-colors"
-          >
-            <Camera size={14} />
-            <span>{isHe ? 'לכידת מסך' : 'Capture Screen'}</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => {
+                setEditingLesson(currentLesson);
+                setIsEditorOpen(true);
+              }}
+              className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg bg-[#9D4EDD] hover:bg-[#B060FF] text-white text-xs font-bold flex items-center gap-1.5 shadow-[0_0_15px_rgba(157,78,221,0.3)] transition-all cursor-pointer"
+              title={isHe ? 'ערוך שיעור זה בסטודיו' : 'Edit in Studio'}
+            >
+              <Plus size={13} />
+              <span className="hidden sm:inline">{isHe ? 'ערוך בסטודיו' : 'Edit'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsCaptureModalOpen(true)}
+              className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg bg-[#18202E] hover:bg-[#222C40] border border-[#2E3B52] text-xs font-bold text-gray-300 hover:text-[#00E5FF] flex items-center gap-1.5 transition-colors cursor-pointer"
+              title={isHe ? 'לכידת מסך' : 'Capture Screen'}
+            >
+              <Camera size={13} />
+              <span className="hidden sm:inline">{isHe ? 'לכידת מסך' : 'Capture'}</span>
+            </button>
+          </div>
         </div>
       </header>
 
       {/* ------------------------------------------------------------- */}
       {/* CATEGORY & LESSON SELECTOR BAR */}
       {/* ------------------------------------------------------------- */}
-      <div className="px-6 py-2 bg-[#0A0D12] border-b border-[#1A212E] flex items-center justify-between overflow-x-auto gap-4 shrink-0">
+      <div className="px-3 sm:px-6 py-2 bg-[#0A0D12] border-b border-[#1A212E] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 overflow-x-auto no-scrollbar shrink-0">
         {/* Category Pills */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
           {VISUAL_COURSE_CATEGORIES.map((cat) => (
             <button
               key={cat.id}
@@ -371,7 +411,7 @@ export const VisualCoachLessonView: React.FC<VisualCoachLessonViewProps> = ({
                 const firstInCat = allLessons.find((l) => l.category === cat.id);
                 if (firstInCat) setActiveLessonId(firstInCat.id);
               }}
-              className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
+              className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
                 selectedCategory === cat.id
                   ? 'bg-[#00E5FF] text-black shadow-[0_0_12px_#00E5FF]'
                   : 'bg-[#121620] text-gray-400 hover:text-white border border-[#20293A]'
@@ -385,13 +425,13 @@ export const VisualCoachLessonView: React.FC<VisualCoachLessonViewProps> = ({
           <button
             type="button"
             onClick={() => setSelectedCategory('custom')}
-            className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1 ${
+            className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1 shrink-0 cursor-pointer ${
               selectedCategory === 'custom'
                 ? 'bg-[#9D4EDD] text-white shadow-[0_0_12px_#9D4EDD]'
                 : 'bg-[#121620] text-gray-400 hover:text-white border border-[#20293A]'
             }`}
           >
-            <span>{isHe ? 'שיעורים מותאמים אישית' : 'My Lessons'}</span>
+            <span>{isHe ? 'שיעורים שלי' : 'My Lessons'}</span>
             <span className="px-1.5 py-0.2 rounded-full bg-black/40 text-[10px]">
               {customLessons.length}
             </span>
@@ -399,14 +439,14 @@ export const VisualCoachLessonView: React.FC<VisualCoachLessonViewProps> = ({
         </div>
 
         {/* Lesson dropdown switcher */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <span className="text-xs text-gray-400 font-bold whitespace-nowrap">
-            {isHe ? 'בחר שיעור:' : 'Lesson:'}
+            {isHe ? 'שיעור:' : 'Lesson:'}
           </span>
           <select
             value={activeLessonId}
             onChange={(e) => setActiveLessonId(e.target.value)}
-            className="px-3 py-1 rounded-lg bg-[#141A26] border border-[#253044] text-xs font-bold text-white outline-none focus:border-[#00E5FF] max-w-[260px] truncate"
+            className="flex-1 sm:flex-initial px-3 py-1 rounded-lg bg-[#141A26] border border-[#253044] text-xs font-bold text-white outline-none focus:border-[#00E5FF] max-w-full sm:max-w-[260px] truncate"
           >
             {filteredLessons.map((l) => (
               <option key={l.id} value={l.id}>
@@ -420,9 +460,9 @@ export const VisualCoachLessonView: React.FC<VisualCoachLessonViewProps> = ({
       {/* ------------------------------------------------------------- */}
       {/* MAIN LEARNING STAGE: 70% IMAGE CANVAS | 30% INSTRUCTION SIDEBAR */}
       {/* ------------------------------------------------------------- */}
-      <div className="flex-1 flex overflow-hidden p-4 gap-4">
-        {/* LEFT / CENTER: THE INTERACTIVE IMAGE VIEWER STAGE (70%) */}
-        <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden p-2 sm:p-4 gap-3 sm:gap-4 min-w-0">
+        {/* LEFT / CENTER: THE INTERACTIVE IMAGE VIEWER STAGE */}
+        <div className="flex-1 flex flex-col min-w-0 min-h-[340px] sm:min-h-[420px] lg:min-h-0">
           <VisualLessonViewer
             step={currentStep}
             project={project}
@@ -438,12 +478,12 @@ export const VisualCoachLessonView: React.FC<VisualCoachLessonViewProps> = ({
           />
 
           {/* Bottom Step Progress Bar */}
-          <div className="mt-3 px-4 py-2 bg-[#0E121A] rounded-xl border border-[#1E2636] flex items-center justify-between shrink-0">
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-400 font-bold">
-                {isHe ? 'התקדמות בשיעור:' : 'Lesson Progress:'}
+          <div className="mt-2.5 sm:mt-3 px-3 sm:px-4 py-2 bg-[#0E121A] rounded-xl border border-[#1E2636] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 shrink-0">
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
+              <span className="text-[11px] sm:text-xs text-gray-400 font-bold shrink-0">
+                {isHe ? 'התקדמות:' : 'Progress:'}
               </span>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 shrink-0">
                 {currentLesson.steps.map((st, idx) => {
                   const isCompleted = currentLessonProgress.completedStepIndexes?.includes(idx);
                   const isCurrent = idx === activeStepIndex;
@@ -452,7 +492,7 @@ export const VisualCoachLessonView: React.FC<VisualCoachLessonViewProps> = ({
                       key={st.id || idx}
                       type="button"
                       onClick={() => setActiveStepIndex(idx)}
-                      className={`w-7 h-7 rounded-lg text-xs font-bold flex items-center justify-center transition-all ${
+                      className={`w-6 h-6 sm:w-7 sm:h-7 rounded-lg text-[11px] sm:text-xs font-bold flex items-center justify-center transition-all cursor-pointer shrink-0 ${
                         isCurrent
                           ? 'bg-[#90FF00] text-black shadow-[0_0_12px_#90FF00]'
                           : isCompleted
@@ -468,12 +508,12 @@ export const VisualCoachLessonView: React.FC<VisualCoachLessonViewProps> = ({
             </div>
 
             {/* Next / Previous Step Buttons */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0 justify-end">
               <button
                 type="button"
                 disabled={activeStepIndex === 0}
                 onClick={() => setActiveStepIndex(activeStepIndex - 1)}
-                className="px-3 py-1.5 rounded-lg bg-[#18202E] text-gray-300 hover:text-white text-xs font-bold disabled:opacity-30 transition-colors"
+                className="flex-1 sm:flex-initial px-3 py-1.5 rounded-lg bg-[#18202E] text-gray-300 hover:text-white text-xs font-bold disabled:opacity-30 transition-colors cursor-pointer text-center"
               >
                 {isHe ? '← שלב קודם' : 'Previous'}
               </button>
@@ -481,7 +521,7 @@ export const VisualCoachLessonView: React.FC<VisualCoachLessonViewProps> = ({
                 type="button"
                 disabled={activeStepIndex === totalSteps - 1}
                 onClick={() => setActiveStepIndex(activeStepIndex + 1)}
-                className="px-3 py-1.5 rounded-lg bg-[#18202E] text-gray-300 hover:text-white text-xs font-bold disabled:opacity-30 transition-colors"
+                className="flex-1 sm:flex-initial px-3 py-1.5 rounded-lg bg-[#18202E] text-gray-300 hover:text-white text-xs font-bold disabled:opacity-30 transition-colors cursor-pointer text-center"
               >
                 {isHe ? 'שלב הבא →' : 'Next'}
               </button>
@@ -489,10 +529,10 @@ export const VisualCoachLessonView: React.FC<VisualCoachLessonViewProps> = ({
           </div>
         </div>
 
-        {/* RIGHT: PERSISTENT INSTRUCTION SIDEBAR (30%) */}
-        <aside className="w-[380px] flex flex-col bg-[#0C1017] rounded-xl border border-[#1E2636] overflow-hidden shadow-2xl shrink-0">
+        {/* RIGHT: PERSISTENT INSTRUCTION SIDEBAR */}
+        <aside className="w-full lg:w-[380px] xl:w-[400px] flex flex-col bg-[#0C1017] rounded-xl border border-[#1E2636] overflow-hidden shadow-2xl shrink-0 min-h-[380px] lg:min-h-0">
           {/* Instruction Panel Header */}
-          <div className="p-4 bg-[#111622] border-b border-[#222C3E] shrink-0">
+          <div className="p-3.5 sm:p-4 bg-[#111622] border-b border-[#222C3E] shrink-0">
             <div className="flex items-center justify-between mb-1">
               <span className="text-[11px] font-bold text-[#90FF00] tracking-wider uppercase">
                 {isHe ? `שלב ${activeStepIndex + 1} // ${totalSteps}` : `STEP ${activeStepIndex + 1} // ${totalSteps}`}
@@ -501,29 +541,29 @@ export const VisualCoachLessonView: React.FC<VisualCoachLessonViewProps> = ({
                 {currentLesson.difficulty}
               </span>
             </div>
-            <h3 className="text-base font-extrabold text-white leading-tight">
+            <h3 className="text-sm sm:text-base font-extrabold text-white leading-tight">
               {currentStep.title[language] || currentStep.title.he}
             </h3>
           </div>
 
           {/* Instruction Content (Scrollable) */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="flex-1 overflow-y-auto p-3.5 sm:p-4 space-y-3.5 sm:space-y-4">
             {/* 1. Main Action Instruction */}
-            <div className="p-3.5 bg-[#131926] rounded-xl border border-[#253248]">
+            <div className="p-3 sm:p-3.5 bg-[#131926] rounded-xl border border-[#253248]">
               <div className="text-xs text-gray-400 font-bold mb-1 flex items-center gap-1.5">
                 <Compass size={14} className="text-[#00E5FF]" />
                 <span>{isHe ? 'מה עושים עכשיו:' : 'Instruction:'}</span>
               </div>
-              <p className="text-sm text-gray-100 font-medium leading-relaxed">
+              <p className="text-xs sm:text-sm text-gray-100 font-medium leading-relaxed">
                 {currentStep.instruction[language] || currentStep.instruction.he}
               </p>
 
               {/* Exact Parameter Setting */}
-              <div className="mt-3 p-2.5 bg-[#090C12] rounded-lg border border-[#00E5FF]/30 flex items-center justify-between">
-                <span className="text-xs text-gray-400 font-bold">
+              <div className="mt-3 p-3 bg-[#090C12] rounded-lg border border-[#00E5FF]/30 flex flex-col gap-1.5">
+                <span className="text-[11px] font-bold text-gray-400">
                   {isHe ? 'ערך מומלץ:' : 'Recommended:'}
                 </span>
-                <span className="text-xs font-mono font-bold text-[#00E5FF]">
+                <span className="text-xs font-mono font-bold text-[#00E5FF] leading-relaxed break-words">
                   {currentStep.exactAction[language] || currentStep.exactAction.he}
                 </span>
               </div>

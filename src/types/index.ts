@@ -3,6 +3,7 @@ import { VisualLesson, UserVisualLessonProgress, UserUploadedImage } from './vis
 export type ViewType =
   | 'dashboard'
   | 'visualcoach'
+  | 'simulator'
   | 'producer'
   | 'lessons'
   | 'coursemap'

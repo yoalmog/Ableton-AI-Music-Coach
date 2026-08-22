@@ -66,7 +66,7 @@ export const AIStatusPopover: React.FC<AIStatusPopoverProps> = ({
       {/* Popover Card */}
       <div
         dir={isRTL ? 'rtl' : 'ltr'}
-        className="absolute top-12 ltr:right-4 rtl:left-4 z-50 w-80 bg-[#141414] border border-[#333] rounded-xl shadow-2xl p-4 text-xs font-mono text-[#E0E0E0] animate-in fade-in zoom-in-95 duration-150"
+        className="absolute top-12 ltr:right-2 sm:ltr:right-4 rtl:left-2 sm:rtl:left-4 z-50 w-80 max-w-[calc(100vw-24px)] bg-[#141414] border border-[#333] rounded-xl shadow-2xl p-3.5 sm:p-4 text-xs font-mono text-[#E0E0E0] animate-in fade-in zoom-in-95 duration-150"
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[#262626] pb-2 mb-3">

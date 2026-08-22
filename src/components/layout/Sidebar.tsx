@@ -72,6 +72,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
         categoryKey: 'nav.area.learn',
         items: [
           {
+            id: 'simulator' as ViewType,
+            labelKey: 'nav.simulator',
+            descKey: 'sidebar.simulator',
+            icon: <Monitor className="w-4 h-4 text-[#FFE853]" />,
+          },
+          {
             id: 'visualcoach' as ViewType,
             labelKey: 'nav.visualcoach',
             descKey: 'sidebar.visualcoach',

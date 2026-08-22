@@ -111,20 +111,23 @@ async function startServer() {
     preferredModel: string,
     contents: any,
     baseConfig: any = {},
-    timeoutMs = 35000
+    timeoutMs = 30000
   ): Promise<{ response: any; modelUsed: string; fallbackUsed: boolean }> {
     const targetPreferred = sanitizeModel(preferredModel);
 
     // Candidates in order of preference and speed
-    const candidates = Array.from(
-      new Set([
-        targetPreferred,
-        "gemini-3.1-flash-lite",
-        "gemini-flash-latest",
-        "gemini-3.7-flash",
-        "gemini-3.1-pro-preview",
-      ])
-    );
+    const candidateList = [
+      targetPreferred,
+      "gemini-3.1-flash-lite",
+      "gemini-flash-latest",
+      "gemini-3.7-flash",
+    ];
+
+    if (targetPreferred.includes("pro")) {
+      candidateList.unshift("gemini-3.1-pro-preview");
+    }
+
+    const candidates = Array.from(new Set(candidateList));
 
     let lastError: any = null;
 
@@ -136,6 +139,10 @@ async function startServer() {
         if (model.includes("3.7-flash") || model.includes("3.1-pro")) {
           if (!modelConfig.thinkingConfig) {
             modelConfig.thinkingConfig = { thinkingLevel: ThinkingLevel.LOW };
+          }
+        } else if (model.includes("flash-lite")) {
+          if (!modelConfig.thinkingConfig) {
+            modelConfig.thinkingConfig = { thinkingLevel: ThinkingLevel.MINIMAL };
           }
         }
 
@@ -168,7 +175,11 @@ async function startServer() {
           throw err;
         }
 
-        console.warn(`Model ${model} note (${errStr}). Trying next candidate if available...`);
+        if (errStr.includes("503") || errStr.includes("UNAVAILABLE") || errStr.includes("high demand")) {
+          console.warn(`Model ${model} high demand (503). Switching seamlessly to next candidate...`);
+        } else {
+          console.warn(`Model ${model} note (${errStr}). Trying next candidate if available...`);
+        }
       }
     }
 

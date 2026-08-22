@@ -289,12 +289,13 @@ export class MidiService {
   }
 
   /**
-   * Generate complete musical patterns (Bassline, Lead, Drums, Arp, Acid 303)
-   * dynamically tailored by Key, Scale, BPM, Energy, and Genre with rich variations.
+   * Generate complete musical patterns (Bassline, Lead, Drums, Arp, Acid 303, Melodic Stabs)
+   * dynamically tailored by Key, Scale, BPM, Energy, Genre, and Subgenre with rich variations.
    */
   public generateMusicalPattern(params: {
-    type: 'bassline' | 'lead' | 'drum' | 'arp' | 'acid' | string;
+    type: 'bassline' | 'lead' | 'drum' | 'arp' | 'acid' | 'stab' | string;
     genre: string;
+    subgenre?: string;
     bpm: number;
     key: KeyType;
     scale: ScaleType;
@@ -302,9 +303,11 @@ export class MidiService {
     seed?: number;
   }): { notes: MidiNote[]; name: string; timeSignature: string; abletonTips?: string } {
     const { type, genre, bpm, key, scale, energy } = params;
-    const seed = params.seed ?? Math.floor(Math.random() * 100000);
+    const subgenre = params.subgenre || '';
+    const seed = params.seed ?? Math.floor(Math.random() * 1000000);
+    
     const random = (offset: number) => {
-      const x = Math.sin(seed + offset) * 10000;
+      const x = Math.sin(seed + offset * 1.6180339887) * 10000;
       return x - Math.floor(x);
     };
 
@@ -318,92 +321,211 @@ export class MidiService {
 
     const notes: MidiNote[] = [];
     const totalBars = energy >= 6 ? 4 : 2;
-    const totalBeats = totalBars * 4;
     let patternName = `${genre} ${type.charAt(0).toUpperCase() + type.slice(1)} (${key} ${scale})`;
+    let abletonTip = '';
+
+    const normalizedGenre = (genre || '').toLowerCase();
+    const normalizedSubgenre = (subgenre || '').toLowerCase();
 
     if (type === 'bassline') {
-      const bassStyles = ['Rolling Psy (K-B-B-B)', 'Goa Gallop', 'Triplet Drive', 'Psy-Tech Offbeat'];
-      const styleIdx = Math.floor(random(1) * bassStyles.length);
-      const chosenStyle = bassStyles[styleIdx];
-      patternName = `${genre} ${chosenStyle} (${key})`;
-
-      for (let bar = 0; bar < totalBars; bar++) {
-        for (let step = 0; step < 16; step++) {
-          const globalBeat = bar * 4 + step * 0.25;
-          const isKick = step % 4 === 0;
-
-          if (chosenStyle.startsWith('Rolling')) {
-            if (!isKick) {
-              // Higher energy adds pitch variation on turnaround steps
-              let pitchMidi = rootMidiLow;
-              if (energy >= 7 && (bar === 1 || bar === 3) && step >= 13) {
-                // Turnaround octave hop or scale degree 2
-                const hopDegree = scaleMidiLow[1] || rootMidiMid;
-                pitchMidi = random(bar * 16 + step) > 0.4 ? hopDegree : rootMidiMid;
+      // 1. PSYTRANCE BASSLINES
+      if (normalizedGenre.includes('psy') || normalizedSubgenre.includes('rolling') || normalizedSubgenre.includes('full-on') || normalizedSubgenre.includes('progressive')) {
+        const isProgressive = normalizedSubgenre.includes('prog') || (bpm <= 139);
+        const isOffbeat = normalizedSubgenre.includes('offbeat');
+        const isTriplet = normalizedSubgenre.includes('triplet');
+        
+        if (isOffbeat) {
+          patternName = `Psy-Tech Offbeat Bass (${key}1)`;
+          abletonTip = `In Ableton Live 12: Load Operator on Bass track. OSC A = Saw, 24dB Lowpass at 650Hz. Set Release to 150ms. Apply Utility with Bass Mono at 120Hz.`;
+          for (let bar = 0; bar < totalBars; bar++) {
+            for (let step = 0; step < 16; step++) {
+              const beat = bar * 4 + step * 0.25;
+              if (step % 4 === 2) {
+                // Main 8th offbeat
+                notes.push({
+                  pitch: `${key}1`,
+                  time: Number(beat.toFixed(3)),
+                  duration: 0.22,
+                  velocity: 112,
+                });
+              } else if (energy >= 7 && (step % 4 === 3) && (bar === 1 || bar === 3)) {
+                // Ghost pickup note on high energy
+                notes.push({
+                  pitch: midiNumberToNoteString(scaleMidiLow[1] || rootMidiLow),
+                  time: Number(beat.toFixed(3)),
+                  duration: 0.14,
+                  velocity: 82,
+                });
               }
-              const vel = step % 4 === 1 ? 92 : step % 4 === 2 ? 104 : 110;
-              notes.push({
-                pitch: midiNumberToNoteString(pitchMidi),
-                time: Number(globalBeat.toFixed(3)),
-                duration: 0.21,
-                velocity: Math.min(127, vel + Math.floor(energy * 1.5)),
-              });
             }
-          } else if (chosenStyle === 'Goa Gallop') {
-            // Gallop on 16th 1 & 2
-            if (step % 4 === 1 || step % 4 === 2) {
-              const pitchMidi = (energy >= 8 && step === 14) ? rootMidiMid : rootMidiLow;
-              notes.push({
-                pitch: midiNumberToNoteString(pitchMidi),
-                time: Number(globalBeat.toFixed(3)),
-                duration: 0.18,
-                velocity: step % 4 === 2 ? 112 : 96,
-              });
-            }
-          } else if (chosenStyle === 'Triplet Drive') {
-            // Triplet syncopated feel
-            if (step % 4 !== 0) {
-              const isAccent = step === 7 || step === 15;
-              notes.push({
-                pitch: isAccent && energy >= 6 ? midiNumberToNoteString(scaleMidiLow[2] || rootMidiLow) : `${key}1`,
-                time: Number(globalBeat.toFixed(3)),
-                duration: 0.19,
-                velocity: isAccent ? 115 : 95,
-              });
-            }
-          } else {
-            // Offbeat Bass
-            if (step % 4 === 2) {
+          }
+        } else if (isTriplet) {
+          patternName = `Psy Triplet Bass (${key}1)`;
+          abletonTip = `Ableton Tip: Set MIDI Grid to 1/16T. Sidechain Auto Filter or Ducking from Kick track. Use Live 12 Roar for mid-range saturation above 200Hz.`;
+          for (let bar = 0; bar < totalBars; bar++) {
+            for (let beat = 0; beat < 4; beat++) {
+              // 3 triplet notes in the beat, leaving beat start for kick
+              const beatStart = bar * 4 + beat;
               notes.push({
                 pitch: `${key}1`,
-                time: Number(globalBeat.toFixed(3)),
-                duration: 0.24,
-                velocity: 110,
+                time: Number((beatStart + 0.333).toFixed(3)),
+                duration: 0.28,
+                velocity: 96,
+              });
+              notes.push({
+                pitch: `${key}1`,
+                time: Number((beatStart + 0.666).toFixed(3)),
+                duration: 0.28,
+                velocity: energy >= 7 && beat === 3 ? 116 : 104,
+              });
+            }
+          }
+        } else {
+          // Standard Rolling K-B-B-B or Full-On Bass
+          patternName = `${genre} Rolling Bass (${key}1)`;
+          abletonTip = `In Ableton Live 12: Load Operator. Osc A: Saw wave, Coarse 0.5/1. Filter: 24dB LP with cutoff around 600-750Hz and Decay 160ms. Add EQ Eight high-pass at 30Hz (48dB slope).`;
+          for (let bar = 0; bar < totalBars; bar++) {
+            for (let step = 0; step < 16; step++) {
+              const isKick = step % 4 === 0;
+              const beat = bar * 4 + step * 0.25;
+
+              if (!isKick) {
+                let pitchMidi = rootMidiLow;
+                // High energy turnaround variations on bars 2 & 4
+                if (energy >= 6 && (bar === 1 || bar === 3) && step >= 13) {
+                  const r = random(bar * 16 + step);
+                  if (r > 0.6) {
+                    pitchMidi = rootMidiMid; // Octave turnaround
+                  } else if (r > 0.3 && scaleMidiLow.length > 1) {
+                    pitchMidi = scaleMidiLow[1]; // 2nd scale degree pickup
+                  }
+                }
+
+                // Dynamic velocity contour: step 1 (softer) -> step 2 (medium) -> step 3 (driving punch)
+                const baseVel = step % 4 === 1 ? 92 : step % 4 === 2 ? 104 : 114;
+                const dynamicVel = Math.min(127, baseVel + Math.floor(energy * 1.3));
+
+                notes.push({
+                  pitch: midiNumberToNoteString(pitchMidi),
+                  time: Number(beat.toFixed(3)),
+                  duration: 0.21,
+                  velocity: dynamicVel,
+                });
+              }
+            }
+          }
+        }
+      }
+      // 2. GOA ACID BASSLINES
+      else if (normalizedGenre.includes('goa') || normalizedSubgenre.includes('acid') || normalizedSubgenre.includes('303')) {
+        patternName = `Goa Acid 303 Bassline (${key})`;
+        abletonTip = `In Ableton Live 12: Use Drift or Operator with Saw wave. Insert Auto Filter with high resonance (Q=6) modulated by Envelope Decay. Insert Saturator with Warm Tube curve.`;
+        const acidPool = [rootMidiLow, rootMidiMid, scaleMidiLow[1] || rootMidiLow + 1, scaleMidiLow[2] || rootMidiLow + 3, scaleMidiLow[4] || rootMidiLow + 7];
+
+        for (let bar = 0; bar < totalBars; bar++) {
+          for (let step = 0; step < 16; step++) {
+            const beat = bar * 4 + step * 0.25;
+            const r = random(seed + bar * 16 + step);
+
+            // Goa Acid: 16th driving acid notes with selective accents and octave jumps
+            if (step % 4 !== 0 || r > 0.4) {
+              const noteIdx = Math.floor(random(seed * 3 + bar * 8 + step) * acidPool.length);
+              const pitchMidi = acidPool[noteIdx];
+              const isAccent = (step % 4 === 2) || (r > 0.7 && energy >= 6);
+              const isSlide = r > 0.75 && energy >= 7;
+
+              notes.push({
+                pitch: midiNumberToNoteString(pitchMidi),
+                time: Number(beat.toFixed(3)),
+                duration: isSlide ? 0.38 : 0.18,
+                velocity: isAccent ? 127 : 94,
+              });
+            }
+          }
+        }
+      }
+      // 3. TECHNO BASSLINES (Rumble / Offbeat / Driving / Minimal)
+      else if (normalizedGenre.includes('techno') || normalizedSubgenre.includes('rumble') || normalizedSubgenre.includes('minimal')) {
+        const isRumble = normalizedSubgenre.includes('rumble') || (energy <= 5);
+        if (isRumble) {
+          patternName = `Techno Sub Rumble Bass (${key}1)`;
+          abletonTip = `In Ableton Live 12: Reverb + Delay on Kick return channel -> 100% Wet -> Overdrive -> Auto Filter (LP 140Hz) -> Sidechain Compressor keyed from Dry Kick.`;
+          for (let bar = 0; bar < totalBars; bar++) {
+            for (let step = 0; step < 16; step++) {
+              const isKick = step % 4 === 0;
+              const beat = bar * 4 + step * 0.25;
+
+              if (!isKick) {
+                // Sub rumble ghost notes on 16ths
+                const vel = step % 4 === 2 ? 108 : 88;
+                notes.push({
+                  pitch: `${key}1`,
+                  time: Number(beat.toFixed(3)),
+                  duration: 0.23,
+                  velocity: vel,
+                });
+              }
+            }
+          }
+        } else {
+          patternName = `Techno Driving 16th Bass (${key}1)`;
+          abletonTip = `In Ableton Live 12: Load Wavetable with Modern Sub wavetable. Add Roar in Mid/Side mode for wide gritty mids while keeping sub centered.`;
+          for (let bar = 0; bar < totalBars; bar++) {
+            for (let step = 0; step < 16; step++) {
+              const beat = bar * 4 + step * 0.25;
+              const isAccent = step === 2 || step === 6 || step === 10 || step === 14;
+              notes.push({
+                pitch: `${key}1`,
+                time: Number(beat.toFixed(3)),
+                duration: 0.20,
+                velocity: isAccent ? 116 : 90,
+              });
+            }
+          }
+        }
+      }
+      // 4. ELECTRONIC / MELODIC SYNTH BASS
+      else {
+        patternName = `${genre} Groove Synth Bass (${key} ${scale})`;
+        abletonTip = `In Ableton Live 12: Load Drift synth. Set Mode to Poly/Mono, Glide to 40ms. Cut low mids around 350Hz on EQ Eight for punchy mix clarity.`;
+        const groovePool = [rootMidiLow, rootMidiMid, scaleMidiLow[2] || rootMidiLow + 3, scaleMidiLow[4] || rootMidiLow + 7];
+
+        for (let bar = 0; bar < totalBars; bar++) {
+          for (let step = 0; step < 16; step += 2) {
+            const beat = bar * 4 + step * 0.25;
+            const r = random(seed + bar * 8 + step);
+            if (r > 0.25) {
+              const noteIdx = Math.floor(random(seed * 2 + step) * groovePool.length);
+              const pitchMidi = groovePool[noteIdx];
+              notes.push({
+                pitch: midiNumberToNoteString(pitchMidi),
+                time: Number(beat.toFixed(3)),
+                duration: 0.35,
+                velocity: Math.min(127, 95 + Math.floor(energy * 3)),
               });
             }
           }
         }
       }
     } else if (type === 'lead') {
-      patternName = `${genre} Psy Hook (${key} ${scale})`;
-      const notePool = scaleMidiHigh.length > 0 ? scaleMidiHigh : [rootMidiHigh, rootMidiHigh + 3, rootMidiHigh + 7];
-      
-      // Generate structured melodic motifs across bars
+      patternName = `${genre} Melodic Lead (${key} ${scale})`;
+      abletonTip = `In Ableton Live 12: Use Wavetable or Operator (FM synthesis with Sine algorithm). Add Hybrid Reverb with Shimmer algorithm and Echo with dotted 8th note sync.`;
+      const notePool = scaleMidiHigh.length > 0 ? scaleMidiHigh : [rootMidiHigh, rootMidiHigh + 3, rootMidiHigh + 7, rootMidiHigh + 10];
+
       for (let bar = 0; bar < totalBars; bar++) {
-        const isVariationBar = bar % 2 === 1;
-        const stepsInBar = 16;
+        const stepResolution = energy >= 7 ? 16 : 8;
+        const stepSize = 16 / stepResolution;
 
-        for (let s = 0; s < stepsInBar; s += 2) {
-          const randVal = random(seed + bar * 32 + s);
-          // Higher energy = higher note probability
-          const threshold = energy >= 8 ? 0.35 : energy >= 5 ? 0.5 : 0.65;
+        for (let s = 0; s < 16; s += stepSize) {
+          const beat = bar * 4 + s * 0.25;
+          const r = random(seed + bar * 32 + s);
+          const threshold = energy >= 8 ? 0.3 : energy >= 5 ? 0.45 : 0.6;
 
-          if (randVal > threshold) {
-            const poolIdx = Math.floor(random(seed * 2 + bar * 16 + s) * notePool.length);
+          if (r > threshold) {
+            const poolIdx = Math.floor(random(seed * 3 + bar * 16 + s) * notePool.length);
             const pitchMidi = notePool[poolIdx];
-            const beat = bar * 4 + s * 0.25;
-            const duration = random(bar + s) > 0.6 ? 0.45 : 0.22;
-            const velocity = Math.min(127, Math.floor(85 + random(s) * 35 + energy * 2));
+            const duration = random(bar + s) > 0.5 ? 0.45 : 0.22;
+            const velocity = Math.min(127, Math.floor(88 + random(s) * 32 + energy * 2));
 
             notes.push({
               pitch: midiNumberToNoteString(pitchMidi),
@@ -416,43 +538,44 @@ export class MidiService {
       }
     } else if (type === 'drum') {
       patternName = `${genre} Drum Rack Groove`;
+      abletonTip = `In Ableton Live 12: Load Drum Bus on Drum group. Drive +15%, Crunch 20%, Boom frequency tuned to ${key}1 (approx ${Math.round(440 * Math.pow(2, (rootMidiLow - 69) / 12))}Hz).`;
       for (let bar = 0; bar < totalBars; bar++) {
         // Kick on 0, 1, 2, 3
         for (let beat = 0; beat < 4; beat++) {
           notes.push({
-            pitch: 'C1', // Standard Kick
+            pitch: 'C1', // Kick
             time: bar * 4 + beat,
             duration: 0.2,
-            velocity: 120,
+            velocity: 124,
           });
 
           // Snare / Clap on beat 1 & 3 (2 & 4 in 1-based index)
           if (beat === 1 || beat === 3) {
             notes.push({
-              pitch: 'D1', // Snare
+              pitch: 'D1', // Snare / Clap
               time: bar * 4 + beat,
               duration: 0.2,
-              velocity: 110,
+              velocity: 114,
             });
           }
 
-          // Open Hi-Hat on offbeat (0.5, 1.5, 2.5, 3.5)
+          // Open Hi-Hat on offbeats (0.5, 1.5, 2.5, 3.5)
           notes.push({
             pitch: 'A#1', // Open Hat
             time: bar * 4 + beat + 0.5,
             duration: 0.18,
-            velocity: 100,
+            velocity: 102,
           });
         }
 
-        // Closed Hi-Hats on 16th grid
+        // Closed 16th Hi-Hats
         for (let s = 0; s < 16; s++) {
           if (s % 2 === 1 && s % 4 !== 2) {
             notes.push({
               pitch: 'F#1', // Closed Hat
               time: bar * 4 + s * 0.25,
               duration: 0.12,
-              velocity: s % 4 === 1 ? 85 : 95,
+              velocity: s % 4 === 1 ? 86 : 98,
             });
           }
         }
@@ -460,33 +583,32 @@ export class MidiService {
         // Crash on Bar 1
         if (bar === 0) {
           notes.push({
-            pitch: 'C#2', // Crash Cymbal
+            pitch: 'C#2', // Crash
             time: 0,
             duration: 0.8,
-            velocity: 115,
+            velocity: 118,
           });
         }
       }
     } else if (type === 'arp') {
-      patternName = `${genre} Trance Matrix Arp (${key} ${scale})`;
-      const arpNotes = scaleMidiMid;
+      patternName = `${genre} Matrix Arpeggio (${key} ${scale})`;
+      abletonTip = `In Ableton Live 12: Insert MIDI Effect 'Arpeggiator' or play this pattern directly into Drift. Use Auto Pan with 16th sync for hypnotic binaural motion.`;
+      const arpNotes = scaleMidiMid.length > 0 ? scaleMidiMid : [rootMidiMid, rootMidiMid + 3, rootMidiMid + 7, rootMidiMid + 10];
       let noteIndex = 0;
-      const stepDuration = 0.25; // 16th notes
 
       for (let bar = 0; bar < totalBars; bar++) {
         for (let s = 0; s < 16; s++) {
-          const beat = bar * 4 + s * stepDuration;
+          const beat = bar * 4 + s * 0.25;
           const noteMidi = arpNotes[noteIndex % arpNotes.length];
           const isAccent = s % 4 === 0 || s === 14;
-          
+
           notes.push({
             pitch: midiNumberToNoteString(noteMidi),
             time: Number(beat.toFixed(3)),
-            duration: 0.19,
-            velocity: isAccent ? 115 : 90 + Math.floor((s % 4) * 5),
+            duration: 0.20,
+            velocity: isAccent ? 120 : 92 + ((s % 4) * 4),
           });
 
-          // Arp direction motion
           if (energy >= 7) {
             noteIndex = (noteIndex + 2) % arpNotes.length;
           } else {
@@ -496,42 +618,67 @@ export class MidiService {
       }
     } else if (type === 'acid') {
       patternName = `${genre} TB-303 Acid Sequence (${key})`;
-      const acidPool = [rootMidiLow, rootMidiMid, scaleMidiLow[1] || rootMidiLow + 1, scaleMidiLow[2] || rootMidiLow + 3, scaleMidiLow[4] || rootMidiLow + 7];
+      abletonTip = `In Ableton Live 12: Add Saturator with 'Soft Sine' curve and Roar with Multiband distortion. Automate Auto Filter Cutoff & Resonance during track build-ups.`;
+      const acidPool = [rootMidiLow, rootMidiMid, scaleMidiLow[1] || rootMidiLow + 1, scaleMidiLow[2] || rootMidiLow + 3, scaleMidiLow[4] || rootMidiLow + 7, rootMidiHigh];
 
       for (let bar = 0; bar < totalBars; bar++) {
         for (let s = 0; s < 16; s++) {
           const beat = bar * 4 + s * 0.25;
           const r = random(seed + bar * 16 + s);
 
-          // Rest probability
-          if (r > 0.28) {
+          if (r > 0.22) {
             const noteIdx = Math.floor(random(seed * 3 + bar * 8 + s) * acidPool.length);
             const pitchMidi = acidPool[noteIdx];
             const isSlide = random(bar * 10 + s) > 0.65;
-            const isAccent = random(bar * 5 + s) > 0.6;
-            const duration = isSlide ? 0.38 : 0.18;
-            const velocity = isAccent ? 127 : 88;
+            const isAccent = random(bar * 5 + s) > 0.55;
 
             notes.push({
               pitch: midiNumberToNoteString(pitchMidi),
               time: Number(beat.toFixed(3)),
-              duration: Number(duration.toFixed(3)),
-              velocity,
+              duration: isSlide ? 0.40 : 0.18,
+              velocity: isAccent ? 127 : 90,
             });
           }
         }
       }
+    } else if (type === 'stab') {
+      patternName = `${genre} Melodic Stabs (${key} ${scale})`;
+      abletonTip = `In Ableton Live 12: Load Meld synth with Subtractive engine. Insert Echo with ping-pong feedback (35%) and EQ Eight band-pass at 1.2kHz.`;
+      const chordNotes = [rootMidiMid, scaleMidiMid[2] || rootMidiMid + 3, scaleMidiMid[4] || rootMidiMid + 7];
+
+      for (let bar = 0; bar < totalBars; bar++) {
+        // Syncopated stab hits (e.g. 1.5, 2.75, 3.5)
+        const hitSteps = [3, 7, 11, 14];
+        hitSteps.forEach((s) => {
+          const beat = bar * 4 + s * 0.25;
+          chordNotes.forEach((pitchMidi) => {
+            notes.push({
+              pitch: midiNumberToNoteString(pitchMidi),
+              time: Number(beat.toFixed(3)),
+              duration: 0.18,
+              velocity: Math.min(127, 105 + Math.floor(energy * 2)),
+            });
+          });
+        });
+      }
     }
 
-    // Sort notes by time then pitch
-    notes.sort((a, b) => a.time - b.time || parseNoteToMidiNumber(a.pitch) - parseNoteToMidiNumber(b.pitch));
+    // Mathematical sanitization & sorting
+    const validatedNotes = notes.filter((n) => {
+      const midiNum = parseNoteToMidiNumber(n.pitch);
+      return !isNaN(midiNum) && midiNum >= 0 && midiNum <= 127 && !isNaN(n.time) && n.time >= 0 && !isNaN(n.duration) && n.duration > 0 && !isNaN(n.velocity) && n.velocity >= 1 && n.velocity <= 127;
+    });
+
+    validatedNotes.sort((a, b) => a.time - b.time || parseNoteToMidiNumber(a.pitch) - parseNoteToMidiNumber(b.pitch));
 
     return {
-      notes,
+      notes: validatedNotes,
       name: patternName,
       timeSignature: '4/4',
+      abletonTips: abletonTip,
     };
   }
 }
 
 export const midiService = new MidiService();
+
