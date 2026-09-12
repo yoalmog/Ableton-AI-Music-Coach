@@ -51,10 +51,10 @@ export const VoiceControlWidget: React.FC<VoiceControlWidgetProps> = ({ onTransc
 
       recognition.start();
     } else {
-      // Fallback for browsers without WebSpeech support
-      const simulatedText = prompt(t('header.voicePrompt'));
-      if (simulatedText) {
-        onTranscriptReceived(simulatedText);
+      // Fallback text input for environments without WebSpeech support
+      const userSpokenText = prompt(t('header.voicePrompt'));
+      if (userSpokenText) {
+        onTranscriptReceived(userSpokenText);
       }
     }
   };

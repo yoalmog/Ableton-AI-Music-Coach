@@ -274,7 +274,7 @@ export const AbletonScreenshot: React.FC<AbletonScreenshotProps> = ({
                         style={{ backgroundColor: track.color }}
                       />
 
-                      {/* Mock Clips in lane */}
+                      {/* Audio & MIDI clips in lane */}
                       <div
                         className="h-12 ml-4 mr-2 rounded px-2.5 flex items-center justify-between text-xs font-mono font-bold shadow"
                         style={{

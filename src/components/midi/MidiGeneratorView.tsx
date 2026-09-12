@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { AAMCProject, GenreType, KeyType, ScaleType, MidiPattern, MidiNote } from '../../types';
 import { midiService, parseNoteToMidiNumber, midiNumberToNoteString } from '../../services/midiService';
-import { audioService } from '../../services/audioService';
+import { audioService, SOUND_PRESETS, SoundPresetType } from '../../services/audioService';
 import { useLanguage } from '../../context/LanguageContext';
 import { debugLog } from '../../utils/debug';
 import { ExportConfirmationModal } from '../common/ExportConfirmationModal';
@@ -41,6 +41,7 @@ export const MidiGeneratorView: React.FC<MidiGeneratorViewProps> = ({
   const [scale, setScale] = React.useState<ScaleType>(project.scale || 'Minor');
   const [bpm, setBpm] = React.useState<number>(project.bpm || 144);
   const [energy, setEnergy] = React.useState<number>(8);
+  const [soundPreset, setSoundPreset] = React.useState<SoundPresetType>('auto');
 
   // Status & Execution states
   const [isGenerating, setIsGenerating] = React.useState<boolean>(false);
@@ -126,6 +127,28 @@ export const MidiGeneratorView: React.FC<MidiGeneratorViewProps> = ({
   const handleZoomOut = () => setZoomLevel((prev) => Math.max(prev - 0.25, 0.75));
   const handleResetZoom = () => setZoomLevel(1.0);
 
+  // Compute effective sound preset based on selected preset or current pattern type/subgenre
+  const getEffectivePreset = React.useCallback(
+    (preset: SoundPresetType, type: string, sub: string): SoundPresetType => {
+      if (preset !== 'auto') return preset;
+      if (type === 'drum') return 'drum_kit';
+      if (type === 'arp') return 'crystal_pluck_arp';
+      if (type === 'stab') return 'ambient_pad_stab';
+      if (type === 'acid') return 'acid_303';
+      if (type === 'lead') {
+        const normSub = sub.toLowerCase();
+        if (normSub.includes('squelch') || normSub.includes('goa')) return 'goa_squelch_lead';
+        return 'supersaw_lead';
+      }
+      // bassline
+      const normSub = sub.toLowerCase();
+      if (normSub.includes('acid') || normSub.includes('303')) return 'acid_303';
+      if (normSub.includes('rumble')) return 'deep_sub_reese';
+      return 'psy_rolling_bass';
+    },
+    []
+  );
+
   /**
    * CORE GENERATION ENGINE: Real end-to-end MIDI generation
    */
@@ -135,8 +158,8 @@ export const MidiGeneratorView: React.FC<MidiGeneratorViewProps> = ({
     setErrorMessage(null);
 
     try {
-      // 1. Generate new deterministic random seed
-      const seed = forcedSeed ?? (Date.now() + Math.floor(Math.random() * 1000000));
+      // 1. Generate new deterministic random seed with high entropy
+      const seed = forcedSeed ?? (Date.now() ^ Math.floor(Math.random() * 0x7fffffff));
 
       // 2. Synthesize new musical pattern respecting all UI inputs
       const generated = midiService.generateMusicalPattern({
@@ -214,7 +237,8 @@ export const MidiGeneratorView: React.FC<MidiGeneratorViewProps> = ({
       // 7. If currently playing, seamlessly transition audio playback to new pattern
       if (isPlaying) {
         audioService.stopAll();
-        audioService.playMidiPattern(newPattern.notes, newPattern.bpm);
+        const effPreset = getEffectivePreset(soundPreset, newPattern.type, subgenre);
+        audioService.playMidiPattern(newPattern.notes, newPattern.bpm, effPreset);
       }
 
       // 8. Provide immediate visual feedback
@@ -244,7 +268,8 @@ export const MidiGeneratorView: React.FC<MidiGeneratorViewProps> = ({
         setHistoryIndex(prevIdx);
         if (isPlaying) {
           audioService.stopAll();
-          audioService.playMidiPattern(prevPattern.notes, prevPattern.bpm);
+          const effPreset = getEffectivePreset(soundPreset, prevPattern.type, subgenre);
+          audioService.playMidiPattern(prevPattern.notes, prevPattern.bpm, effPreset);
         }
       }
     }
@@ -262,11 +287,23 @@ export const MidiGeneratorView: React.FC<MidiGeneratorViewProps> = ({
         setHistoryIndex(nextIdx);
         if (isPlaying) {
           audioService.stopAll();
-          audioService.playMidiPattern(nextPattern.notes, nextPattern.bpm);
+          const effPreset = getEffectivePreset(soundPreset, nextPattern.type, subgenre);
+          audioService.playMidiPattern(nextPattern.notes, nextPattern.bpm, effPreset);
         }
       }
     }
   };
+
+  /**
+   * Seamlessly switch timbre live when preset changes during playback
+   */
+  React.useEffect(() => {
+    if (isPlaying && activePattern.notes && activePattern.notes.length > 0) {
+      audioService.stopAll();
+      const effPreset = getEffectivePreset(soundPreset, activePattern.type, subgenre);
+      audioService.playMidiPattern(activePattern.notes, activePattern.bpm, effPreset);
+    }
+  }, [soundPreset]);
 
   /**
    * Audio Playhead Loop & Playback
@@ -283,7 +320,8 @@ export const MidiGeneratorView: React.FC<MidiGeneratorViewProps> = ({
     if (!activePattern.notes || activePattern.notes.length === 0) return;
 
     audioService.stopAll();
-    audioService.playMidiPattern(activePattern.notes, activePattern.bpm);
+    const effPreset = getEffectivePreset(soundPreset, activePattern.type, subgenre);
+    audioService.playMidiPattern(activePattern.notes, activePattern.bpm, effPreset);
     setIsPlaying(true);
 
     const maxNoteTime = activePattern.notes.reduce((m, n) => Math.max(m, n.time + n.duration), 4);
@@ -319,18 +357,8 @@ export const MidiGeneratorView: React.FC<MidiGeneratorViewProps> = ({
    * Single Note Preview on Piano Roll Click
    */
   const handleNoteClick = (note: MidiNote) => {
-    const midiNum = parseNoteToMidiNumber(note.pitch);
-    if (midiNum >= 48) {
-      audioService.playLeadNote(note.pitch, 0, 0.25, note.velocity >= 120);
-    } else if (note.pitch.startsWith('C1')) {
-      audioService.playKick(0);
-    } else if (note.pitch.startsWith('D1')) {
-      audioService.playSnare(0);
-    } else if (note.pitch.startsWith('A#1') || note.pitch.startsWith('F#1')) {
-      audioService.playHiHat(0, note.pitch.startsWith('A#1'));
-    } else {
-      audioService.playPsyBassNote(note.pitch, 0, 0.22, 900);
-    }
+    const effPreset = getEffectivePreset(soundPreset, activePattern.type, subgenre);
+    audioService.playPresetNote(note.pitch, 0, 0.25, note.velocity, effPreset);
   };
 
   /**
@@ -402,6 +430,25 @@ export const MidiGeneratorView: React.FC<MidiGeneratorViewProps> = ({
         </div>
 
         <div className="flex items-center gap-2.5 flex-wrap">
+          {/* Sound Timbre Preset Selector */}
+          <div className="flex items-center gap-1.5 bg-[#121212] border border-[#333] px-2.5 py-1.5 rounded">
+            <span className="text-[10px] uppercase font-mono text-[#888] font-semibold hidden sm:inline">
+              {language === 'he' ? 'צליל:' : language === 'es' ? 'Timbre:' : 'Sound:'}
+            </span>
+            <select
+              value={soundPreset}
+              onChange={(e) => setSoundPreset(e.target.value as SoundPresetType)}
+              className="bg-transparent text-[#00E5FF] text-xs font-mono font-bold focus:outline-none cursor-pointer"
+              title="Select Synthesizer Timbre Preset"
+            >
+              {SOUND_PRESETS.map((p) => (
+                <option key={p.id} value={p.id} className="bg-[#1A1A1A] text-white">
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* Audio Preview Button */}
           <button
             id="midi-preview-play-btn"

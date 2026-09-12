@@ -82,6 +82,9 @@ interface DatabaseSchema {
   paymentEvents: Record<string, PaymentEvent>; // providerEventId -> PaymentEvent
   verificationTokens: Record<string, string>; // token -> userId
   resetPasswordTokens: Record<string, { userId: string; expiresAt: string }>;
+  userProjects?: Record<string, any[]>; // userId -> projects array
+  userCourseProgress?: Record<string, Record<string, any>>; // userId -> courseId -> progress
+  courses?: Record<string, any>; // courseId -> course
 }
 
 const DB_FILE_PATH = path.join(process.cwd(), 'data', 'aamc_db.json');
@@ -153,7 +156,11 @@ class DbStore {
 
       if (fs.existsSync(DB_FILE_PATH)) {
         const raw = fs.readFileSync(DB_FILE_PATH, 'utf-8');
-        return JSON.parse(raw);
+        const parsed = JSON.parse(raw);
+        parsed.userProjects = parsed.userProjects || {};
+        parsed.userCourseProgress = parsed.userCourseProgress || {};
+        parsed.courses = parsed.courses || {};
+        return parsed;
       }
     } catch (err) {
       console.warn('Failed to load DB file, initializing fresh store:', err);
@@ -168,6 +175,9 @@ class DbStore {
       paymentEvents: {},
       verificationTokens: {},
       resetPasswordTokens: {},
+      userProjects: {},
+      userCourseProgress: {},
+      courses: {},
     };
   }
 
@@ -625,6 +635,104 @@ class DbStore {
 
     const token = Buffer.from(JSON.stringify({ payload, signature })).toString('base64');
     return { token, validUntil, plan };
+  }
+
+  // User Projects Persistence
+  public getUserProjects(userId: string): any[] {
+    if (!this.db.userProjects) this.db.userProjects = {};
+    return this.db.userProjects[userId] || [];
+  }
+
+  public saveUserProject(userId: string, project: any): any {
+    if (!this.db.userProjects) this.db.userProjects = {};
+    const projects = this.db.userProjects[userId] || [];
+    const idx = projects.findIndex((p: any) => p.id === project.id);
+    const now = new Date().toISOString();
+    const cleanProject = {
+      ...project,
+      updatedAt: now,
+      createdAt: project.createdAt || now,
+    };
+
+    if (idx >= 0) {
+      projects[idx] = cleanProject;
+    } else {
+      projects.unshift(cleanProject);
+    }
+    this.db.userProjects[userId] = projects;
+    this.saveDatabase();
+    return cleanProject;
+  }
+
+  public deleteUserProject(userId: string, projectId: string): boolean {
+    if (!this.db.userProjects || !this.db.userProjects[userId]) return false;
+    const initialLen = this.db.userProjects[userId].length;
+    this.db.userProjects[userId] = this.db.userProjects[userId].filter((p: any) => p.id !== projectId);
+    if (this.db.userProjects[userId].length !== initialLen) {
+      this.saveDatabase();
+      return true;
+    }
+    return false;
+  }
+
+  // User Course Progress Persistence
+  public getUserCourseProgress(userId: string): Record<string, any> {
+    if (!this.db.userCourseProgress) this.db.userCourseProgress = {};
+    return this.db.userCourseProgress[userId] || {};
+  }
+
+  public saveUserCourseProgress(userId: string, courseId: string, progressData: any): any {
+    if (!this.db.userCourseProgress) this.db.userCourseProgress = {};
+    if (!this.db.userCourseProgress[userId]) this.db.userCourseProgress[userId] = {};
+    
+    const existing = this.db.userCourseProgress[userId][courseId] || {
+      completedLessons: [],
+      lastAccessedLessonId: null,
+      quizScores: {},
+      updatedAt: new Date().toISOString(),
+    };
+
+    const updated = {
+      ...existing,
+      ...progressData,
+      updatedAt: new Date().toISOString(),
+    };
+
+    this.db.userCourseProgress[userId][courseId] = updated;
+    this.saveDatabase();
+    return updated;
+  }
+
+  // Course Management Persistence
+  public getCourses(): any[] {
+    if (!this.db.courses) this.db.courses = {};
+    return Object.values(this.db.courses);
+  }
+
+  public getCourseById(courseId: string): any | null {
+    if (!this.db.courses) this.db.courses = {};
+    return this.db.courses[courseId] || null;
+  }
+
+  public saveCourse(course: any): any {
+    if (!this.db.courses) this.db.courses = {};
+    const now = new Date().toISOString();
+    const cleanCourse = {
+      ...course,
+      id: course.id || `course_${Date.now()}`,
+      updatedAt: now,
+      createdAt: course.createdAt || now,
+    };
+    this.db.courses[cleanCourse.id] = cleanCourse;
+    this.saveDatabase();
+    return cleanCourse;
+  }
+
+  public deleteCourse(courseId: string): boolean {
+    if (!this.db.courses || !this.db.courses[courseId]) return false;
+    delete this.db.courses[courseId];
+    this.saveDatabase();
+    return true;
   }
 }
 

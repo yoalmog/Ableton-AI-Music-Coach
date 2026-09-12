@@ -245,15 +245,20 @@ export const AICoachChat: React.FC<AICoachChatProps> = ({
                         <Cpu className="w-3 h-3" />
                         <span>LOCAL AI ({m.model})</span>
                       </span>
+                    ) : m.provider === 'android_local' ? (
+                      <span className="flex items-center gap-1 text-[#90FF00]">
+                        <Cpu className="w-3 h-3" />
+                        <span>ANDROID AI ({m.model})</span>
+                      </span>
                     ) : m.provider === 'gemini' ? (
                       <span className="flex items-center gap-1 text-[#00E5FF]">
                         <Cloud className="w-3 h-3" />
                         <span>GEMINI ({m.model})</span>
                       </span>
                     ) : (
-                      <span className="flex items-center gap-1 text-[#FF5555]">
+                      <span className="flex items-center gap-1 text-[#FFAA00]">
                         <Lock className="w-3 h-3" />
-                        <span>AI OFFLINE</span>
+                        <span>OFFLINE COACH</span>
                       </span>
                     )}
 

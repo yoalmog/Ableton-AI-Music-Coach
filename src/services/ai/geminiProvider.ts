@@ -3,9 +3,9 @@ import { AIProvider, AIModel, AIHealth, AIRequest, AIResponse } from './aiTypes'
 export class GeminiProvider implements AIProvider {
   public id = 'gemini';
   public name = 'Google Gemini (Cloud AI)';
-  private modelName = 'gemini-3.7-flash';
+  private modelName = 'gemini-3.8-flash';
 
-  constructor(modelName = 'gemini-3.7-flash') {
+  constructor(modelName = 'gemini-3.8-flash') {
     this.modelName = modelName;
   }
 
@@ -24,14 +24,14 @@ export class GeminiProvider implements AIProvider {
 
   public async getModels(): Promise<AIModel[]> {
     return [
-      { id: 'gemini-3.7-flash', name: 'Gemini 3.7 Flash (Fast & Intelligent)', family: 'Gemini 3' },
+      { id: 'gemini-3.8-flash', name: 'Gemini 3.8 Flash (Fast & Intelligent)', family: 'Gemini 3' },
       { id: 'gemini-3.1-flash-lite', name: 'Gemini 3.1 Flash-Lite (Low Latency)', family: 'Gemini 3' },
       { id: 'gemini-flash-latest', name: 'Gemini Flash Latest', family: 'Gemini 3' },
       { id: 'gemini-3.1-pro-preview', name: 'Gemini 3.1 Pro (Deep Music Reasoning)', family: 'Gemini 3' },
     ];
   }
 
-  public async testConnection(params?: { customKey?: string; customModel?: string }): Promise<AIHealth> {
+  public async testConnection(params?: { customKey?: string; customModel?: string; forceInference?: boolean }): Promise<AIHealth> {
     const api = this.getDesktopApi();
     const startTime = Date.now();
 
@@ -72,6 +72,7 @@ export class GeminiProvider implements AIProvider {
         body: JSON.stringify({
           customKey: params?.customKey,
           customModel: params?.customModel || this.modelName,
+          forceInference: Boolean(params?.forceInference),
         }),
         signal: controller.signal,
       });
@@ -170,7 +171,7 @@ export class GeminiProvider implements AIProvider {
       return {
         reply: data.reply || 'No response returned from cloud coach.',
         provider: 'gemini',
-        model: this.modelName,
+        model: data.modelUsed || this.modelName,
         latencyMs,
         status: data.offline ? 'error' : 'success',
         offline: Boolean(data.offline),

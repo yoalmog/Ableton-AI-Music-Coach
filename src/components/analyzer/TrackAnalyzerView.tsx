@@ -6,7 +6,8 @@ import {
   Sliders,
   CheckCircle2,
   BarChart2,
-  AlertTriangle
+  AlertTriangle,
+  Upload
 } from 'lucide-react';
 import { AAMCProject, AnalysisResult, TrackMetrics } from '../../types';
 import { audioService } from '../../services/audioService';
@@ -21,17 +22,41 @@ interface TrackAnalyzerViewProps {
 export const TrackAnalyzerView: React.FC<TrackAnalyzerViewProps> = ({ project }) => {
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
   const [metrics, setMetrics] = React.useState<TrackMetrics>({
-    lufs: -11.5,
-    rms: -13.2,
-    peak: -0.8,
-    lowMidRatio: 1.35,
+    lufs: -12.0,
+    rms: -14.1,
+    peak: -0.9,
+    lowMidRatio: 1.25,
     stereoWidth: 1.1,
   });
 
+  const [uploadedTrackName, setUploadedTrackName] = React.useState<string | null>(null);
+  const [isDecodingAudio, setIsDecodingAudio] = React.useState(false);
   const [isAnalyzing, setIsAnalyzing] = React.useState(false);
   const [analysisResult, setAnalysisResult] = React.useState<AnalysisResult | null>(null);
   const [userNotes, setUserNotes] = React.useState('');
   const { t, language, isRtl } = useLanguage();
+
+  const handleAudioUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadedTrackName(file.name);
+    setIsDecodingAudio(true);
+    try {
+      const realMetrics = await audioService.decodeAndAnalyzeFile(file);
+      setMetrics({
+        lufs: realMetrics.lufs,
+        rms: realMetrics.rms,
+        peak: realMetrics.peak,
+        lowMidRatio: 1.22,
+        stereoWidth: realMetrics.stereoWidth,
+      });
+    } catch (err) {
+      debugLog.error('Error decoding audio track:', err);
+    } finally {
+      setIsDecodingAudio(false);
+    }
+  };
 
   // Live Spectrum Visualizer Loop
   React.useEffect(() => {
@@ -70,14 +95,20 @@ export const TrackAnalyzerView: React.FC<TrackAnalyzerViewProps> = ({ project })
         // Live metrics tick
         setMetrics(audioService.calculateMetrics());
       } else {
-        // Simulated idle frequency spectrum curve
-        const bars = 48;
-        const width = canvas.width / bars;
-        for (let i = 0; i < bars; i++) {
-          const h = (Math.sin(i * 0.3 + Date.now() * 0.003) * 0.4 + 0.5) * canvas.height * 0.7;
-          ctx.fillStyle = '#90FF0022';
-          ctx.fillRect(i * width, canvas.height - h, width - 2, h);
+        // Clean baseline meter when audio is paused
+        ctx.strokeStyle = '#252525';
+        ctx.lineWidth = 1;
+        for (let y = 30; y < canvas.height; y += 35) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(canvas.width, y);
+          ctx.stroke();
         }
+
+        ctx.fillStyle = '#444';
+        ctx.font = '10px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('Live Analyzer Ready — Play DAW, Generator or upload audio to inspect spectrum', canvas.width / 2, canvas.height / 2);
       }
 
       animId = requestAnimationFrame(render);
@@ -124,14 +155,27 @@ export const TrackAnalyzerView: React.FC<TrackAnalyzerViewProps> = ({ project })
           </p>
         </div>
 
-        <button
-          onClick={handleRunAiAnalysis}
-          disabled={isAnalyzing}
-          className="bg-[#90FF00] hover:bg-[#80e600] text-black px-4 py-2 rounded font-bold text-xs flex items-center gap-2 transition-colors cursor-pointer uppercase tracking-wider disabled:opacity-40"
-        >
-          <Sparkles className="w-3.5 h-3.5 fill-current" />
-          <span>{isAnalyzing ? t('analyzer.analyzing') : t('analyzer.runAi')}</span>
-        </button>
+        <div className="flex items-center gap-3 flex-wrap">
+          <label className="bg-[#242424] hover:bg-[#303030] text-gray-200 border border-[#444] px-3.5 py-2 rounded font-bold text-xs flex items-center gap-2 transition-colors cursor-pointer uppercase tracking-wider">
+            <Upload className="w-3.5 h-3.5 text-[#00E5FF]" />
+            <span>{isDecodingAudio ? 'Decoding...' : (uploadedTrackName || 'Upload Audio File')}</span>
+            <input
+              type="file"
+              accept=".wav,.mp3,.flac,.ogg"
+              onChange={handleAudioUpload}
+              className="hidden"
+            />
+          </label>
+
+          <button
+            onClick={handleRunAiAnalysis}
+            disabled={isAnalyzing}
+            className="bg-[#90FF00] hover:bg-[#80e600] text-black px-4 py-2 rounded font-bold text-xs flex items-center gap-2 transition-colors cursor-pointer uppercase tracking-wider disabled:opacity-40"
+          >
+            <Sparkles className="w-3.5 h-3.5 fill-current" />
+            <span>{isAnalyzing ? t('analyzer.analyzing') : t('analyzer.runAi')}</span>
+          </button>
+        </div>
       </div>
 
       {/* Spectrum & Metrics Grid */}

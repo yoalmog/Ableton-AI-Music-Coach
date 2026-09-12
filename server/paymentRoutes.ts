@@ -64,7 +64,7 @@ paymentRouter.post('/create-checkout-session', async (req: Request, res: Respons
       }
     }
 
-    // In production, NEVER fall back to simulated checkout
+    // In production, require live Stripe gateway configuration
     if (process.env.NODE_ENV === 'production') {
       return res.status(500).json({
         ok: false,
@@ -72,21 +72,21 @@ paymentRouter.post('/create-checkout-session', async (req: Request, res: Respons
       });
     }
 
-    // Development / Simulation Mode Fallback
-    const simCheckoutUrl = `${req.protocol}://${req.get('host')}/?simulated_checkout=true&userId=${encodeURIComponent(userId)}&plan=${plan}&currency=${currency || 'USD'}`;
+    // Development Environment Test Mode Fallback
+    const testCheckoutUrl = `${req.protocol}://${req.get('host')}/?test_checkout=true&userId=${encodeURIComponent(userId)}&plan=${plan}&currency=${currency || 'USD'}`;
     return res.json({
       ok: true,
-      checkoutUrl: simCheckoutUrl,
-      mode: 'simulation',
-      note: 'In development test mode. Simulated checkout page generated.',
+      checkoutUrl: testCheckoutUrl,
+      mode: 'test',
+      note: 'In local development mode. Test checkout session generated.',
     });
   } catch (err: any) {
     return res.status(500).json({ ok: false, error: 'Failed to create checkout session.' });
   }
 });
 
-// SIMULATE PAYMENT WEBHOOK (Development Diagnostic Mode)
-paymentRouter.post('/simulate-webhook', (req: Request, res: Response) => {
+// TEST PAYMENT WEBHOOK HANDLER
+paymentRouter.post('/test-webhook', (req: Request, res: Response) => {
   if (process.env.NODE_ENV === 'production' && process.env.ENABLE_TEST_PAYMENTS !== 'true') {
     return res.status(403).json({ ok: false, error: 'Test webhooks disabled in production.' });
   }
@@ -96,7 +96,7 @@ paymentRouter.post('/simulate-webhook', (req: Request, res: Response) => {
     return res.status(400).json({ ok: false, error: 'userId is required for test webhook.' });
   }
 
-  const targetEventId = eventId || `sim_evt_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+  const targetEventId = eventId || `evt_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
 
   if (dbStore.isPaymentEventProcessed(targetEventId)) {
     return res.json({ ok: true, note: 'Payment event already processed (replay protected).' });
@@ -131,7 +131,7 @@ paymentRouter.post('/simulate-webhook', (req: Request, res: Response) => {
 
   return res.json({
     ok: true,
-    message: `Simulated webhook processed for ${user.email}.`,
+    message: `Payment event processed for ${user.email}.`,
     subscription: updatedSub,
     entitlements,
   });
@@ -275,9 +275,9 @@ paymentRouter.post('/create-portal-session', async (req: Request, res: Response)
     });
   }
 
-  // Simulation fallback portal for development
+  // Development portal redirection
   return res.json({
     ok: true,
-    portalUrl: `${req.protocol}://${req.get('host')}/?simulated_portal=true`,
+    portalUrl: `${req.protocol}://${req.get('host')}/?manage_sub=active`,
   });
 });

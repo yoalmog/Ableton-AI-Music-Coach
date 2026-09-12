@@ -93,6 +93,9 @@ export interface AbletonLessonStep {
   arrowDirection?: 'up' | 'down' | 'left' | 'right';
   spotlightRadius?: number;
   expectedPianoRollNotes?: { pitch: string; time: number; duration: number }[];
+  referenceImageId?: string;
+  activeHotspotId?: string;
+  referenceTargetRect?: NormalizedRect;
   validation?: (state: AbletonSimulatorState, actionData?: any) => SimulatorValidationResult;
   deviceTarget?: {
     deviceType: string;
@@ -112,6 +115,8 @@ export interface AbletonLessonDefinition {
   difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
   screenshotKey: string; // e.g. 'arrangement-live12', 'piano-roll-bass', 'drift-device', 'custom-uploaded'
   screenshotUri?: string;
+  referenceImageId?: string;
+  workspaceType?: string;
   initialState: Partial<AbletonSimulatorState>;
   steps: AbletonLessonStep[];
   isCustom?: boolean;

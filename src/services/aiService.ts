@@ -2,6 +2,8 @@ import { aiRouter } from './ai/aiRouter';
 import { AISettings, AIRequest, AIResponse, AIHealth } from './ai/aiTypes';
 import { MidiPattern, AnalysisResult, KeyType, ScaleType } from '../types';
 import { midiService } from './midiService';
+import { soundDesignLessonService } from './soundDesignLessonService';
+import { SoundDesignDeviceLesson, SoundDesignDeviceType } from '../types/soundDesignEducation';
 
 export class AIService {
   public getSettings(): AISettings {
@@ -16,7 +18,7 @@ export class AIService {
     return await aiRouter.getDiagnostics();
   }
 
-  public async testConnection(params?: { customKey?: string; customModel?: string }): Promise<{ ok: boolean; statusMessage: string; modelUsed?: string; responseTimeMs?: number }> {
+  public async testConnection(params?: { customKey?: string; customModel?: string; forceInference?: boolean }): Promise<{ ok: boolean; statusMessage: string; modelUsed?: string; responseTimeMs?: number }> {
     const cloudRes = await aiRouter.testCloudConnection(params);
     return {
       ok: cloudRes.ok,
@@ -152,6 +154,77 @@ export class AIService {
     };
 
     return { analysis, offline: res.offline };
+  }
+
+  /**
+   * Sound Design Education Lesson Integration
+   */
+  public getSoundDesignLessons(): SoundDesignDeviceLesson[] {
+    return soundDesignLessonService.getLessons();
+  }
+
+  public getSoundDesignLesson(deviceId: SoundDesignDeviceType): SoundDesignDeviceLesson | undefined {
+    return soundDesignLessonService.getLesson(deviceId);
+  }
+
+  public async generateSoundDesignExperiment(
+    deviceId: SoundDesignDeviceType,
+    genre: string = 'Psytrance',
+    customGoal?: string
+  ): Promise<{
+    title: string;
+    parameters: Record<string, any>;
+    pattern: any;
+    aiExplanation?: string;
+  }> {
+    const baseExperiment = soundDesignLessonService.generateCustomExperiment(deviceId, genre);
+    if (!baseExperiment) {
+      throw new Error(`Device ${deviceId} not found`);
+    }
+
+    // Attempt AI enhancement if prompt/goal is specified
+    let aiExplanation: string | undefined;
+    if (customGoal) {
+      try {
+        const response = await this.chat(
+          `For Ableton Live 12 device "${deviceId}", design a sound patch for ${genre} with goal: "${customGoal}". Explain in 2-3 concise bullet points which key parameters to tweak and why.`,
+          { currentModule: 'Sound Design Education', device: deviceId }
+        );
+        if (response?.reply) {
+          aiExplanation = response.reply;
+        }
+      } catch (err) {
+        console.warn('AI experiment explanation failed, using default parameters', err);
+      }
+    }
+
+    return {
+      title: baseExperiment.title,
+      parameters: baseExperiment.parameters,
+      pattern: baseExperiment.pattern,
+      aiExplanation,
+    };
+  }
+
+  public async explainDeviceConcept(
+    deviceId: SoundDesignDeviceType,
+    concept: string,
+    lang: string = 'en'
+  ): Promise<string> {
+    try {
+      const response = await this.chat(
+        `Explain the sound design concept "${concept}" in the context of Ableton Live 12's device "${deviceId}". Provide practical advice and typical parameter values. Respond in ${lang === 'he' ? 'Hebrew' : 'English'}.`,
+        { currentModule: 'Sound Design Education', device: deviceId, concept }
+      );
+      return response.reply;
+    } catch {
+      const lesson = soundDesignLessonService.getLesson(deviceId);
+      const foundConcept = lesson?.coreConcepts.find(c => c.term.toLowerCase().includes(concept.toLowerCase()));
+      if (foundConcept) {
+        return `${foundConcept.term}: ${foundConcept.explanation} Ableton Tip: ${foundConcept.abletonTip}`;
+      }
+      return `Explore ${deviceId} parameters in the interactive Sound Design Laboratory to hear the real-time sonic response.`;
+    }
   }
 }
 

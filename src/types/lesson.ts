@@ -77,6 +77,13 @@ export interface Lesson {
   offlineBundleVersion?: string;
 }
 
+export interface CourseModule {
+  id: string;
+  title: string;
+  description?: string;
+  lessonIds: string[];
+}
+
 export interface Course {
   id: string;
   title: string;
@@ -84,7 +91,11 @@ export interface Course {
   genre: GenreType;
   iconName: string;
   description: string;
+  modules?: CourseModule[];
   lessons: Lesson[];
+  author?: string;
+  authorId?: string | null;
+  isCustom?: boolean;
 }
 
 export interface QuizAttempt {

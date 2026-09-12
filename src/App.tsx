@@ -245,7 +245,7 @@ export function AppContent() {
           </ErrorBoundary>
         );
       case 'sounddesign':
-        return <SoundDesignLabView />;
+        return <SoundDesignLabView onOpenCoachWithMessage={handleOpenCoachWithMessage} />;
       case 'analyzer':
         return (
           <ErrorBoundary isPanel={true}>

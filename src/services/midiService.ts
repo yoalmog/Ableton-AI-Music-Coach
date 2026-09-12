@@ -304,11 +304,18 @@ export class MidiService {
   }): { notes: MidiNote[]; name: string; timeSignature: string; abletonTips?: string } {
     const { type, genre, bpm, key, scale, energy } = params;
     const subgenre = params.subgenre || '';
-    const seed = params.seed ?? Math.floor(Math.random() * 1000000);
+    const seed = params.seed ?? (Date.now() ^ Math.floor(Math.random() * 0x7fffffff));
     
+    // Robust Mulberry32-based seeded PRNG for high-entropy musical variation
+    const prng = (s: number) => {
+      let t = (s + 0x6D2B79F5) | 0;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+
     const random = (offset: number) => {
-      const x = Math.sin(seed + offset * 1.6180339887) * 10000;
-      return x - Math.floor(x);
+      return prng(seed + Math.floor(offset * 1013904223));
     };
 
     const scaleMidiLow = getScaleMidiNotes(key, scale, [1, 2]);
@@ -381,29 +388,44 @@ export class MidiService {
             }
           }
         } else {
-          // Standard Rolling K-B-B-B or Full-On Bass
-          patternName = `${genre} Rolling Bass (${key}1)`;
+          // Rolling K-B-B-B, Gallop or Full-On Bass with diverse groove variations
+          const isGallop = normalizedSubgenre.includes('gallop') || random(2) > 0.6;
+          patternName = `${genre} ${isGallop ? 'Gallop' : 'Rolling'} Bass (${key}1)`;
           abletonTip = `In Ableton Live 12: Load Operator. Osc A: Saw wave, Coarse 0.5/1. Filter: 24dB LP with cutoff around 600-750Hz and Decay 160ms. Add EQ Eight high-pass at 30Hz (48dB slope).`;
+          
+          // Seed-dependent root movement on bars 3 & 4 (e.g. root -> b6 or b7 or b2)
+          const allowProgression = random(3) > 0.35 && scaleMidiLow.length >= 3;
+          const altDegree = random(4) > 0.5 ? (scaleMidiLow[scaleMidiLow.length - 1] || rootMidiLow) : (scaleMidiLow[1] || rootMidiLow);
+
           for (let bar = 0; bar < totalBars; bar++) {
+            const barRootMidi = (allowProgression && bar === 2) ? altDegree : rootMidiLow;
+
             for (let step = 0; step < 16; step++) {
               const isKick = step % 4 === 0;
               const beat = bar * 4 + step * 0.25;
 
               if (!isKick) {
-                let pitchMidi = rootMidiLow;
-                // High energy turnaround variations on bars 2 & 4
-                if (energy >= 6 && (bar === 1 || bar === 3) && step >= 13) {
+                let pitchMidi = barRootMidi;
+
+                // Dynamic variation on turnarounds and offbeats
+                if ((bar === 1 || bar === 3) && step >= 13) {
                   const r = random(bar * 16 + step);
-                  if (r > 0.6) {
+                  if (r > 0.55) {
                     pitchMidi = rootMidiMid; // Octave turnaround
-                  } else if (r > 0.3 && scaleMidiLow.length > 1) {
+                  } else if (r > 0.25 && scaleMidiLow.length > 1) {
                     pitchMidi = scaleMidiLow[1]; // 2nd scale degree pickup
+                  }
+                } else if (isGallop && (step % 4 === 3)) {
+                  // Subtle octave bounce or ghost note
+                  if (random(bar * 8 + step + 7) > 0.65) {
+                    pitchMidi = rootMidiMid;
                   }
                 }
 
                 // Dynamic velocity contour: step 1 (softer) -> step 2 (medium) -> step 3 (driving punch)
                 const baseVel = step % 4 === 1 ? 92 : step % 4 === 2 ? 104 : 114;
-                const dynamicVel = Math.min(127, baseVel + Math.floor(energy * 1.3));
+                const jitter = Math.floor((random(step * 4 + bar) - 0.5) * 8);
+                const dynamicVel = Math.min(127, Math.max(65, baseVel + Math.floor(energy * 1.2) + jitter));
 
                 notes.push({
                   pitch: midiNumberToNoteString(pitchMidi),

@@ -9,7 +9,8 @@ import {
   BookOpen,
   PlayCircle,
   Map,
-  Compass
+  Compass,
+  Layers
 } from 'lucide-react';
 import { COURSES_DATA } from '../../data/coursesData';
 import { Course, Lesson } from '../../types/lesson';
@@ -18,15 +19,16 @@ import { LessonsLibrary } from './LessonsLibrary';
 import { LessonPlayer } from './LessonPlayer';
 import { VisualCourseMap } from './VisualCourseMap';
 import { StepByStepGuidedMode } from './StepByStepGuidedMode';
+import { CourseManagerView } from './CourseManagerView';
 import { useLanguage } from '../../context/LanguageContext';
 
 interface LessonsViewProps {
-  onOpenCoach: () => void;
+  onOpenCoach: (prompt?: string) => void;
 }
 
 export const LessonsView: React.FC<LessonsViewProps> = ({ onOpenCoach }) => {
   const { t, isRtl } = useLanguage();
-  const [viewMode, setViewMode] = useState<'library' | 'coursemap' | 'guided' | 'player'>('coursemap');
+  const [viewMode, setViewMode] = useState<'library' | 'coursemap' | 'guided' | 'player' | 'manager'>('coursemap');
   const [selectedCourse, setSelectedCourse] = useState<Course>(COURSES_DATA[0]);
   const [selectedLesson, setSelectedLesson] = useState<Lesson>(COURSES_DATA[0].lessons[0]);
   const [showProgressSummary, setShowProgressSummary] = useState(false);
@@ -126,6 +128,19 @@ export const LessonsView: React.FC<LessonsViewProps> = ({ onOpenCoach }) => {
               <PlayCircle className="w-3.5 h-3.5" />
               <span>{isRtl ? 'נגן שיעור' : 'Lesson Player'}</span>
             </button>
+
+            <button
+              type="button"
+              onClick={() => setViewMode('manager')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                viewMode === 'manager'
+                  ? 'bg-[#90FF00] text-black shadow-[0_0_8px_rgba(144,255,0,0.3)]'
+                  : 'text-[#888] hover:text-white'
+              }`}
+            >
+              <Layers className="w-3.5 h-3.5" />
+              <span>{isRtl ? 'יוצר קורסים' : 'Course Creator'}</span>
+            </button>
           </div>
 
           <button
@@ -175,6 +190,24 @@ export const LessonsView: React.FC<LessonsViewProps> = ({ onOpenCoach }) => {
             <LessonsLibrary
               onSelectLesson={handleSelectLessonFromLibrary}
               activeLessonId={selectedLesson?.id}
+            />
+          </motion.div>
+        ) : viewMode === 'manager' ? (
+          <motion.div
+            key="view-manager"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+          >
+            <CourseManagerView
+              onOpenCoach={onOpenCoach}
+              onBackToLibrary={() => setViewMode('library')}
+              onSelectLessonToPlay={(lesson, course) => {
+                setSelectedCourse(course);
+                setSelectedLesson(lesson);
+                setViewMode('player');
+              }}
             />
           </motion.div>
         ) : (

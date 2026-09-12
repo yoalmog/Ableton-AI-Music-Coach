@@ -57,11 +57,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
   // AI Configuration State
   const [aiSettings, setAiSettings] = React.useState<AISettings>({
-    mode: 'local-first',
+    mode: 'auto',
     localEndpoint: 'http://localhost:11434',
     localModel: 'qwen3.5:9b',
     cloudProvider: 'gemini',
-    cloudModel: 'gemini-3.7-flash',
+    cloudModel: 'gemini-3.8-flash',
     privacyMode: false,
     fallbackEnabled: true,
     apiKey: '',
@@ -104,10 +104,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     setIsTesting(true);
     setTestResult(null);
     try {
-      if (aiSettings.mode === 'cloud-only') {
+      if (aiSettings.mode === 'cloud-only' || aiSettings.mode === 'auto') {
         const cloudRes = await aiService.testConnection({
           customKey: apiKeyInput.includes('••••') ? undefined : apiKeyInput,
           customModel: aiSettings.cloudModel,
+          forceInference: true,
         });
         setTestResult(cloudRes);
       } else {
@@ -310,10 +311,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               onChange={(e) => setAiSettings({ ...aiSettings, mode: e.target.value as AIMode })}
               className="w-full bg-[#121212] border border-[#333] rounded p-2 text-xs font-mono text-[#90FF00] font-bold focus:outline-none"
             >
-              <option value="local-first">Local First (Recommended)</option>
-              <option value="local-only">Local Only (100% Offline)</option>
+              <option value="auto">Automatic (Smart Web & Local Route)</option>
               <option value="cloud-only">Cloud Only (Gemini API)</option>
-              <option value="auto">Automatic Router</option>
+              <option value="local-first">Local First (Ollama / On-Device)</option>
+              <option value="local-only">Local Only (100% Offline)</option>
             </select>
           </div>
 
@@ -404,7 +405,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 className="w-full bg-[#181818] border border-[#333] rounded p-2 text-xs font-mono text-[#00E5FF] font-bold focus:outline-none"
                 dir="ltr"
               >
-                <option value="gemini-3.7-flash">gemini-3.7-flash (Recommended Default)</option>
+                <option value="gemini-3.8-flash">gemini-3.8-flash (Recommended Default)</option>
                 <option value="gemini-3.1-flash-lite">gemini-3.1-flash-lite (Fast & Low Latency)</option>
                 <option value="gemini-flash-latest">gemini-flash-latest (Auto Latest)</option>
                 <option value="gemini-3.1-pro-preview">gemini-3.1-pro-preview (Deep Music Reasoning)</option>

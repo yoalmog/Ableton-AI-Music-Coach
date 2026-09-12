@@ -103,7 +103,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   useEffect(() => {
     checkAiStatus();
-    const timer = setInterval(checkAiStatus, 15000);
+    const timer = setInterval(checkAiStatus, 120000);
     return () => clearInterval(timer);
   }, []);
 

@@ -6,14 +6,22 @@ import {
   Activity,
   Layers,
   BookOpen,
-  ChevronRight
+  ChevronRight,
+  GraduationCap
 } from 'lucide-react';
 import { ABLETON_DEVICES } from '../../data/deviceGuideData';
 import { SOUND_DESIGN_RECIPES } from '../../data/soundDesignData';
 import { SoundDesignRecipe, AbletonDevice } from '../../types';
+import { SoundDesignEducationView } from './SoundDesignEducationView';
 
-export const SoundDesignLabView: React.FC = () => {
-  const [activeTab, setActiveTab] = React.useState<'recipes' | 'devices'>('recipes');
+interface SoundDesignLabViewProps {
+  onOpenCoachWithMessage?: (msg: string) => void;
+}
+
+export const SoundDesignLabView: React.FC<SoundDesignLabViewProps> = ({
+  onOpenCoachWithMessage
+}) => {
+  const [activeTab, setActiveTab] = React.useState<'education' | 'recipes' | 'devices'>('education');
   const [selectedRecipe, setSelectedRecipe] = React.useState<SoundDesignRecipe>(SOUND_DESIGN_RECIPES[0]);
   const [selectedDevice, setSelectedDevice] = React.useState<AbletonDevice>(ABLETON_DEVICES[0]);
 
@@ -26,14 +34,25 @@ export const SoundDesignLabView: React.FC = () => {
             <Sliders className="w-3.5 h-3.5" />
             <span>Ableton Live 12 Sound Design Laboratory</span>
           </div>
-          <h1 className="text-xl font-bold text-white mt-1">Synth Patch & Effect Recipes</h1>
+          <h1 className="text-xl font-bold text-white mt-1">Sound Design Education & Device Lab</h1>
           <p className="text-xs text-[#888] mt-0.5">
-            Master Operator, Wavetable, Drift, Meld, and Roar to synthesize signature Psytrance, Goa, and Techno sounds.
+            Master Wavetable, Operator, Echo, Auto Filter, Roar, and Drift with interactive lessons, real Web Audio DSP, and practical examples.
           </p>
         </div>
 
         {/* Tab Switcher */}
         <div className="flex bg-[#121212] p-1 rounded border border-[#333]">
+          <button
+            onClick={() => setActiveTab('education')}
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded text-xs font-bold transition-colors cursor-pointer uppercase tracking-wider ${
+              activeTab === 'education'
+                ? 'bg-[#252525] text-[#00E5FF] border border-[#444]'
+                : 'text-[#888] hover:text-[#E0E0E0]'
+            }`}
+          >
+            <GraduationCap className="w-3.5 h-3.5" />
+            <span>Device Academy</span>
+          </button>
           <button
             onClick={() => setActiveTab('recipes')}
             className={`px-3.5 py-1.5 rounded text-xs font-bold transition-colors cursor-pointer uppercase tracking-wider ${
@@ -57,7 +76,9 @@ export const SoundDesignLabView: React.FC = () => {
         </div>
       </div>
 
-      {activeTab === 'recipes' ? (
+      {activeTab === 'education' ? (
+        <SoundDesignEducationView onOpenCoachWithPrompt={onOpenCoachWithMessage} />
+      ) : activeTab === 'recipes' ? (
         /* Recipes Tab */
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Recipe List */}

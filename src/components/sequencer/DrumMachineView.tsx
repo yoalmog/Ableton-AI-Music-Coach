@@ -89,8 +89,9 @@ export const DrumMachineView: React.FC<DrumMachineViewProps> = ({
           if (tr.steps[next]?.active) {
             if (tr.id === 'kick') audioService.playKick(0);
             else if (tr.id === 'hat_closed') audioService.playHiHat(0, false);
-            else if (tr.id === 'clap') audioService.playHiHat(0, true);
-            else audioService.playPsyBassNote('G2', 0, 0.08);
+            else if (tr.id === 'clap') audioService.playClap(0);
+            else if (tr.id === 'perc') audioService.playPercussion(0);
+            else audioService.playPercussion(0, 520);
           }
         });
       }, intervalMs);
@@ -189,11 +190,21 @@ export const DrumMachineView: React.FC<DrumMachineViewProps> = ({
           {drumPattern.tracks.map((tr) => (
             <div key={tr.id} className="bg-[#121212] p-3.5 rounded border border-[#2A2A2A] space-y-2">
               <div className="flex items-center justify-between text-xs font-bold text-white">
-                <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (tr.id === 'kick') audioService.playKick(0);
+                    else if (tr.id === 'hat_closed') audioService.playHiHat(0, false);
+                    else if (tr.id === 'clap') audioService.playClap(0);
+                    else if (tr.id === 'perc') audioService.playPercussion(0);
+                  }}
+                  className="flex items-center gap-2 hover:text-[#90FF00] transition-colors cursor-pointer text-left"
+                  title="Click to preview voice"
+                >
                   <span className="w-2 h-2 rounded-full bg-[#90FF00]" />
                   <span>{tr.name}</span>
                   <span className="text-[10px] font-mono text-[#666]">({tr.midiPitch})</span>
-                </div>
+                </button>
               </div>
 
               {/* 16 Step Buttons with internal horizontal scroll on mobile */}

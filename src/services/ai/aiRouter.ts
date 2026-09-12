@@ -6,12 +6,12 @@ import { AISettings, AIHealth, AIRequest, AIResponse, AIProviderType } from './a
 import { debugLog } from '../../utils/debug';
 
 const DEFAULT_SETTINGS: AISettings = {
-  mode: 'local-first',
+  mode: 'auto',
   localEndpoint: 'http://localhost:11434',
   localModel: 'qwen3.5:9b',
   androidLocalModel: 'qwen2.5-3b-instruct',
   cloudProvider: 'gemini',
-  cloudModel: 'gemini-3.7-flash',
+  cloudModel: 'gemini-3.8-flash',
   privacyMode: false,
   fallbackEnabled: true,
   apiKey: '',
@@ -66,9 +66,16 @@ export class AIRouter {
     try {
       const saved = localStorage.getItem('aamc-ai-settings');
       if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.cloudModel === 'gemini-3.7-flash' || !parsed.cloudModel) {
+          parsed.cloudModel = 'gemini-3.8-flash';
+        }
+        if (parsed.mode === 'local-first' && !this.isAndroidPlatform()) {
+          parsed.mode = 'auto';
+        }
         return {
           ...DEFAULT_SETTINGS,
-          ...JSON.parse(saved),
+          ...parsed,
         };
       }
     } catch (e) {
@@ -108,10 +115,13 @@ export class AIRouter {
     let activeProvider: AIProviderType = 'none';
     let activeModel = 'None';
 
-    if (this.settings.mode === 'cloud-only') {
+    if (this.settings.mode === 'cloud-only' || this.settings.mode === 'auto') {
       if (cloudHealth.ok) {
         activeProvider = 'gemini';
         activeModel = cloudHealth.modelUsed || this.settings.cloudModel;
+      } else if (localHealth.ok && !this.settings.privacyMode) {
+        activeProvider = isAndroid ? 'android_local' : 'ollama';
+        activeModel = localHealth.modelUsed || (isAndroid ? this.settings.androidLocalModel : this.settings.localModel);
       } else {
         activeProvider = 'offline_coach';
         activeModel = 'Offline Coach';
@@ -125,7 +135,7 @@ export class AIRouter {
         activeModel = 'Offline Coach';
       }
     } else {
-      // local-first or auto
+      // local-first
       if (localHealth.ok) {
         activeProvider = isAndroid ? 'android_local' : 'ollama';
         activeModel = localHealth.modelUsed || (isAndroid ? this.settings.androidLocalModel : this.settings.localModel);
@@ -150,7 +160,7 @@ export class AIRouter {
   }
 
   /**
-   * Main Chat Dispatcher with Android Local AI -> Gemini -> Offline Coach Fallback
+   * Main Chat Dispatcher with Auto / Cloud -> Local AI -> Offline Coach Fallback
    */
   public async chat(request: AIRequest): Promise<AIResponse> {
     const isAndroid = this.isAndroidPlatform();
@@ -158,8 +168,8 @@ export class AIRouter {
     const privacyMode = this.settings.privacyMode;
     const fallbackEnabled = this.settings.fallbackEnabled;
 
-    // 1. PRIVACY MODE ENFORCEMENT
-    if (privacyMode) {
+    // 1. PRIVACY MODE ENFORCEMENT (Strictly local inference only)
+    if (privacyMode || mode === 'local-only') {
       if (isAndroid) {
         const localAvailable = await this.androidLocal.isAvailable();
         if (localAvailable) {
@@ -180,42 +190,39 @@ export class AIRouter {
       };
     }
 
-    // 2. MODE: LOCAL ONLY
-    if (mode === 'local-only') {
-      if (isAndroid) {
-        const localAvailable = await this.androidLocal.isAvailable();
-        if (localAvailable) {
-          return await this.androidLocal.chat(request);
-        }
-      } else {
-        const localAvailable = await this.ollama.isAvailable();
-        if (localAvailable) {
-          return await this.ollama.chat(request, this.settings.localModel);
-        }
-      }
-
-      // Fallback to Offline Coach
-      const offlineRes = await this.offlineCoach.chat(request);
-      return {
-        ...offlineRes,
-        notificationMessage: 'Local AI unavailable — using Offline Coach.',
-      };
-    }
-
-    // 3. MODE: CLOUD ONLY
-    if (mode === 'cloud-only') {
+    // 2. AUTO OR CLOUD-FIRST (Instant response on web using server-side Gemini)
+    if (mode === 'auto' || mode === 'cloud-only' || !isAndroid) {
       const cloudRes = await this.gemini.chat(request);
-      if (cloudRes.status === 'success') {
+      if (cloudRes.status === 'success' && !cloudRes.offline) {
         return cloudRes;
       }
+
+      // If cloud failed or offline, try local models if fallback enabled
+      if (fallbackEnabled) {
+        if (isAndroid) {
+          const localAvailable = await this.androidLocal.isAvailable();
+          if (localAvailable) {
+            const localRes = await this.androidLocal.chat(request);
+            if (localRes.status === 'success') return localRes;
+          }
+        } else {
+          const localAvailable = await this.ollama.isAvailable();
+          if (localAvailable) {
+            const localRes = await this.ollama.chat(request, this.settings.localModel);
+            if (localRes.status === 'success') return localRes;
+          }
+        }
+      }
+
+      // Ultimate educational fallback
       const offlineRes = await this.offlineCoach.chat(request);
       return {
         ...offlineRes,
-        notificationMessage: 'Cloud AI unavailable — using Offline Coach.',
+        notificationMessage: 'Cloud AI unavailable — switched to Offline Coach.',
       };
     }
 
-    // 4. DEFAULT: LOCAL-FIRST (Android Local AI / Ollama primary -> Cloud fallback -> Offline Coach)
+    // 3. EXPLICIT LOCAL-FIRST (Android or local desktop configured by user)
     if (isAndroid) {
       const localAvailable = await this.androidLocal.isAvailable();
       if (localAvailable) {
@@ -237,7 +244,7 @@ export class AIRouter {
     // Fallback step 1: Cloud AI (Gemini) if enabled
     if (fallbackEnabled) {
       const cloudRes = await this.gemini.chat(request);
-      if (cloudRes.status === 'success') {
+      if (cloudRes.status === 'success' && !cloudRes.offline) {
         return {
           ...cloudRes,
           status: 'fallback',
@@ -269,7 +276,7 @@ export class AIRouter {
     return await this.ollama.testConnection({ targetModel: this.settings.localModel });
   }
 
-  public async testCloudConnection(params?: { customKey?: string; customModel?: string }) {
+  public async testCloudConnection(params?: { customKey?: string; customModel?: string; forceInference?: boolean }) {
     return await this.gemini.testConnection(params);
   }
 }

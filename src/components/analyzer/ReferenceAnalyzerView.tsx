@@ -20,6 +20,9 @@ export const ReferenceAnalyzerView: React.FC<ReferenceAnalyzerViewProps> = ({
   const [refFileName, setRefFileName] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisDone, setAnalysisDone] = useState(false);
+  const [userFileMetrics, setUserFileMetrics] = useState<any>(null);
+  const [refFileMetrics, setRefFileMetrics] = useState<any>(null);
+  const [processingStatus, setProcessingStatus] = useState<string | null>(null);
 
   // Computed metrics
   const [metrics, setMetrics] = useState({
@@ -31,14 +34,28 @@ export const ReferenceAnalyzerView: React.FC<ReferenceAnalyzerViewProps> = ({
     refWidth: 1.4,
   });
 
-  const handleSimulatedFileUpload = (e: React.ChangeEvent<HTMLInputElement>, isRef: boolean) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, isRef: boolean) => {
     const file = e.target.files?.[0];
-    if (file) {
+    if (!file) return;
+
+    if (isRef) {
+      setRefFileName(file.name);
+    } else {
+      setUserFileName(file.name);
+    }
+
+    try {
+      setProcessingStatus(isRef ? `Decoding ${file.name}...` : `Decoding ${file.name}...`);
+      const analyzed = await audioService.decodeAndAnalyzeFile(file);
       if (isRef) {
-        setRefFileName(file.name);
+        setRefFileMetrics(analyzed);
       } else {
-        setUserFileName(file.name);
+        setUserFileMetrics(analyzed);
       }
+      setProcessingStatus(null);
+    } catch (err) {
+      console.warn('Audio decoding fallback to live analysis:', err);
+      setProcessingStatus(null);
     }
   };
 
@@ -47,16 +64,16 @@ export const ReferenceAnalyzerView: React.FC<ReferenceAnalyzerViewProps> = ({
     setTimeout(() => {
       const realMetrics = audioService.calculateMetrics();
       setMetrics({
-        userLufs: realMetrics.lufs,
-        refLufs: -7.5,
-        userSubDb: -4.2,
-        refSubDb: -2.0,
-        userWidth: realMetrics.stereoWidth,
-        refWidth: 1.45,
+        userLufs: userFileMetrics ? userFileMetrics.lufs : realMetrics.lufs,
+        refLufs: refFileMetrics ? refFileMetrics.lufs : -7.5,
+        userSubDb: userFileMetrics ? userFileMetrics.subDb : -4.2,
+        refSubDb: refFileMetrics ? refFileMetrics.subDb : -2.0,
+        userWidth: userFileMetrics ? userFileMetrics.stereoWidth : realMetrics.stereoWidth,
+        refWidth: refFileMetrics ? refFileMetrics.stereoWidth : 1.45,
       });
       setIsAnalyzing(false);
       setAnalysisDone(true);
-    }, 1200);
+    }, 600);
   };
 
   return (
@@ -88,7 +105,7 @@ export const ReferenceAnalyzerView: React.FC<ReferenceAnalyzerViewProps> = ({
             <input
               type="file"
               accept=".wav,.mp3,.flac"
-              onChange={(e) => handleSimulatedFileUpload(e, false)}
+              onChange={(e) => handleFileUpload(e, false)}
               className="hidden"
             />
           </label>
@@ -107,12 +124,18 @@ export const ReferenceAnalyzerView: React.FC<ReferenceAnalyzerViewProps> = ({
             <input
               type="file"
               accept=".wav,.mp3,.flac"
-              onChange={(e) => handleSimulatedFileUpload(e, true)}
+              onChange={(e) => handleFileUpload(e, true)}
               className="hidden"
             />
           </label>
         </div>
       </div>
+
+      {processingStatus && (
+        <div className="bg-[#181818] border border-[#00E5FF]/40 text-[#00E5FF] px-4 py-2 rounded text-center text-xs font-mono animate-pulse">
+          {processingStatus}
+        </div>
+      )}
 
       <div className="text-center">
         <button

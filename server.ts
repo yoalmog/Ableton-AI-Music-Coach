@@ -5,6 +5,7 @@ import { GoogleGenAI, ThinkingLevel } from "@google/genai";
 import dotenv from "dotenv";
 import { authRouter } from "./server/authRoutes.js";
 import { paymentRouter } from "./server/paymentRoutes.js";
+import { courseRouter, userRouter } from "./server/courseAndUserDataRoutes.js";
 import { dbStore } from "./server/dbStore.js";
 
 dotenv.config();
@@ -19,6 +20,8 @@ async function startServer() {
   // Mount API routers
   app.use("/api/auth", authRouter);
   app.use("/api/payments", paymentRouter);
+  app.use("/api/courses", courseRouter);
+  app.use("/api/user", userRouter);
 
   // Helper lazy init for Gemini API
   const getGeminiClient = (customKey?: string) => {
@@ -92,18 +95,36 @@ async function startServer() {
 
   // Sanitize obsolete or deprecated model names
   function sanitizeModel(modelName?: string): string {
-    if (!modelName) return "gemini-3.7-flash";
+    if (!modelName) return "gemini-3.8-flash";
     if (
       modelName.includes("1.5") ||
       modelName.includes("2.0") ||
       modelName.includes("2.5") ||
       modelName.includes("3.6") ||
+      modelName.includes("3.7") ||
       modelName === "gemini-pro"
     ) {
-      return "gemini-3.7-flash";
+      return "gemini-3.8-flash";
     }
     return modelName;
   }
+
+  // System instruction for Ableton AI Music Coach
+  const SYSTEM_INSTRUCTION = `You are ABLETON AI MUSIC COACH, an elite co-producer, mixing engineer, and sound design assistant specialized in Ableton Live 12 and electronic music production (Psytrance, Goa, Techno, House, Melodic Trance, Drum & Bass, Ambient).
+
+ABLETON LIVE 12 SPECIALIZATION:
+- Instruments: Operator, Wavetable, Drift, Meld, Simpler, Sampler, Drum Rack, Chord Trigger, Granulator III.
+- Processing & FX: Roar distortion, Saturator, EQ Eight, Compressor, Glue Compressor, Utility, Auto Filter, Delay, Reverb, Sidechaining.
+- Workflow: Session View, Arrangement View, MIDI Tools, Scale Lock, Warping, Return Tracks.
+
+RESPONSE FORMAT RULES:
+- Provide clear, actionable, step-by-step guidance.
+- Format responses cleanly with bold labels, step lists, and parameter values.
+- Include specific Ableton Live 12 devices and precise parameter settings.
+
+MULTILINGUAL & HEBREW RULES:
+- Respond in the language of the prompt or context (default English, or Hebrew when context or prompt is in Hebrew).
+- When responding in Hebrew ('he'), write the explanations in natural, fluent Hebrew, while keeping all Ableton Live 12 device names, technical terms, unit values, and plugin names strictly in English LTR (e.g., Operator, Wavetable, EQ Eight, Utility, Saturator, Roar, 142 BPM, F# minor, 30 Hz, 20 kHz, -8 LUFS, MIDI, Sidechain).`;
 
   // Helper to generate content with model fallback retries for 503 / timeout
   async function generateContentWithFallback(
@@ -118,9 +139,9 @@ async function startServer() {
     // Candidates in order of preference and speed
     const candidateList = [
       targetPreferred,
-      "gemini-3.1-flash-lite",
+      "gemini-3.8-flash",
       "gemini-flash-latest",
-      "gemini-3.7-flash",
+      "gemini-3.1-flash-lite",
     ];
 
     if (targetPreferred.includes("pro")) {
@@ -136,7 +157,7 @@ async function startServer() {
       try {
         // Apply low thinking level for fast interactive audio coach responses if model supports it
         const modelConfig = { ...baseConfig };
-        if (model.includes("3.7-flash") || model.includes("3.1-pro")) {
+        if (model.includes("3.8-flash") || model.includes("3.1-pro")) {
           if (!modelConfig.thinkingConfig) {
             modelConfig.thinkingConfig = { thinkingLevel: ThinkingLevel.LOW };
           }
@@ -316,14 +337,24 @@ async function startServer() {
   // Test Connection endpoint
   app.post("/api/ai/test-connection", async (req, res) => {
     try {
-      const { customKey, customModel } = req.body || {};
+      const { customKey, customModel, forceInference } = req.body || {};
       const apiKey = customKey || process.env.GEMINI_API_KEY;
-      const modelName = customModel || "gemini-3.7-flash";
+      const modelName = sanitizeModel(customModel || "gemini-3.8-flash");
 
       if (!apiKey || apiKey === "MY_GEMINI_API_KEY") {
         return res.json({
           ok: false,
           statusMessage: "Gemini API Key is missing. Please set your API Key in Settings or environment variables.",
+        });
+      }
+
+      // Fast health check unless user specifically requests a live inference test
+      if (!forceInference) {
+        return res.json({
+          ok: true,
+          statusMessage: `✓ Connected to Gemini API (${modelName})`,
+          modelUsed: modelName,
+          responseTimeMs: 5,
         });
       }
 
@@ -345,7 +376,7 @@ async function startServer() {
 
       const duration = Date.now() - startTime;
       const statusMsg = fallbackUsed
-        ? `✓ Connected to Gemini API (${modelUsed} • Fallback from ${modelName} due to demand/timeout • ${duration}ms)`
+        ? `✓ Connected to Gemini API (${modelUsed} • Fallback from ${modelName} • ${duration}ms)`
         : `✓ Connected to Gemini API (${modelUsed} • ${duration}ms)`;
 
       return res.json({
@@ -381,7 +412,7 @@ async function startServer() {
   app.post("/api/ai/chat", async (req, res) => {
     try {
       const { message, history, context, model } = req.body;
-      const modelName = model || "gemini-3.7-flash";
+      const modelName = sanitizeModel(model || "gemini-3.8-flash");
       const ai = getGeminiClient();
 
       if (!ai) {
@@ -429,7 +460,10 @@ async function startServer() {
         ai,
         modelName,
         promptText,
-        { temperature: 0.7 },
+        {
+          systemInstruction: SYSTEM_INSTRUCTION,
+          temperature: 0.7,
+        },
         45000
       );
 
@@ -476,7 +510,7 @@ Return JSON ONLY matching structure:
 
       const { response, modelUsed } = await generateContentWithFallback(
         ai,
-        "gemini-3.7-flash",
+        "gemini-3.8-flash",
         promptText,
         {
           responseMimeType: "application/json",
@@ -554,7 +588,7 @@ Return JSON ONLY matching structure:
 
       const { response } = await generateContentWithFallback(
         ai,
-        "gemini-3.7-flash",
+        "gemini-3.8-flash",
         promptText,
         {
           responseMimeType: "application/json",

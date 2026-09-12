@@ -133,6 +133,17 @@ export * from './lesson';
 export * from './learning';
 export * from './visualLesson';
 
+export type SoundPresetType =
+  | 'auto'
+  | 'psy_rolling_bass'
+  | 'acid_303'
+  | 'deep_sub_reese'
+  | 'crystal_pluck_arp'
+  | 'supersaw_lead'
+  | 'goa_squelch_lead'
+  | 'ambient_pad_stab'
+  | 'drum_kit';
+
 export interface TrackMetrics {
   lufs: number; // e.g. -8.5
   rms: number;  // e.g. -12.1
@@ -274,4 +285,6 @@ export interface AISettings {
   enabled: boolean;
   userLevel: 'Beginner' | 'Intermediate' | 'Advanced';
 }
+
+export * from './soundDesignEducation';
 
