@@ -162,6 +162,7 @@ export const AccountView: React.FC<AccountViewProps> = ({ onOpenUpgradeModal }) 
   };
 
   const isPro = subscriptionService.isPro();
+  const isAdmin = Boolean(user?.isAdmin || user?.role === 'admin' || user?.email === 'yoalmog@gmail.com');
 
   return (
     <div className="p-4 sm:p-6 max-w-5xl mx-auto space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -177,10 +178,14 @@ export const AccountView: React.FC<AccountViewProps> = ({ onOpenUpgradeModal }) 
               <h1 className="text-xl font-bold text-white font-mono">{user?.displayName || 'Producer'}</h1>
               <span
                 className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider ${
-                  isPro ? 'bg-[#90FF00] text-black' : 'bg-[#333] text-gray-300'
+                  isAdmin
+                    ? 'bg-[#FFE853] text-black'
+                    : isPro
+                    ? 'bg-[#90FF00] text-black'
+                    : 'bg-[#333] text-gray-300'
                 }`}
               >
-                {isPro ? t('sub.proActive') : t('sub.freePlan')}
+                {isAdmin ? 'Administrator (All Features Unlocked)' : isPro ? t('sub.proActive') : t('sub.freePlan')}
               </span>
             </div>
             <p className="text-xs text-gray-400 font-mono">{user?.email || 'guest@aamc.local'}</p>
@@ -188,7 +193,11 @@ export const AccountView: React.FC<AccountViewProps> = ({ onOpenUpgradeModal }) 
         </div>
 
         <div className="flex items-center gap-3">
-          {!isPro ? (
+          {isAdmin ? (
+            <div className="py-2 px-3 bg-[#FFE853]/15 border border-[#FFE853]/40 text-[#FFE853] font-mono font-bold text-xs rounded-xl flex items-center gap-2">
+              <span>Lifetime Admin Access</span>
+            </div>
+          ) : !isPro ? (
             <button
               onClick={onOpenUpgradeModal}
               className="py-2.5 px-4 bg-[#90FF00] hover:bg-[#80EE00] text-black font-bold text-xs rounded-xl flex items-center gap-2 transition-transform cursor-pointer shadow-md"
@@ -360,32 +369,44 @@ export const AccountView: React.FC<AccountViewProps> = ({ onOpenUpgradeModal }) 
           <div className="flex items-center justify-between">
             <div>
               <span className="text-xs font-mono text-gray-400 block">{t('sub.currentPlan')}</span>
-              <h3 className="text-lg font-bold text-white uppercase font-mono">{user?.subscriptionPlan || 'FREE'}</h3>
+              <h3 className="text-lg font-bold text-white uppercase font-mono">
+                {isAdmin ? 'ADMINISTRATOR (LIFETIME ACCESS)' : user?.subscriptionPlan || 'FREE'}
+              </h3>
             </div>
             <span
               className={`px-3 py-1 rounded-full text-xs font-mono font-bold uppercase ${
-                isPro ? 'bg-[#90FF00]/20 text-[#90FF00] border border-[#90FF00]/40' : 'bg-[#333] text-gray-300'
+                isAdmin
+                  ? 'bg-[#FFE853]/20 text-[#FFE853] border border-[#FFE853]/40'
+                  : isPro
+                  ? 'bg-[#90FF00]/20 text-[#90FF00] border border-[#90FF00]/40'
+                  : 'bg-[#333] text-gray-300'
               }`}
             >
-              {user?.subscriptionStatus || 'active'}
+              {isAdmin ? 'UNLIMITED / NEVER EXPIRES' : user?.subscriptionStatus || 'active'}
             </span>
           </div>
 
           <div className="border-t border-[#2A2A2A] pt-4">
-            <h4 className="text-xs font-mono font-bold text-gray-300 uppercase mb-3">Active Plan Entitlements:</h4>
+            <h4 className="text-xs font-mono font-bold text-gray-300 uppercase mb-3">
+              {isAdmin ? 'Administrator Entitlements (All Unlocked):' : 'Active Plan Entitlements:'}
+            </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
               {Object.entries(entitlements).map(([key, val]) => (
                 <div key={key} className="flex items-center justify-between p-2.5 bg-[#141414] rounded-lg border border-[#222]">
                   <span className="text-gray-300 font-mono capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
-                  <span className={`font-bold ${val ? 'text-[#90FF00]' : 'text-gray-500'}`}>
-                    {val ? 'ALLOWED' : 'PRO ONLY'}
+                  <span className={`font-bold ${isAdmin || val ? 'text-[#90FF00]' : 'text-gray-500'}`}>
+                    {isAdmin || val ? 'UNLOCKED' : 'PRO ONLY'}
                   </span>
                 </div>
               ))}
             </div>
           </div>
 
-          {!isPro ? (
+          {isAdmin ? (
+            <div className="p-3 bg-[#FFE853]/10 border border-[#FFE853]/30 rounded-xl text-xs font-mono text-[#FFE853] flex items-center justify-between">
+              <span>All platform features and coaching modules are fully unlocked for administrator. No upgrade required.</span>
+            </div>
+          ) : !isPro ? (
             <button
               onClick={onOpenUpgradeModal}
               className="w-full py-3 bg-[#90FF00] hover:bg-[#80EE00] text-black font-bold text-xs rounded-xl flex items-center justify-center gap-2 cursor-pointer shadow-lg"

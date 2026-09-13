@@ -3,29 +3,31 @@
     "usr_yoalmog_primary": {
       "userId": "usr_yoalmog_primary",
       "email": "yoalmog@gmail.com",
-      "passwordHash": "afbe2c5edd14836692b0c48804e6257ced8b9c317e1e198a034ef6f1b80a5e8e10fccdf274011931cdaaf4391882651afe6c4d1c4381e82072f73eb585c2cf4a",
-      "displayName": "Yossi Almog",
+      "passwordHash": "36095bac79f50d433a20f29cd73978799e72680d46a739df09e8286cc1cdc63d24e23dca679f9874f99593f4e9136f58caa780f00e03ceb643bbec9cec01e799",
+      "displayName": "Yossi Almog (Administrator)",
       "language": "he",
       "createdAt": "2026-08-14T14:47:06.803Z",
-      "lastLoginAt": "2026-08-14T14:47:33.450Z",
+      "lastLoginAt": "2026-09-13T00:02:05.481Z",
       "emailVerified": true,
+      "isAdmin": true,
+      "role": "admin",
       "experienceLevel": "Advanced",
       "favoriteGenre": "Psytrance",
       "learningGoal": "Master Psytrance production & Ableton Live coaching",
       "subscriptionStatus": "active",
       "subscriptionPlan": "pro_yearly",
-      "subscriptionExpiresAt": "2027-08-14T14:47:06.804Z"
+      "subscriptionExpiresAt": null
     }
   },
   "emailToUserId": {
     "yoalmog@gmail.com": "usr_yoalmog_primary"
   },
   "sessions": {
-    "sess_db5e880ab5d7a9ecf6af1dd7ee968593956c7b375dcb6e4f25a9be16d954fe2b": {
-      "token": "sess_db5e880ab5d7a9ecf6af1dd7ee968593956c7b375dcb6e4f25a9be16d954fe2b",
+    "sess_2ba4e1cbb8ac5aa80ea25a85e5ac60469b02bdb10387ac2d0d1857a666ec0745": {
+      "token": "sess_2ba4e1cbb8ac5aa80ea25a85e5ac60469b02bdb10387ac2d0d1857a666ec0745",
       "userId": "usr_yoalmog_primary",
-      "createdAt": "2026-08-14T14:47:33.450Z",
-      "expiresAt": "2026-09-13T14:47:33.450Z"
+      "createdAt": "2026-09-13T00:02:05.481Z",
+      "expiresAt": "2026-10-13T00:02:05.481Z"
     }
   },
   "subscriptions": {
@@ -35,24 +37,27 @@
       "plan": "pro_yearly",
       "status": "active",
       "currentPeriodStart": "2026-08-14T14:47:06.803Z",
-      "currentPeriodEnd": "2027-08-14T14:47:06.804Z",
+      "currentPeriodEnd": "2099-12-31T23:59:59.999Z",
       "cancelAtPeriodEnd": false,
-      "updatedAt": "2026-08-14T14:47:06.803Z"
+      "updatedAt": "2026-09-13T00:02:02.604Z"
     }
   },
   "usage": {
     "usr_yoalmog_primary": {
-      "2026-08": {
+      "2026-09": {
         "userId": "usr_yoalmog_primary",
-        "period": "2026-08",
+        "period": "2026-09",
         "aiCloudRequestsCount": 0,
-        "aiCloudRequestsLimit": 1000,
+        "aiCloudRequestsLimit": 999999,
         "projectsCount": 1,
-        "lastRequestAt": "2026-08-14T14:47:33.451Z"
+        "lastRequestAt": "2026-09-12T17:00:00.000Z"
       }
     }
   },
   "paymentEvents": {},
   "verificationTokens": {},
-  "resetPasswordTokens": {}
+  "resetPasswordTokens": {},
+  "userProjects": {},
+  "userCourseProgress": {},
+  "courses": {}
 }

@@ -25,6 +25,8 @@ export interface UserProfile {
   subscriptionPlan: SubscriptionPlan;
   subscriptionExpiresAt?: string | null;
   isGuest?: boolean;
+  isAdmin?: boolean;
+  role?: 'admin' | 'user';
 }
 
 export interface Entitlements {
@@ -36,6 +38,8 @@ export interface Entitlements {
   trackAnalyzer: boolean;
   earTraining: boolean;
   unlimitedProjects: boolean;
+  adminPanel?: boolean;
+  allFeaturesUnlocked?: boolean;
 }
 
 export interface UsageInfo {

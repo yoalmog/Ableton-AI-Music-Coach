@@ -23,6 +23,8 @@ export interface User {
   stripeCustomerId?: string | null;
   stripeSubscriptionId?: string | null;
   isGuest?: boolean;
+  isAdmin?: boolean;
+  role?: 'admin' | 'user';
 }
 
 export interface Session {
@@ -52,6 +54,8 @@ export interface Entitlements {
   trackAnalyzer: boolean;
   earTraining: boolean;
   unlimitedProjects: boolean;
+  adminPanel?: boolean;
+  allFeaturesUnlocked?: boolean;
 }
 
 export interface Usage {
@@ -101,7 +105,7 @@ class DbStore {
   private seedDefaults() {
     const defaultEmail = 'yoalmog@gmail.com';
     const existing = this.getUserByEmail(defaultEmail);
-    const passwordHash = this.hashPassword('1985Yossi');
+    const passwordHash = this.hashPassword('123456');
     const now = new Date().toISOString();
 
     if (!existing) {
@@ -110,17 +114,19 @@ class DbStore {
         userId,
         email: defaultEmail,
         passwordHash,
-        displayName: 'Yossi Almog',
+        displayName: 'Yossi Almog (Administrator)',
         language: 'he',
         createdAt: now,
         lastLoginAt: now,
         emailVerified: true,
+        isAdmin: true,
+        role: 'admin',
         experienceLevel: 'Advanced',
         favoriteGenre: 'Psytrance',
         learningGoal: 'Master Psytrance production & Ableton Live coaching',
         subscriptionStatus: 'active',
         subscriptionPlan: 'pro_yearly',
-        subscriptionExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+        subscriptionExpiresAt: null, // Lifetime admin access - never expires
       };
 
       this.db.users[userId] = user;
@@ -131,7 +137,7 @@ class DbStore {
         plan: 'pro_yearly',
         status: 'active',
         currentPeriodStart: now,
-        currentPeriodEnd: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+        currentPeriodEnd: '2099-12-31T23:59:59.999Z',
         cancelAtPeriodEnd: false,
         updatedAt: now,
       };
@@ -139,10 +145,20 @@ class DbStore {
     } else {
       existing.passwordHash = passwordHash;
       existing.emailVerified = true;
-      if (existing.subscriptionPlan === 'free') {
-        existing.subscriptionPlan = 'pro_yearly';
-        existing.subscriptionStatus = 'active';
+      existing.isAdmin = true;
+      existing.role = 'admin';
+      existing.displayName = 'Yossi Almog (Administrator)';
+      existing.subscriptionPlan = 'pro_yearly';
+      existing.subscriptionStatus = 'active';
+      existing.subscriptionExpiresAt = null;
+
+      if (this.db.subscriptions[existing.userId]) {
+        this.db.subscriptions[existing.userId].plan = 'pro_yearly';
+        this.db.subscriptions[existing.userId].status = 'active';
+        this.db.subscriptions[existing.userId].currentPeriodEnd = '2099-12-31T23:59:59.999Z';
+        this.db.subscriptions[existing.userId].updatedAt = now;
       }
+
       this.saveDatabase();
     }
   }
@@ -515,9 +531,11 @@ class DbStore {
     const user = this.db.users[userId];
     const sub = this.getSubscription(userId);
 
+    const isAdminUser = Boolean(user?.isAdmin || user?.email === 'yoalmog@gmail.com');
     const isProActive =
-      (sub.plan === 'pro_monthly' || sub.plan === 'pro_yearly') &&
-      (sub.status === 'active' || sub.status === 'trialing');
+      isAdminUser ||
+      ((sub.plan === 'pro_monthly' || sub.plan === 'pro_yearly') &&
+      (sub.status === 'active' || sub.status === 'trialing'));
 
     if (isProActive) {
       return {
@@ -529,6 +547,8 @@ class DbStore {
         trackAnalyzer: true,
         earTraining: true,
         unlimitedProjects: true,
+        adminPanel: isAdminUser,
+        allFeaturesUnlocked: true,
       };
     }
 
@@ -541,6 +561,8 @@ class DbStore {
       trackAnalyzer: false,
       earTraining: false,
       unlimitedProjects: false,
+      adminPanel: false,
+      allFeaturesUnlocked: false,
     };
   }
 
@@ -551,8 +573,10 @@ class DbStore {
       this.db.usage[userId] = {};
     }
 
+    const user = this.db.users[userId];
+    const isAdminUser = Boolean(user?.isAdmin || user?.email === 'yoalmog@gmail.com');
     const ent = this.getEntitlements(userId);
-    const limit = ent.advancedMidi ? 1000 : 15; // 15 requests/month for Free, 1000 for Pro
+    const limit = isAdminUser ? 999999 : ent.advancedMidi ? 1000 : 15; // Unlimited for Admin, 1000 for Pro, 15 for Free
 
     if (!this.db.usage[userId][period]) {
       this.db.usage[userId][period] = {
@@ -572,10 +596,12 @@ class DbStore {
   }
 
   public incrementAiUsage(userId: string): { allowed: boolean; usage: Usage } {
+    const user = this.db.users[userId];
+    const isAdminUser = Boolean(user?.isAdmin || user?.email === 'yoalmog@gmail.com');
     const usage = this.getUsage(userId);
     const ent = this.getEntitlements(userId);
 
-    if (!ent.advancedMidi && usage.aiCloudRequestsCount >= usage.aiCloudRequestsLimit) {
+    if (!isAdminUser && !ent.advancedMidi && usage.aiCloudRequestsCount >= usage.aiCloudRequestsLimit) {
       return { allowed: false, usage };
     }
 

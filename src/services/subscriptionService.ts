@@ -33,6 +33,10 @@ class SubscriptionService {
   }
 
   public isPro(): boolean {
+    const user = authService.getCurrentUser();
+    if (user?.isAdmin || user?.role === 'admin' || user?.email === 'yoalmog@gmail.com') {
+      return true;
+    }
     const sub = this.getSubscription();
     return (
       (sub.plan === 'pro_monthly' || sub.plan === 'pro_yearly') &&
@@ -40,7 +44,16 @@ class SubscriptionService {
     );
   }
 
+  public isAdmin(): boolean {
+    const user = authService.getCurrentUser();
+    return Boolean(user?.isAdmin || user?.role === 'admin' || user?.email === 'yoalmog@gmail.com');
+  }
+
   public canUseFeature(featureKey: ProFeatureKey): boolean {
+    const user = authService.getCurrentUser();
+    if (user?.isAdmin || user?.role === 'admin' || user?.email === 'yoalmog@gmail.com') {
+      return true;
+    }
     const ent = this.getEntitlements();
     return Boolean(ent[featureKey]);
   }

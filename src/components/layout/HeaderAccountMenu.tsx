@@ -43,6 +43,7 @@ export const HeaderAccountMenu: React.FC<HeaderAccountMenuProps> = ({
 
   const isPro = subscriptionService.isPro();
   const isGuest = Boolean(user?.isGuest || authService.isGuest());
+  const isAdmin = Boolean(user?.isAdmin || user?.role === 'admin' || user?.email === 'yoalmog@gmail.com');
 
   if (!user) {
     return (
@@ -75,14 +76,16 @@ export const HeaderAccountMenu: React.FC<HeaderAccountMenuProps> = ({
 
         <span
           className={`px-1.5 py-0.2 rounded text-[9px] font-mono font-bold uppercase tracking-wider hidden sm:inline-block ${
-            isGuest
+            isAdmin
+              ? 'bg-[#FFE853] text-black'
+              : isGuest
               ? 'bg-[#183040] text-[#00E5FF]'
               : isPro
               ? 'bg-[#90FF00] text-black'
               : 'bg-[#2A2A2A] text-gray-400'
           }`}
         >
-          {isGuest ? 'Guest' : isPro ? t('header.pro') : t('header.free')}
+          {isAdmin ? 'Admin' : isGuest ? 'Guest' : isPro ? t('header.pro') : t('header.free')}
         </span>
 
         <ChevronDown className="w-3 h-3 text-gray-400" />
