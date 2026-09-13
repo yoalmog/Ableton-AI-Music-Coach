@@ -104,13 +104,35 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     setIsTesting(true);
     setTestResult(null);
     try {
+      const cleanInput = apiKeyInput.trim();
+      const isMasked = cleanInput.includes('••••');
+      const keyToUse = !isMasked && cleanInput.length > 5
+        ? cleanInput
+        : (aiSettings.apiKey && !aiSettings.apiKey.includes('••••') ? aiSettings.apiKey : undefined);
+
+      // Save valid key immediately to settings and storage
+      if (keyToUse && keyToUse !== aiSettings.apiKey) {
+        const updated = { ...aiSettings, apiKey: keyToUse };
+        setAiSettings(updated);
+        aiService.updateSettings(updated);
+      }
+
       if (aiSettings.mode === 'cloud-only' || aiSettings.mode === 'auto') {
         const cloudRes = await aiService.testConnection({
-          customKey: apiKeyInput.includes('••••') ? undefined : apiKeyInput,
+          customKey: keyToUse,
           customModel: aiSettings.cloudModel,
           forceInference: true,
         });
-        setTestResult(cloudRes);
+
+        let statusMsg = cloudRes.statusMessage;
+        if (cloudRes.ok && aiSettings.privacyMode) {
+          statusMsg += ' • (Note: Privacy Mode is currently ON. Click "Turn OFF" below to enable Cloud AI during coaching)';
+        }
+
+        setTestResult({
+          ok: cloudRes.ok,
+          statusMessage: statusMsg,
+        });
       } else {
         const localRes = await aiService.testLocalConnection();
         setTestResult({
@@ -301,6 +323,28 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           </div>
         )}
 
+        {/* Privacy Mode Notice Banner */}
+        {aiSettings.privacyMode && (
+          <div className="p-3 bg-[#1A2510] border border-[#2D4518] rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-[#90FF00]">
+            <div className="flex items-center gap-2">
+              <Lock className="w-4 h-4 shrink-0 text-[#90FF00]" />
+              <span>
+                <strong>Privacy Mode is ON (Locked).</strong> Cloud Gemini requests are blocked during coaching sessions until turned OFF.
+              </span>
+            </div>
+            <button
+              onClick={() => {
+                const updated = { ...aiSettings, privacyMode: false };
+                setAiSettings(updated);
+                aiService.updateSettings(updated);
+              }}
+              className="bg-[#90FF00] hover:bg-[#80e600] text-black text-[11px] font-bold px-3 py-1.5 rounded transition-colors cursor-pointer shrink-0"
+            >
+              Turn OFF to Allow Cloud AI
+            </button>
+          </div>
+        )}
+
         {/* Mode & Privacy Controls */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           {/* Execution Mode */}
@@ -431,6 +475,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   {showKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
+              <p className="text-[10px] text-[#777] mt-1 font-mono">
+                Connects directly to Google Gemini from this device. Click &ldquo;Test Active AI&rdquo; or &ldquo;Save Settings&rdquo; above.
+              </p>
             </div>
           </div>
         </div>
