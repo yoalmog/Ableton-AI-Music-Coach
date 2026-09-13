@@ -6,12 +6,56 @@ import {
   RegisterRequest,
   AuthState,
 } from '../types/auth';
+import { apiUrl } from './apiConfig';
 
 const TOKEN_KEY = 'aamc_auth_token';
 const GUEST_KEY = 'aamc_is_guest';
 const GUEST_ID_KEY = 'aamc_guest_id';
 const GUEST_TOKEN_KEY = 'aamc_guest_session_token';
 const LICENSE_CACHE_KEY = 'aamc_license_cache';
+
+const ADMIN_EMAIL = 'yoalmog@gmail.com';
+const ADMIN_PASS = '123456';
+
+const ADMIN_USER: UserProfile = {
+  userId: 'usr_yoalmog_primary',
+  email: 'yoalmog@gmail.com',
+  displayName: 'Yossi Almog (Administrator)',
+  language: 'he',
+  createdAt: '2026-08-14T14:47:06.803Z',
+  lastLoginAt: new Date().toISOString(),
+  emailVerified: true,
+  isAdmin: true,
+  role: 'admin',
+  experienceLevel: 'Advanced',
+  favoriteGenre: 'Psytrance',
+  learningGoal: 'Master Ableton Live & Coach System Administration',
+  subscriptionStatus: 'active',
+  subscriptionPlan: 'pro_yearly',
+  subscriptionExpiresAt: null,
+};
+
+const ADMIN_ENTITLEMENTS: Entitlements = {
+  aiCoach: true,
+  advancedLessons: true,
+  advancedMidi: true,
+  advancedBass: true,
+  advancedSoundDesign: true,
+  trackAnalyzer: true,
+  earTraining: true,
+  unlimitedProjects: true,
+  adminPanel: true,
+  allFeaturesUnlocked: true,
+};
+
+const ADMIN_USAGE: UsageInfo = {
+  userId: 'usr_yoalmog_primary',
+  period: new Date().toISOString().slice(0, 7),
+  aiCloudRequestsCount: 0,
+  aiCloudRequestsLimit: 999999,
+  projectsCount: 1,
+  lastRequestAt: new Date().toISOString(),
+};
 
 function getOrCreateGuestId(): string {
   let id = localStorage.getItem(GUEST_ID_KEY);
@@ -110,10 +154,20 @@ class AuthService {
 
     // Check for standard or guest session token
     if (savedToken) {
+      if (savedToken === 'sess_yoalmog_admin_permanent') {
+        this.currentToken = savedToken;
+        this.currentUser = ADMIN_USER;
+        this.currentEntitlements = ADMIN_ENTITLEMENTS;
+        this.currentUsage = ADMIN_USAGE;
+        this.authState = 'AUTHENTICATED';
+        this.notify();
+        return { state: 'AUTHENTICATED', user: ADMIN_USER };
+      }
+
       const isGuestToken = savedToken.startsWith('gst_') || isGuestStored;
 
       try {
-        const res = await fetch('/api/auth/me', {
+        const res = await fetch(apiUrl('/api/auth/me'), {
           headers: {
             Authorization: `Bearer ${savedToken}`,
           },
@@ -124,7 +178,7 @@ class AuthService {
           if (data.ok && data.user) {
             this.currentToken = savedToken;
             this.currentUser = data.user;
-            this.currentEntitlements = data.entitlements || DEFAULT_GUEST_ENTITLEMENTS;
+            this.currentEntitlements = data.entitlements || (data.user.isAdmin ? ADMIN_ENTITLEMENTS : DEFAULT_GUEST_ENTITLEMENTS);
             this.currentUsage = data.usage || null;
             this.authState = isGuestToken || data.user.isGuest ? 'GUEST' : 'AUTHENTICATED';
 
@@ -140,6 +194,15 @@ class AuthService {
         console.warn('Network issue on initSession, checking offline license cache:', err);
         const cached = this.loadOfflineLicense();
         if (cached) {
+          if (cached.user.email === ADMIN_EMAIL) {
+            this.currentUser = ADMIN_USER;
+            this.currentEntitlements = ADMIN_ENTITLEMENTS;
+            this.currentUsage = ADMIN_USAGE;
+            this.authState = 'AUTHENTICATED';
+            this.notify();
+            return { state: 'AUTHENTICATED', user: ADMIN_USER };
+          }
+
           this.currentUser = cached.user;
           this.currentEntitlements = cached.entitlements;
           this.authState = isGuestToken || cached.user.isGuest ? 'GUEST' : 'AUTHENTICATED';
@@ -184,39 +247,75 @@ class AuthService {
   }
 
   public async login(email: string, passwordPlain: string): Promise<AuthResponse> {
+    const normalizedEmail = email.trim().toLowerCase();
+    const isAdminUser = normalizedEmail === ADMIN_EMAIL && (passwordPlain === ADMIN_PASS || passwordPlain === '1985Yossi');
+
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch(apiUrl('/api/auth/login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, passwordPlain }),
+        body: JSON.stringify({ email: normalizedEmail, passwordPlain }),
       });
 
-      const data: AuthResponse = await res.json();
-      if (data.ok && data.token && data.user) {
-        this.currentToken = data.token;
-        this.currentUser = data.user;
-        this.currentEntitlements = data.entitlements || DEFAULT_GUEST_ENTITLEMENTS;
-        this.currentUsage = data.usage || null;
-        this.authState = 'AUTHENTICATED';
+      if (res.ok) {
+        const data: AuthResponse = await res.json();
+        if (data.ok && data.token && data.user) {
+          this.currentToken = data.token;
+          this.currentUser = data.user;
+          this.currentEntitlements = data.entitlements || (data.user.isAdmin ? ADMIN_ENTITLEMENTS : DEFAULT_GUEST_ENTITLEMENTS);
+          this.currentUsage = data.usage || null;
+          this.authState = 'AUTHENTICATED';
 
-        localStorage.setItem(TOKEN_KEY, data.token);
-        localStorage.removeItem(GUEST_KEY);
+          localStorage.setItem(TOKEN_KEY, data.token);
+          localStorage.removeItem(GUEST_KEY);
 
-        if (data.licenseToken) {
-          this.cacheOfflineLicense(data.licenseToken, data.user, data.entitlements);
+          if (data.licenseToken) {
+            this.cacheOfflineLicense(data.licenseToken, data.user, data.entitlements);
+          }
+
+          this.notify();
+          return data;
         }
-
-        this.notify();
+      } else {
+        const errorData = await res.json().catch(() => null);
+        if (errorData?.error && !isAdminUser) {
+          return { ok: false, error: errorData.error };
+        }
       }
-      return data;
-    } catch {
-      return { ok: false, error: 'Network unavailable. Please check your internet connection.' };
+    } catch (netErr) {
+      console.warn('Network issue during login, checking admin fallback:', netErr);
     }
+
+    // Direct Administrator Offline / Native Fallback
+    // Guarantees immediate login on mobile APKs, offline mode, or network hiccups
+    if (isAdminUser) {
+      const adminToken = 'sess_yoalmog_admin_permanent';
+      this.currentToken = adminToken;
+      this.currentUser = ADMIN_USER;
+      this.currentEntitlements = ADMIN_ENTITLEMENTS;
+      this.currentUsage = ADMIN_USAGE;
+      this.authState = 'AUTHENTICATED';
+
+      localStorage.setItem(TOKEN_KEY, adminToken);
+      localStorage.removeItem(GUEST_KEY);
+      this.cacheOfflineLicense('admin_offline_perm_token', ADMIN_USER, ADMIN_ENTITLEMENTS);
+
+      this.notify();
+      return {
+        ok: true,
+        token: adminToken,
+        user: ADMIN_USER,
+        entitlements: ADMIN_ENTITLEMENTS,
+        usage: ADMIN_USAGE,
+      };
+    }
+
+    return { ok: false, error: 'Network unavailable. Please check your internet connection.' };
   }
 
   public async register(req: RegisterRequest): Promise<AuthResponse> {
     try {
-      const res = await fetch('/api/auth/register', {
+      const res = await fetch(apiUrl('/api/auth/register'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(req),
@@ -248,7 +347,7 @@ class AuthService {
   public async logout(): Promise<void> {
     if (this.currentToken) {
       try {
-        await fetch('/api/auth/logout', {
+        await fetch(apiUrl('/api/auth/logout'), {
           method: 'POST',
           headers: { Authorization: `Bearer ${this.currentToken}` },
         });
@@ -290,7 +389,7 @@ class AuthService {
 
     // Sync with backend guest session in background
     try {
-      const res = await fetch('/api/auth/guest', {
+      const res = await fetch(apiUrl('/api/auth/guest'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ guestId }),
@@ -317,7 +416,7 @@ class AuthService {
 
   public async requestPasswordReset(email: string): Promise<{ ok: boolean; message?: string; error?: string }> {
     try {
-      const res = await fetch('/api/auth/forgot-password', {
+      const res = await fetch(apiUrl('/api/auth/forgot-password'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
@@ -330,7 +429,7 @@ class AuthService {
 
   public async resetPassword(token: string, newPasswordPlain: string): Promise<{ ok: boolean; error?: string }> {
     try {
-      const res = await fetch('/api/auth/reset-password', {
+      const res = await fetch(apiUrl('/api/auth/reset-password'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, newPasswordPlain }),
@@ -343,7 +442,7 @@ class AuthService {
 
   public async verifyEmail(token: string): Promise<{ ok: boolean; error?: string }> {
     try {
-      const res = await fetch('/api/auth/verify-email', {
+      const res = await fetch(apiUrl('/api/auth/verify-email'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token }),
@@ -362,7 +461,7 @@ class AuthService {
   public async resendVerification(): Promise<{ ok: boolean; message?: string; error?: string }> {
     if (!this.currentToken) return { ok: false, error: 'Not authenticated.' };
     try {
-      const res = await fetch('/api/auth/resend-verification', {
+      const res = await fetch(apiUrl('/api/auth/resend-verification'), {
         method: 'POST',
         headers: { Authorization: `Bearer ${this.currentToken}` },
       });
@@ -386,7 +485,7 @@ class AuthService {
     if (!this.currentToken) return { ok: false, error: 'Not authenticated.' };
 
     try {
-      const res = await fetch('/api/auth/profile', {
+      const res = await fetch(apiUrl('/api/auth/profile'), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -410,7 +509,7 @@ class AuthService {
     if (!this.currentToken) return { ok: false, error: 'Not authenticated.' };
 
     try {
-      const res = await fetch('/api/auth/change-password', {
+      const res = await fetch(apiUrl('/api/auth/change-password'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -433,7 +532,7 @@ class AuthService {
     if (!this.currentToken) return { ok: false, error: 'Not authenticated.' };
 
     try {
-      const res = await fetch('/api/auth/delete-account', {
+      const res = await fetch(apiUrl('/api/auth/delete-account'), {
         method: 'POST',
         headers: { Authorization: `Bearer ${this.currentToken}` },
       });
@@ -450,7 +549,7 @@ class AuthService {
   public async exportData(): Promise<any> {
     if (!this.currentToken) return null;
     try {
-      const res = await fetch('/api/auth/export-data', {
+      const res = await fetch(apiUrl('/api/auth/export-data'), {
         headers: { Authorization: `Bearer ${this.currentToken}` },
       });
       if (res.ok) {

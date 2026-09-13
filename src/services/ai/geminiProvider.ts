@@ -1,4 +1,5 @@
 import { AIProvider, AIModel, AIHealth, AIRequest, AIResponse } from './aiTypes';
+import { apiUrl } from '../apiConfig';
 
 export class GeminiProvider implements AIProvider {
   public id = 'gemini';
@@ -66,7 +67,7 @@ export class GeminiProvider implements AIProvider {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000);
 
-      const response = await fetch('/api/ai/test-connection', {
+      const response = await fetch(apiUrl('/api/ai/test-connection'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -148,7 +149,7 @@ export class GeminiProvider implements AIProvider {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 35000);
 
-      const response = await fetch('/api/ai/chat', {
+      const response = await fetch(apiUrl('/api/ai/chat'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

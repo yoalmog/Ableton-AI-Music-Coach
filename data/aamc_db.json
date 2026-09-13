@@ -7,7 +7,7 @@
       "displayName": "Yossi Almog (Administrator)",
       "language": "he",
       "createdAt": "2026-08-14T14:47:06.803Z",
-      "lastLoginAt": "2026-09-13T00:02:05.481Z",
+      "lastLoginAt": "2026-09-13T00:13:11.700Z",
       "emailVerified": true,
       "isAdmin": true,
       "role": "admin",
@@ -28,6 +28,12 @@
       "userId": "usr_yoalmog_primary",
       "createdAt": "2026-09-13T00:02:05.481Z",
       "expiresAt": "2026-10-13T00:02:05.481Z"
+    },
+    "sess_860de576ac8930fb5db0ca9d19e0fa8a777b050ea261d55a4ea93974cc87ba39": {
+      "token": "sess_860de576ac8930fb5db0ca9d19e0fa8a777b050ea261d55a4ea93974cc87ba39",
+      "userId": "usr_yoalmog_primary",
+      "createdAt": "2026-09-13T00:13:11.700Z",
+      "expiresAt": "2026-10-13T00:13:11.700Z"
     }
   },
   "subscriptions": {
@@ -39,7 +45,7 @@
       "currentPeriodStart": "2026-08-14T14:47:06.803Z",
       "currentPeriodEnd": "2099-12-31T23:59:59.999Z",
       "cancelAtPeriodEnd": false,
-      "updatedAt": "2026-09-13T00:02:02.604Z"
+      "updatedAt": "2026-09-13T00:13:09.970Z"
     }
   },
   "usage": {

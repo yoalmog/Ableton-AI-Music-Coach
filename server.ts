@@ -15,6 +15,18 @@ const OLLAMA_DEFAULT_URL = process.env.OLLAMA_URL || "http://localhost:11434";
 
 async function startServer() {
   const app = express();
+
+  // Enable CORS for mobile apps, Capacitor, and remote clients
+  app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+    if (req.method === "OPTIONS") {
+      return res.sendStatus(200);
+    }
+    next();
+  });
+
   app.use(express.json({ limit: "10mb" }));
 
   // Mount API routers

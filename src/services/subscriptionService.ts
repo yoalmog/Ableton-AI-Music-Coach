@@ -1,5 +1,6 @@
 import { authService } from './authService';
 import { Entitlements, SubscriptionPlan, SubscriptionStatus, UsageInfo } from '../types/auth';
+import { apiUrl } from './apiConfig';
 
 export type ProFeatureKey =
   | 'aiCoach'
@@ -73,7 +74,7 @@ class SubscriptionService {
     }
 
     try {
-      const res = await fetch('/api/payments/create-checkout-session', {
+      const res = await fetch(apiUrl('/api/payments/create-checkout-session'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -97,7 +98,7 @@ class SubscriptionService {
     if (!token) return { ok: false, error: 'Not authenticated.' };
 
     try {
-      const res = await fetch('/api/payments/create-portal-session', {
+      const res = await fetch(apiUrl('/api/payments/create-portal-session'), {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       });

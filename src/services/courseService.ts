@@ -1,6 +1,7 @@
 import { Course, CourseModule, Lesson } from '../types/lesson';
 import { COURSES_DATA } from '../data/coursesData';
 import { debugLog } from '../utils/debug';
+import { apiUrl } from './apiConfig';
 
 const LOCAL_COURSES_KEY = 'aamc_custom_courses_v1';
 
@@ -23,7 +24,7 @@ export class CourseService {
    */
   public async getCourses(): Promise<Course[]> {
     try {
-      const res = await fetch('/api/courses');
+      const res = await fetch(apiUrl('/api/courses'));
       if (res.ok) {
         const data = await res.json();
         if (data.ok && Array.isArray(data.courses) && data.courses.length > 0) {
@@ -84,7 +85,7 @@ export class CourseService {
 
     try {
       const token = getAuthToken();
-      const res = await fetch('/api/courses', {
+      const res = await fetch(apiUrl('/api/courses'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

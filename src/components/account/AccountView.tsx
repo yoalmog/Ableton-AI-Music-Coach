@@ -21,6 +21,7 @@ import { subscriptionService } from '../../services/subscriptionService';
 import { aiService } from '../../services/aiService';
 import { useLanguage } from '../../context/LanguageContext';
 import { UserProfile, Entitlements, UsageInfo } from '../../types/auth';
+import { apiUrl } from '../../services/apiConfig';
 
 interface AccountViewProps {
   onOpenUpgradeModal: () => void;
@@ -143,7 +144,7 @@ export const AccountView: React.FC<AccountViewProps> = ({ onOpenUpgradeModal }) 
     if (!user) return;
     setSimLoading(true);
     try {
-      const res = await fetch('/api/payments/simulate-webhook', {
+      const res = await fetch(apiUrl('/api/payments/simulate-webhook'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
