@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Settings,
   Monitor,
@@ -21,7 +21,9 @@ import {
   Lock,
   Cloud,
   ShieldCheck,
-  HardDrive
+  HardDrive,
+  Radio,
+  Sliders,
 } from 'lucide-react';
 import { desktopService } from '../../services/desktopService';
 import { aiService } from '../../services/aiService';
@@ -33,6 +35,7 @@ import { AndroidLocalAISetupView } from '../ai/AndroidLocalAISetupView';
 import { aiRouter } from '../../services/ai/aiRouter';
 import { AISettings, AIMode } from '../../services/ai/aiTypes';
 import { debugLog } from '../../utils/debug';
+import { AbletonLiveSettingsPanel } from './AbletonLiveSettingsPanel';
 
 interface SettingsViewProps {
   project: AAMCProject;
@@ -51,6 +54,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 }) => {
   const { language, setLanguage, t, supportedLanguages, currentLanguageConfig, isRTL } = useLanguage();
 
+  const [activeTab, setActiveTab] = useState<'ableton' | 'ai' | 'language' | 'system'>('ableton');
   const [platform, setPlatform] = React.useState('detecting...');
   const [version, setVersion] = React.useState('1.0.0');
   const [userDataPath, setUserDataPath] = React.useState('Detecting...');
@@ -216,57 +220,64 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </div>
       </div>
 
-      {/* INTERNATIONALIZATION (i18n) LANGUAGE SELECTOR */}
-      <div className="bg-[#1A1A1A] border border-[#333] rounded-lg p-5 space-y-4">
-        <div className="flex items-center gap-2.5 border-b border-[#2A2A2A] pb-3">
-          <div className="w-7 h-7 rounded bg-[#00E5FF] text-black flex items-center justify-center font-bold">
-            <Languages className="w-4 h-4" />
-          </div>
-          <div>
-            <h2 className="text-sm font-bold text-white uppercase tracking-wider">
-              {t('settings.language')}
-            </h2>
-            <p className="text-xs text-[#888]">
-              {t('settings.availableLanguages')} • {t('settings.currentLanguage')}: <span className="text-[#90FF00] font-bold">{currentLanguageConfig.nativeName} ({currentLanguageConfig.name})</span>
-            </p>
-          </div>
-        </div>
+      {/* Navigation Tabs */}
+      <div className="flex items-center gap-2 border-b border-[#333] pb-2 overflow-x-auto">
+        <button
+          onClick={() => setActiveTab('ableton')}
+          className={`px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
+            activeTab === 'ableton'
+              ? 'bg-[#90FF00] text-black shadow-md'
+              : 'bg-[#181818] hover:bg-[#222] text-[#AAA]'
+          }`}
+        >
+          <Radio className="w-3.5 h-3.5" />
+          <span>Ableton Live 12 Connection</span>
+        </button>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-          {supportedLanguages.map((langConfig) => {
-            const isSelected = language === langConfig.code;
-            return (
-              <button
-                key={langConfig.code}
-                onClick={() => setLanguage(langConfig.code as Language)}
-                className={`p-3 rounded-lg border flex flex-col justify-between transition-all cursor-pointer text-left ${
-                  isSelected
-                    ? 'bg-[#142810] border-[#90FF00] text-white shadow-lg'
-                    : 'bg-[#121212] border-[#2A2A2A] hover:bg-[#1C1C1C] text-[#AAA]'
-                }`}
-              >
-                <div className="flex items-center justify-between w-full">
-                  <span className="text-xs font-bold text-white">{langConfig.nativeName}</span>
-                  <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded border ${
-                    langConfig.dir === 'rtl' ? 'bg-[#2A1414] text-[#FF9999] border-[#552222]' : 'bg-[#12242A] text-[#00E5FF] border-[#224455]'
-                  }`}>
-                    {langConfig.dir.toUpperCase()}
-                  </span>
-                </div>
+        <button
+          onClick={() => setActiveTab('ai')}
+          className={`px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
+            activeTab === 'ai'
+              ? 'bg-[#90FF00] text-black shadow-md'
+              : 'bg-[#181818] hover:bg-[#222] text-[#AAA]'
+          }`}
+        >
+          <Cpu className="w-3.5 h-3.5" />
+          <span>AI Engine & Models</span>
+        </button>
 
-                <div className="flex items-center justify-between w-full mt-2 pt-2 border-t border-[#252525]">
-                  <span className="text-[10px] text-[#777] font-mono">{langConfig.name}</span>
-                  {isSelected && (
-                    <CheckCircle className="w-3.5 h-3.5 text-[#90FF00]" />
-                  )}
-                </div>
-              </button>
-            );
-          })}
-        </div>
+        <button
+          onClick={() => setActiveTab('language')}
+          className={`px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
+            activeTab === 'language'
+              ? 'bg-[#90FF00] text-black shadow-md'
+              : 'bg-[#181818] hover:bg-[#222] text-[#AAA]'
+          }`}
+        >
+          <Languages className="w-3.5 h-3.5" />
+          <span>Language ({currentLanguageConfig.name})</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('system')}
+          className={`px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
+            activeTab === 'system'
+              ? 'bg-[#90FF00] text-black shadow-md'
+              : 'bg-[#181818] hover:bg-[#222] text-[#AAA]'
+          }`}
+        >
+          <Monitor className="w-3.5 h-3.5" />
+          <span>Appearance & System</span>
+        </button>
       </div>
 
-      {/* LOCAL-FIRST AI ENGINE CONFIGURATION PANEL */}
+      {/* Tab 1: Real Ableton Live 12 Connection */}
+      {activeTab === 'ableton' && (
+        <AbletonLiveSettingsPanel />
+      )}
+
+      {/* Tab 2: AI Engine & Models */}
+      {activeTab === 'ai' && (
       <div className="bg-[#1A1A1A] border border-[#333] rounded-lg p-5 space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#2A2A2A] pb-3">
           <div className="flex items-center gap-2.5">
@@ -525,7 +536,62 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           </div>
         </div>
       </div>
+      )}
 
+      {/* Tab 3: Language */}
+      {activeTab === 'language' && (
+      <div className="bg-[#1A1A1A] border border-[#333] rounded-lg p-5 space-y-4">
+        <div className="flex items-center gap-2.5 border-b border-[#2A2A2A] pb-3">
+          <div className="w-7 h-7 rounded bg-[#00E5FF] text-black flex items-center justify-center font-bold">
+            <Languages className="w-4 h-4" />
+          </div>
+          <div>
+            <h2 className="text-sm font-bold text-white uppercase tracking-wider">
+              {t('settings.language')}
+            </h2>
+            <p className="text-xs text-[#888]">
+              {t('settings.availableLanguages')} • {t('settings.currentLanguage')}: <span className="text-[#90FF00] font-bold">{currentLanguageConfig.nativeName} ({currentLanguageConfig.name})</span>
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+          {supportedLanguages.map((langConfig) => {
+            const isSelected = language === langConfig.code;
+            return (
+              <button
+                key={langConfig.code}
+                onClick={() => setLanguage(langConfig.code as Language)}
+                className={`p-3 rounded-lg border flex flex-col justify-between transition-all cursor-pointer text-left ${
+                  isSelected
+                    ? 'bg-[#142810] border-[#90FF00] text-white shadow-lg'
+                    : 'bg-[#121212] border-[#2A2A2A] hover:bg-[#1C1C1C] text-[#AAA]'
+                }`}
+              >
+                <div className="flex items-center justify-between w-full">
+                  <span className="text-xs font-bold text-white">{langConfig.nativeName}</span>
+                  <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded border ${
+                    langConfig.dir === 'rtl' ? 'bg-[#2A1414] text-[#FF9999] border-[#552222]' : 'bg-[#12242A] text-[#00E5FF] border-[#224455]'
+                  }`}>
+                    {langConfig.dir.toUpperCase()}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between w-full mt-2 pt-2 border-t border-[#252525]">
+                  <span className="text-[10px] text-[#777] font-mono">{langConfig.name}</span>
+                  {isSelected && (
+                    <CheckCircle className="w-3.5 h-3.5 text-[#90FF00]" />
+                  )}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+      )}
+
+      {/* Tab 4: System & Appearance */}
+      {activeTab === 'system' && (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Environment Details */}
         <div className="bg-[#1A1A1A] border border-[#333] rounded-lg p-5 space-y-4">
@@ -619,6 +685,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 };

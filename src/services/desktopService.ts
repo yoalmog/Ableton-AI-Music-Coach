@@ -32,6 +32,23 @@ declare global {
         generatePattern: (params: any) => Promise<{ pattern: any; offline?: boolean }>;
         analyzeTrack: (params: any) => Promise<{ analysis: any; offline?: boolean }>;
       };
+      ableton?: {
+        getStatus: () => Promise<any>;
+        scanProcesses: () => Promise<any>;
+        connect: () => Promise<any>;
+        disconnect: () => Promise<any>;
+        sendTransport: (action: 'play' | 'stop', bpm?: number) => Promise<any>;
+        sendTempo: (bpm: number) => Promise<any>;
+        sendTrackControl: (params: any) => Promise<any>;
+        sendMidiNote: (params: { channel: number; pitch: number; velocity: number; durationMs: number }) => Promise<any>;
+        exportM4LDevice: () => Promise<any>;
+        revealAudioFile: (relativePath: string) => Promise<any>;
+        saveMappings: (params: { mappings?: any[]; routing?: any[] }) => Promise<any>;
+        onStateUpdate: (callback: (state: any) => void) => () => void;
+        onTransportUpdate: (callback: (transport: any) => void) => () => void;
+        onTracksUpdate: (callback: (tracks: any[]) => void) => () => void;
+        onMenuAction: (callback: (action: string, payload?: any) => void) => () => void;
+      };
     };
   }
 }

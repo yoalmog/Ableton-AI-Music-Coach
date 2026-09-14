@@ -41,6 +41,8 @@ import { subscriptionService } from './services/subscriptionService';
 import { projectService } from './services/projectService';
 import { desktopService } from './services/desktopService';
 import { aiService } from './services/aiService';
+import { abletonIntegrationService } from './services/abletonIntegrationService';
+import { AbletonIntegrationFullState } from './types/abletonIntegration';
 import { AAMCProject, ViewType } from './types';
 import { useLanguage } from './context/LanguageContext';
 import { getInitialTheme, applyTheme, ThemeMode } from './utils/themeSync';
@@ -49,6 +51,7 @@ export function AppContent() {
   const { dir } = useLanguage();
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
   const [project, setProject] = useState<AAMCProject>(() => projectService.getActiveProject());
+  const [abletonState, setAbletonState] = useState<AbletonIntegrationFullState>(abletonIntegrationService.getState());
   const [isCoachOpen, setIsCoachOpen] = useState(false);
   const [coachInitialMsg, setCoachInitialMsg] = useState<string | undefined>(undefined);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -81,6 +84,11 @@ export function AppContent() {
       } else {
         setIsAuthModalOpen(false);
       }
+    });
+
+    // Subscribe to Ableton Integration state updates
+    const unsubscribeAbleton = abletonIntegrationService.subscribe((abState) => {
+      setAbletonState(abState);
     });
 
     // Startup Session & Subscription verification
@@ -431,12 +439,41 @@ export function AppContent() {
       {/* Studio Status Footer */}
       <footer className="hidden md:flex h-6 bg-[#1A1A1A] border-t border-[#333] px-4 items-center justify-between text-[10px] text-[#666] font-mono select-none z-20 shrink-0">
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5">
-            <div className="w-1.5 h-1.5 rounded-full bg-[#E5A500]" />
-            <span className="text-[#999]">ABLETON: MANUAL MODE</span>
-          </div>
-          <span className="hidden sm:inline">OFFLINE PLAYBACK</span>
-          <span className="hidden md:inline">44.1 kHz / 24-BIT</span>
+          <button
+            onClick={() => setCurrentView('settings')}
+            className="flex items-center gap-1.5 hover:text-white transition-colors cursor-pointer"
+            title="Click to open Ableton Live Connection settings"
+          >
+            <div
+              className={`w-1.5 h-1.5 rounded-full ${
+                abletonState.status === 'CONNECTED'
+                  ? 'bg-[#90FF00] shadow-[0_0_6px_#90FF00]'
+                  : abletonState.status === 'DETECTING'
+                  ? 'bg-[#FFB800] animate-pulse'
+                  : 'bg-[#555]'
+              }`}
+            />
+            <span
+              className={`font-bold ${
+                abletonState.status === 'CONNECTED'
+                  ? 'text-[#90FF00]'
+                  : abletonState.status === 'DETECTING'
+                  ? 'text-[#FFB800]'
+                  : 'text-[#888]'
+              }`}
+            >
+              {abletonState.status === 'CONNECTED'
+                ? `LIVE 12 CONNECTED (${abletonState.bridge.latencyMs || 1}ms)`
+                : abletonState.status === 'DETECTING'
+                ? 'LIVE 12 DETECTED'
+                : 'SIMULATOR MODE'}
+            </span>
+          </button>
+          <span className="hidden sm:inline">
+            LINK: {abletonState.link.isConnected ? `${abletonState.link.peers} PEER` : 'OFF'}
+          </span>
+          <span className="hidden md:inline">BPM: {abletonState.transport.bpm}</span>
+          <span className="hidden lg:inline">44.1 kHz / 24-BIT</span>
         </div>
         <div className="flex items-center gap-3">
           <span className="hidden sm:inline">GENRE: {project.genre.toUpperCase()}</span>

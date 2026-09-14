@@ -59,6 +59,69 @@ const apiBridge = {
       };
     },
   },
+
+  // Ableton Live 12 Dedicated Integration Bridge
+  ableton: {
+    getStatus: () => ipcRenderer.invoke('ableton:get-status'),
+    scanProcesses: () => ipcRenderer.invoke('ableton:scan-processes'),
+    connect: () => ipcRenderer.invoke('ableton:connect'),
+    disconnect: () => ipcRenderer.invoke('ableton:disconnect'),
+    sendTransport: (action: 'play' | 'stop', bpm?: number) => ipcRenderer.invoke('ableton:send-transport', { action, bpm }),
+    sendTempo: (bpm: number) => ipcRenderer.invoke('ableton:send-tempo', { bpm }),
+    sendTrackControl: (params: any) => ipcRenderer.invoke('ableton:send-track-control', params),
+    sendMidiNote: (params: { channel: number; pitch: number; velocity: number; durationMs: number }) =>
+      ipcRenderer.invoke('ableton:send-midi-note', params),
+    exportM4LDevice: () => ipcRenderer.invoke('ableton:export-m4l-device'),
+    revealAudioFile: (relativePath: string) => ipcRenderer.invoke('ableton:reveal-audio-file', { relativePath }),
+    saveMappings: (params: { mappings?: any[]; routing?: any[] }) => ipcRenderer.invoke('ableton:save-mappings', params),
+    
+    // Event listeners
+    onStateUpdate: (callback: (state: any) => void) => {
+      const listener = (_event: any, state: any) => callback(state);
+      ipcRenderer.on('ableton:state-update', listener);
+      return () => {
+        ipcRenderer.removeListener('ableton:state-update', listener);
+      };
+    },
+    onTransportUpdate: (callback: (transport: any) => void) => {
+      const listener = (_event: any, transport: any) => callback(transport);
+      ipcRenderer.on('ableton:transport-update', listener);
+      return () => {
+        ipcRenderer.removeListener('ableton:transport-update', listener);
+      };
+    },
+    onTracksUpdate: (callback: (tracks: any[]) => void) => {
+      const listener = (_event: any, tracks: any[]) => callback(tracks);
+      ipcRenderer.on('ableton:tracks-update', listener);
+      return () => {
+        ipcRenderer.removeListener('ableton:tracks-update', listener);
+      };
+    },
+    onMenuAction: (callback: (action: string, payload?: any) => void) => {
+      const channels = [
+        'menu:new-project',
+        'menu:open-project',
+        'menu:save-project',
+        'menu:save-project-as',
+        'menu:export-midi',
+        'menu:open-ableton-panel',
+        'menu:export-m4l',
+        'menu:toggle-link',
+        'menu:toggle-midi-learn',
+        'menu:navigate',
+        'menu:open-ableton-help',
+        'menu:open-coach',
+      ];
+      const listeners = channels.map((ch) => {
+        const handler = (_event: any, payload: any) => callback(ch, payload);
+        ipcRenderer.on(ch, handler);
+        return { ch, handler };
+      });
+      return () => {
+        listeners.forEach(({ ch, handler }) => ipcRenderer.removeListener(ch, handler));
+      };
+    },
+  },
 };
 
 contextBridge.exposeInMainWorld('desktopAPI', apiBridge);

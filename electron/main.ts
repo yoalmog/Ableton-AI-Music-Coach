@@ -5,11 +5,13 @@ import os from 'os';
 import http from 'http';
 import { spawn, exec } from 'child_process';
 import { GoogleGenAI } from '@google/genai';
+import { AbletonIntegrationMain } from './ableton/AbletonIntegrationMain';
 
 let mainWindow: BrowserWindow | null = null;
 let splashWindow: BrowserWindow | null = null;
 let appReadyTriggered = false;
 let activePullReq: http.ClientRequest | null = null;
+let abletonIntegration: AbletonIntegrationMain | null = null;
 
 const boundsFilePath = () => path.join(app.getPath('userData'), 'window-bounds.json');
 const aiSettingsPath = () => path.join(app.getPath('userData'), 'ai-settings.json');
@@ -323,6 +325,13 @@ function createWindow() {
   }
 
   mainWindow = new BrowserWindow(windowOptions);
+
+  try {
+    abletonIntegration = new AbletonIntegrationMain();
+    abletonIntegration.init(mainWindow);
+  } catch (err) {
+    console.error('Failed to initialize AbletonIntegrationMain:', err);
+  }
 
   mainWindow.once('ready-to-show', () => {
     setTimeout(() => {
